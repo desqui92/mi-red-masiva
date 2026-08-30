@@ -211,21 +211,21 @@ def buscar_videos_yt(query: str) -> list:
     logger.info(f"Videos encontrados ({len(video_ids)}): {video_ids}")
     return video_ids
 
-def descargar_audio_youtube(video_id: str) -> str:
+def descargar_audio_youtube(video_id):
     url = f"https://www.youtube.com/watch?v={video_id}"
-    nombre_base = f"audio_{video_id}"
-    logger.info(f"Descargando audio yt_dlp desde {url}...")
     ydl_opts = {
         'format': 'm4a/bestaudio/best',
-        'outtmpl': f"{nombre_base}.%(ext)s",
-        'quiet': False,
-        'no_warnings': False,
+        'quiet': True,
+        'no_warnings': True,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'ios']
+            }
+        }
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info)
-        logger.info(f"Audio descargado: {filename}")
-        return filename
+        return ydl.prepare_filename(info)
 
 def obtener_contexto_video(video_id: str) -> str:
     archivo_audio = descargar_audio_youtube(video_id)
