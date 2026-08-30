@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import time
+import yt_dlp
 import random
 from slugify import slugify
 from googleapiclient.discovery import build
@@ -228,38 +229,66 @@ def buscar_videos_yt(query: str) -> list:
         print(f"    Error buscando en YouTube: {e}")
         return []
 
-def obtener_contexto_video(video_id: str) -> str:
-    title, desc = "", ""
-    try:
-        req = yt_client.videos().list(part="snippet", id=video_id)
-        res = req.execute()
-        items = res.get("items", [])
-        if items:
-            title = items[0]["snippet"].get("title", "")
-            desc = items[0]["snippet"].get("description", "")
-    except Exception:
-        pass
 
-    subtitulos = None
-    try:
-        data = YouTubeTranscriptApi.get_transcript(video_id, languages=['es', 'en', 'es-419', 'en-US'])
-        subtitulos = " ".join([x['text'] for x in data])
-    except Exception:
-        try:
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-            for t in transcript_list:
-                data = t.fetch()
-                subtitulos = " ".join([x['text'] for x in data])
-                break
-        except Exception:
-            subtitulos = None
 
-    if subtitulos:
-        return f"Título: {title}\nSubtítulos: {subtitulos}"
-    elif title:
-        return f"Título del video: {title}\nDescripción: {desc}"
+def descargar_audio_youtube(video_id: str) -> str:
+    """Descarga solo el audio del video en formato ligero."""
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    nombre_base = f"audio_{video_id}"
     
-    return None
+    ydl_opts = {
+        'format': 'm4a/bestaudio/best',
+        'outtmpl': f"{nombre_base}.%(ext)s",
+        'quiet': True,
+        'no_warnings': True,
+    }
+    
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        filename = ydl.prepare_filename(info)
+        return filename
+
+def obtener_contexto_video(video_id: str) -> str:
+    """Baja el audio, se lo sube a Gemini 3.7 para que lo escuche y transcriba."""
+    archivo_audio = None
+    uploaded_file = None
+    
+    try:
+        print(f"    ⬇️ Descargando audio de YouTube ({video_id})...")
+        archivo_audio = descargar_audio_youtube(video_id)
+        
+        print(f"    ☁️ Subiendo audio a Gemini 3.7...")
+        uploaded_file = ai_client.files.upload(file=archivo_audio)
+        
+        # Esperamos a que la API de archivos termine de procesar el audio
+        while uploaded_file.state.name == "PROCESSING":
+            time.sleep(2)
+            uploaded_file = ai_client.files.get(name=uploaded_file.name)
+
+        print(f"    🎙️ Gemini 3.7 transcribiendo el audio...")
+        prompt = "Transcribe con la mayor precisión posible todo el audio hablado de este video. Devuelve únicamente el texto de la transcripción en formato plano."
+        
+        res = ai_client.models.generate_content(
+            model='gemini-3.7-flash',
+            contents=[uploaded_file, prompt]
+        )
+        
+        transcripcion = res.text if res.text else ""
+        return f"Transcripción de Audio:\n{transcripcion}"
+
+    except Exception as e:
+        print(f"    ⚠️ Falló la transcripción directa de audio: {e}")
+        return None
+        
+    finally:
+        # Limpieza absoluta de archivos locales y en los servidores de Gemini
+        if archivo_audio and os.path.exists(archivo_audio):
+            os.remove(archivo_audio)
+        if uploaded_file:
+            try:
+                ai_client.files.delete(name=uploaded_file.name)
+            except Exception:
+                pass
 
 def redactar_post_ia(contexto: str, idioma: str) -> dict:
     prompt = f"""
