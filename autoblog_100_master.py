@@ -31,6 +31,7 @@ logger = logging.getLogger("InfoZBot")
 YOUTUBE_API_KEY = os.environ["YOUTUBE_API_KEY"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
 MODEL_GEMINI = "gemini-3.6-flash"
@@ -223,6 +224,19 @@ def descargar_audio_youtube(video_id):
             }
         }
     }
+    
+    # --- INICIO MODIFICACIÓN COOKIES ---
+    if YOUTUBE_COOKIES:
+        if os.path.isfile(YOUTUBE_COOKIES):
+            # Si YOUTUBE_COOKIES es la ruta a un archivo (ej: "cookies.txt")
+            ydl_opts['cookiefile'] = YOUTUBE_COOKIES
+        else:
+            # Si YOUTUBE_COOKIES contiene el texto Netscape pegado en el Secret de GitHub
+            with open("temp_cookies.txt", "w", encoding="utf-8") as f:
+                f.write(YOUTUBE_COOKIES)
+            ydl_opts['cookiefile'] = "temp_cookies.txt"
+    # --- FIN MODIFICACIÓN COOKIES ---
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
         return ydl.prepare_filename(info)
