@@ -208,7 +208,7 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
 </body>
 </html>"""
     
-    path = f"sitios/{slug_z}/{idioma.lower()}/{slug_post}.html"
+    path = f"{slug_z}/{slugify(idioma)}/{slug_post}.html"
     try:
         repo.create_file(path, f"Post for {slug_z} ({idioma}): {slug_post}", html)
         print(f"  ✅ Publicado: {path}")
