@@ -157,7 +157,7 @@ def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int
     for intento in range(retries):
         try:
             res = ai_client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-3.7-flash',
                 contents=prompt,
                 config=config
             )
