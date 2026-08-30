@@ -6,40 +6,19 @@
     <title>InfoZ — Tu Red de Conocimiento Global</title>
     <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     <style>
-        :root {
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --accent: #38bdf8;
-            --border: #334155;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        :root { --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 2rem 1rem; line-height: 1.5; }
         header { text-align: center; max-width: 800px; margin: 0 auto 3rem; }
         h1 { font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem; }
         p { color: #94a3b8; font-size: 1.1rem; }
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
-            gap: 1rem; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-        }
-        .card { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            padding: 1.25rem; 
-            border-radius: 12px; 
-            text-decoration: none; 
-            color: inherit; 
-            transition: transform 0.2s, border-color 0.2s; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 12px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
         .card:hover { transform: translateY(-3px); border-color: var(--accent); }
         .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; }
         .badge { font-size: 0.75rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+        .count { font-size: 0.75rem; color: #94a3b8; }
         footer { text-align: center; margin-top: 4rem; color: #64748b; font-size: 0.875rem; }
     </style>
 </head>
@@ -48,513 +27,807 @@
         <h1>InfoZ</h1>
         <p>Explorá guías, tutoriales y análisis en más de 100 nichos especializados.</p>
     </header>
-    
     <main class="grid">
-        
-        <a href="/pythonz/" class="card">
+        <a href="/pythonz/index.html" class="card">
             <h2>Programación en Python</h2>
-            <span class="badge">+pythonz</span>
+            <div class="card-footer">
+                <span class="badge">+pythonz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/iaz/" class="card">
+        <a href="/iaz/index.html" class="card">
             <h2>Inteligencia Artificial y Bots</h2>
-            <span class="badge">+iaz</span>
+            <div class="card-footer">
+                <span class="badge">+iaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/criptoz/" class="card">
+        <a href="/criptoz/index.html" class="card">
             <h2>Criptomonedas y Bitcoin</h2>
-            <span class="badge">+criptoz</span>
+            <div class="card-footer">
+                <span class="badge">+criptoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/finanzasz/" class="card">
+        <a href="/finanzasz/index.html" class="card">
             <h2>Finanzas Personales e Inversiones</h2>
-            <span class="badge">+finanzasz</span>
+            <div class="card-footer">
+                <span class="badge">+finanzasz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/webz/" class="card">
+        <a href="/webz/index.html" class="card">
             <h2>Desarrollo Web Frontend</h2>
-            <span class="badge">+webz</span>
+            <div class="card-footer">
+                <span class="badge">+webz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/securityz/" class="card">
+        <a href="/securityz/index.html" class="card">
             <h2>Ciberseguridad y Hacking Ético</h2>
-            <span class="badge">+securityz</span>
+            <div class="card-footer">
+                <span class="badge">+securityz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/seoz/" class="card">
+        <a href="/seoz/index.html" class="card">
             <h2>Marketing Digital y SEO</h2>
-            <span class="badge">+seoz</span>
+            <div class="card-footer">
+                <span class="badge">+seoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/ecommercez/" class="card">
+        <a href="/ecommercez/index.html" class="card">
             <h2>E-commerce y Dropshipping</h2>
-            <span class="badge">+ecommercez</span>
+            <div class="card-footer">
+                <span class="badge">+ecommercez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/fitnessz/" class="card">
+        <a href="/fitnessz/index.html" class="card">
             <h2>Gimnasio y Calistenia</h2>
-            <span class="badge">+fitnessz</span>
+            <div class="card-footer">
+                <span class="badge">+fitnessz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/nutricionz/" class="card">
+        <a href="/nutricionz/index.html" class="card">
             <h2>Nutrición y Dieta Keto</h2>
-            <span class="badge">+nutricionz</span>
+            <div class="card-footer">
+                <span class="badge">+nutricionz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/yogaz/" class="card">
+        <a href="/yogaz/index.html" class="card">
             <h2>Yoga y Meditación</h2>
-            <span class="badge">+yogaz</span>
+            <div class="card-footer">
+                <span class="badge">+yogaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/cocinaz/" class="card">
+        <a href="/cocinaz/index.html" class="card">
             <h2>Recetas de Cocina Fácil</h2>
-            <span class="badge">+cocinaz</span>
+            <div class="card-footer">
+                <span class="badge">+cocinaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/reposteriaz/" class="card">
+        <a href="/reposteriaz/index.html" class="card">
             <h2>Repostería y Panadería</h2>
-            <span class="badge">+reposteriaz</span>
+            <div class="card-footer">
+                <span class="badge">+reposteriaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/cafez/" class="card">
+        <a href="/cafez/index.html" class="card">
             <h2>Café de Especialidad y Barismo</h2>
-            <span class="badge">+cafez</span>
+            <div class="card-footer">
+                <span class="badge">+cafez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/coctelesz/" class="card">
+        <a href="/coctelesz/index.html" class="card">
             <h2>Coctelería y Bebidas</h2>
-            <span class="badge">+coctelesz</span>
+            <div class="card-footer">
+                <span class="badge">+coctelesz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/fotoz/" class="card">
+        <a href="/fotoz/index.html" class="card">
             <h2>Fotografía Digital y Edición</h2>
-            <span class="badge">+fotoz</span>
+            <div class="card-footer">
+                <span class="badge">+fotoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/videoz/" class="card">
+        <a href="/videoz/index.html" class="card">
             <h2>Edición de Video y Premiere</h2>
-            <span class="badge">+videoz</span>
+            <div class="card-footer">
+                <span class="badge">+videoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/disenoz/" class="card">
+        <a href="/disenoz/index.html" class="card">
             <h2>Diseño Gráfico y Canva</h2>
-            <span class="badge">+disenoz</span>
+            <div class="card-footer">
+                <span class="badge">+disenoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/3dz/" class="card">
+        <a href="/3dz/index.html" class="card">
             <h2>Modelado e Impresión 3D</h2>
-            <span class="badge">+3dz</span>
+            <div class="card-footer">
+                <span class="badge">+3dz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/musicaz/" class="card">
+        <a href="/musicaz/index.html" class="card">
             <h2>Música y Producción Musical</h2>
-            <span class="badge">+musicaz</span>
+            <div class="card-footer">
+                <span class="badge">+musicaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/guitarraz/" class="card">
+        <a href="/guitarraz/index.html" class="card">
             <h2>Guitarra e Instrumentos</h2>
-            <span class="badge">+guitarraz</span>
+            <div class="card-footer">
+                <span class="badge">+guitarraz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/gamingz/" class="card">
+        <a href="/gamingz/index.html" class="card">
             <h2>Videojuegos y Gaming PC</h2>
-            <span class="badge">+gamingz</span>
+            <div class="card-footer">
+                <span class="badge">+gamingz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/gamedevz/" class="card">
+        <a href="/gamedevz/index.html" class="card">
             <h2>Desarrollo de Videojuegos</h2>
-            <span class="badge">+gamedevz</span>
+            <div class="card-footer">
+                <span class="badge">+gamedevz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/animez/" class="card">
+        <a href="/animez/index.html" class="card">
             <h2>Anime y Manga</h2>
-            <span class="badge">+animez</span>
+            <div class="card-footer">
+                <span class="badge">+animez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/cinez/" class="card">
+        <a href="/cinez/index.html" class="card">
             <h2>Cine y Series Review</h2>
-            <span class="badge">+cinez</span>
+            <div class="card-footer">
+                <span class="badge">+cinez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/jardinz/" class="card">
+        <a href="/jardinz/index.html" class="card">
             <h2>Jardinería y Huerto Urbano</h2>
-            <span class="badge">+jardinz</span>
+            <div class="card-footer">
+                <span class="badge">+jardinz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/bricolajez/" class="card">
+        <a href="/bricolajez/index.html" class="card">
             <h2>Bricolaje y Carpintería</h2>
-            <span class="badge">+bricolajez</span>
+            <div class="card-footer">
+                <span class="badge">+bricolajez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/autosz/" class="card">
+        <a href="/autosz/index.html" class="card">
             <h2>Mecánica Automotriz</h2>
-            <span class="badge">+autosz</span>
+            <div class="card-footer">
+                <span class="badge">+autosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/motosz/" class="card">
+        <a href="/motosz/index.html" class="card">
             <h2>Motos y Reparación</h2>
-            <span class="badge">+motosz</span>
+            <div class="card-footer">
+                <span class="badge">+motosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/ebikesz/" class="card">
+        <a href="/ebikesz/index.html" class="card">
             <h2>Movilidad Eléctrica y E-bikes</h2>
-            <span class="badge">+ebikesz</span>
+            <div class="card-footer">
+                <span class="badge">+ebikesz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/viajesz/" class="card">
+        <a href="/viajesz/index.html" class="card">
             <h2>Viajes Económicos y Mochileros</h2>
-            <span class="badge">+viajesz</span>
+            <div class="card-footer">
+                <span class="badge">+viajesz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/nomadaz/" class="card">
+        <a href="/nomadaz/index.html" class="card">
             <h2>Nómadas Digitales y Trabajo Remoto</h2>
-            <span class="badge">+nomadaz</span>
+            <div class="card-footer">
+                <span class="badge">+nomadaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/idiomasz/" class="card">
+        <a href="/idiomasz/index.html" class="card">
             <h2>Idiomas e Inglés Rápido</h2>
-            <span class="badge">+idiomasz</span>
+            <div class="card-footer">
+                <span class="badge">+idiomasz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/perrosz/" class="card">
+        <a href="/perrosz/index.html" class="card">
             <h2>Cuidado de Perros y Mascotas</h2>
-            <span class="badge">+perrosz</span>
+            <div class="card-footer">
+                <span class="badge">+perrosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/gatosz/" class="card">
+        <a href="/gatosz/index.html" class="card">
             <h2>Cuidado Felino</h2>
-            <span class="badge">+gatosz</span>
+            <div class="card-footer">
+                <span class="badge">+gatosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/acuariosz/" class="card">
+        <a href="/acuariosz/index.html" class="card">
             <h2>Acuarios y Peces de Agua Dulce</h2>
-            <span class="badge">+acuariosz</span>
+            <div class="card-footer">
+                <span class="badge">+acuariosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/modaz/" class="card">
+        <a href="/modaz/index.html" class="card">
             <h2>Moda Masculina y Estilo</h2>
-            <span class="badge">+modaz</span>
+            <div class="card-footer">
+                <span class="badge">+modaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/skincarez/" class="card">
+        <a href="/skincarez/index.html" class="card">
             <h2>Cuidado de la Piel y Skincare</h2>
-            <span class="badge">+skincarez</span>
+            <div class="card-footer">
+                <span class="badge">+skincarez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/beautyz/" class="card">
+        <a href="/beautyz/index.html" class="card">
             <h2>Maquillaje y Belleza</h2>
-            <span class="badge">+beautyz</span>
+            <div class="card-footer">
+                <span class="badge">+beautyz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/productividadz/" class="card">
+        <a href="/productividadz/index.html" class="card">
             <h2>Productividad y Método Notion</h2>
-            <span class="badge">+productividadz</span>
+            <div class="card-footer">
+                <span class="badge">+productividadz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/mentez/" class="card">
+        <a href="/mentez/index.html" class="card">
             <h2>Desarrollo Personal y Estoicismo</h2>
-            <span class="badge">+mentez</span>
+            <div class="card-footer">
+                <span class="badge">+mentez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/psicologiaz/" class="card">
+        <a href="/psicologiaz/index.html" class="card">
             <h2>Psicología Práctica</h2>
-            <span class="badge">+psicologiaz</span>
+            <div class="card-footer">
+                <span class="badge">+psicologiaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/librosz/" class="card">
+        <a href="/librosz/index.html" class="card">
             <h2>Libros y Resúmenes Literarios</h2>
-            <span class="badge">+librosz</span>
+            <div class="card-footer">
+                <span class="badge">+librosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/historiaz/" class="card">
+        <a href="/historiaz/index.html" class="card">
             <h2>Historia Universal</h2>
-            <span class="badge">+historiaz</span>
+            <div class="card-footer">
+                <span class="badge">+historiaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/astronomiaz/" class="card">
+        <a href="/astronomiaz/index.html" class="card">
             <h2>Ciencia y Astronomía</h2>
-            <span class="badge">+astronomiaz</span>
+            <div class="card-footer">
+                <span class="badge">+astronomiaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/fisicaz/" class="card">
+        <a href="/fisicaz/index.html" class="card">
             <h2>Física y Divulgación</h2>
-            <span class="badge">+fisicaz</span>
+            <div class="card-footer">
+                <span class="badge">+fisicaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/biologiaz/" class="card">
+        <a href="/biologiaz/index.html" class="card">
             <h2>Biología y Naturaleza</h2>
-            <span class="badge">+biologiaz</span>
+            <div class="card-footer">
+                <span class="badge">+biologiaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/solarz/" class="card">
+        <a href="/solarz/index.html" class="card">
             <h2>Ecología y Energías Renovables</h2>
-            <span class="badge">+solarz</span>
+            <div class="card-footer">
+                <span class="badge">+solarz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/outdoorz/" class="card">
+        <a href="/outdoorz/index.html" class="card">
             <h2>Supervivencia y Camping</h2>
-            <span class="badge">+outdoorz</span>
+            <div class="card-footer">
+                <span class="badge">+outdoorz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/pescaz/" class="card">
+        <a href="/pescaz/index.html" class="card">
             <h2>Pesca Deportiva</h2>
-            <span class="badge">+pescaz</span>
+            <div class="card-footer">
+                <span class="badge">+pescaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/mtbz/" class="card">
+        <a href="/mtbz/index.html" class="card">
             <h2>Ciclismo y Montaña</h2>
-            <span class="badge">+mtbz</span>
+            <div class="card-footer">
+                <span class="badge">+mtbz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/runningz/" class="card">
+        <a href="/runningz/index.html" class="card">
             <h2>Running y Maratonismo</h2>
-            <span class="badge">+runningz</span>
+            <div class="card-footer">
+                <span class="badge">+runningz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/futbolz/" class="card">
+        <a href="/futbolz/index.html" class="card">
             <h2>Fútbol y Análisis Táctico</h2>
-            <span class="badge">+futbolz</span>
+            <div class="card-footer">
+                <span class="badge">+futbolz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/basketz/" class="card">
+        <a href="/basketz/index.html" class="card">
             <h2>Baloncesto y NBA</h2>
-            <span class="badge">+basketz</span>
+            <div class="card-footer">
+                <span class="badge">+basketz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/ufcz/" class="card">
+        <a href="/ufcz/index.html" class="card">
             <h2>Artes Marciales y UFC</h2>
-            <span class="badge">+ufcz</span>
+            <div class="card-footer">
+                <span class="badge">+ufcz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/ajedrezz/" class="card">
+        <a href="/ajedrezz/index.html" class="card">
             <h2>Ajedrez y Estrategia</h2>
-            <span class="badge">+ajedrezz</span>
+            <div class="card-footer">
+                <span class="badge">+ajedrezz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/boardgamesz/" class="card">
+        <a href="/boardgamesz/index.html" class="card">
             <h2>Juegos de Mesa y Rol</h2>
-            <span class="badge">+boardgamesz</span>
+            <div class="card-footer">
+                <span class="badge">+boardgamesz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/collectionz/" class="card">
+        <a href="/collectionz/index.html" class="card">
             <h2>Coleccionismo y Antigüedades</h2>
-            <span class="badge">+collectionz</span>
+            <div class="card-footer">
+                <span class="badge">+collectionz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/realestatez/" class="card">
+        <a href="/realestatez/index.html" class="card">
             <h2>Bienes Raíces e Inmuebles</h2>
-            <span class="badge">+realestatez</span>
+            <div class="card-footer">
+                <span class="badge">+realestatez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/negociosz/" class="card">
+        <a href="/negociosz/index.html" class="card">
             <h2>Negocios Locales y Pymes</h2>
-            <span class="badge">+negociosz</span>
+            <div class="card-footer">
+                <span class="badge">+negociosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/liderazgoz/" class="card">
+        <a href="/liderazgoz/index.html" class="card">
             <h2>Liderazgo y Gestión de Equipos</h2>
-            <span class="badge">+liderazgoz</span>
+            <div class="card-footer">
+                <span class="badge">+liderazgoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/ventasz/" class="card">
+        <a href="/ventasz/index.html" class="card">
             <h2>Ventas y Negociación</h2>
-            <span class="badge">+ventasz</span>
+            <div class="card-footer">
+                <span class="badge">+ventasz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/empleoz/" class="card">
+        <a href="/empleoz/index.html" class="card">
             <h2>Recursos Humanos y Empleo</h2>
-            <span class="badge">+empleoz</span>
+            <div class="card-footer">
+                <span class="badge">+empleoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/taxz/" class="card">
+        <a href="/taxz/index.html" class="card">
             <h2>Contabilidad y Tributación</h2>
-            <span class="badge">+taxz</span>
+            <div class="card-footer">
+                <span class="badge">+taxz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/legalz/" class="card">
+        <a href="/legalz/index.html" class="card">
             <h2>Derecho y Asesoría Legal</h2>
-            <span class="badge">+legalz</span>
+            <div class="card-footer">
+                <span class="badge">+legalz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/casaz/" class="card">
+        <a href="/casaz/index.html" class="card">
             <h2>Arquitectura e Interiorismo</h2>
-            <span class="badge">+casaz</span>
+            <div class="card-footer">
+                <span class="badge">+casaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/domoticaz/" class="card">
+        <a href="/domoticaz/index.html" class="card">
             <h2>Casas Inteligentes y Domótica</h2>
-            <span class="badge">+domoticaz</span>
+            <div class="card-footer">
+                <span class="badge">+domoticaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/electroz/" class="card">
+        <a href="/electroz/index.html" class="card">
             <h2>Electricidad y Electrónica</h2>
-            <span class="badge">+electroz</span>
+            <div class="card-footer">
+                <span class="badge">+electroz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/arduinofz/" class="card">
+        <a href="/arduinofz/index.html" class="card">
             <h2>Robótica y Arduino</h2>
-            <span class="badge">+arduinofz</span>
+            <div class="card-footer">
+                <span class="badge">+arduinofz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/minisz/" class="card">
+        <a href="/minisz/index.html" class="card">
             <h2>Impresión en Resina y Minis</h2>
-            <span class="badge">+minisz</span>
+            <div class="card-footer">
+                <span class="badge">+minisz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/crochetz/" class="card">
+        <a href="/crochetz/index.html" class="card">
             <h2>Tejido y Crochet</h2>
-            <span class="badge">+crochetz</span>
+            <div class="card-footer">
+                <span class="badge">+crochetz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/costuraz/" class="card">
+        <a href="/costuraz/index.html" class="card">
             <h2>Costura y Confección</h2>
-            <span class="badge">+costuraz</span>
+            <div class="card-footer">
+                <span class="badge">+costuraz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/jabonesz/" class="card">
+        <a href="/jabonesz/index.html" class="card">
             <h2>Jabones y Cosmética Natural</h2>
-            <span class="badge">+jabonesz</span>
+            <div class="card-footer">
+                <span class="badge">+jabonesz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/velasz/" class="card">
+        <a href="/velasz/index.html" class="card">
             <h2>Velas Artesanales</h2>
-            <span class="badge">+velasz</span>
+            <div class="card-footer">
+                <span class="badge">+velasz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/cervezaz/" class="card">
+        <a href="/cervezaz/index.html" class="card">
             <h2>Cerveza Artesanal</h2>
-            <span class="badge">+cervezaz</span>
+            <div class="card-footer">
+                <span class="badge">+cervezaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/vinoz/" class="card">
+        <a href="/vinoz/index.html" class="card">
             <h2>Vinos y Enología</h2>
-            <span class="badge">+vinoz</span>
+            <div class="card-footer">
+                <span class="badge">+vinoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/gourmetz/" class="card">
+        <a href="/gourmetz/index.html" class="card">
             <h2>Quesos y Charcutería</h2>
-            <span class="badge">+gourmetz</span>
+            <div class="card-footer">
+                <span class="badge">+gourmetz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/asadoz/" class="card">
+        <a href="/asadoz/index.html" class="card">
             <h2>Barbacoa y Parrilla</h2>
-            <span class="badge">+asadoz</span>
+            <div class="card-footer">
+                <span class="badge">+asadoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/veganz/" class="card">
+        <a href="/veganz/index.html" class="card">
             <h2>Postres Veganos</h2>
-            <span class="badge">+veganz</span>
+            <div class="card-footer">
+                <span class="badge">+veganz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/urbangardenz/" class="card">
+        <a href="/urbangardenz/index.html" class="card">
             <h2>Huerto en Balcón</h2>
-            <span class="badge">+urbangardenz</span>
+            <div class="card-footer">
+                <span class="badge">+urbangardenz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/saludz/" class="card">
+        <a href="/saludz/index.html" class="card">
             <h2>Medicina Preventiva y Salud</h2>
-            <span class="badge">+saludz</span>
+            <div class="card-footer">
+                <span class="badge">+saludz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/bienestarz/" class="card">
+        <a href="/bienestarz/index.html" class="card">
             <h2>Salud Mental y Ansiedad</h2>
-            <span class="badge">+bienestarz</span>
+            <div class="card-footer">
+                <span class="badge">+bienestarz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/bebesz/" class="card">
+        <a href="/bebesz/index.html" class="card">
             <h2>Cuidado de Bebés y Maternidad</h2>
-            <span class="badge">+bebesz</span>
+            <div class="card-footer">
+                <span class="badge">+bebesz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/padresz/" class="card">
+        <a href="/padresz/index.html" class="card">
             <h2>Crianza Respetuosa</h2>
-            <span class="badge">+padresz</span>
+            <div class="card-footer">
+                <span class="badge">+padresz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/seniorsz/" class="card">
+        <a href="/seniorsz/index.html" class="card">
             <h2>Tercera Edad y Vigor</h2>
-            <span class="badge">+seniorsz</span>
+            <div class="card-footer">
+                <span class="badge">+seniorsz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/homez/" class="card">
+        <a href="/homez/index.html" class="card">
             <h2>Organización del Hogar</h2>
-            <span class="badge">+homez</span>
+            <div class="card-footer">
+                <span class="badge">+homez</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/ordenz/" class="card">
+        <a href="/ordenz/index.html" class="card">
             <h2>Minimalismo y Orden</h2>
-            <span class="badge">+ordenz</span>
+            <div class="card-footer">
+                <span class="badge">+ordenz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/magiaz/" class="card">
+        <a href="/magiaz/index.html" class="card">
             <h2>Magia e Ilusionismo</h2>
-            <span class="badge">+magiaz</span>
+            <div class="card-footer">
+                <span class="badge">+magiaz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/algoritmosz/" class="card">
+        <a href="/algoritmosz/index.html" class="card">
             <h2>Estructura de Datos y Algoritmos</h2>
-            <span class="badge">+algoritmosz</span>
+            <div class="card-footer">
+                <span class="badge">+algoritmosz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/linuxz/" class="card">
+        <a href="/linuxz/index.html" class="card">
             <h2>Linux y SysAdmin</h2>
-            <span class="badge">+linuxz</span>
+            <div class="card-footer">
+                <span class="badge">+linuxz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/cloudz/" class="card">
+        <a href="/cloudz/index.html" class="card">
             <h2>Cloud Computing (AWS/GCP)</h2>
-            <span class="badge">+cloudz</span>
+            <div class="card-footer">
+                <span class="badge">+cloudz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/sqlz/" class="card">
+        <a href="/sqlz/index.html" class="card">
             <h2>Bases de Datos y SQL</h2>
-            <span class="badge">+sqlz</span>
+            <div class="card-footer">
+                <span class="badge">+sqlz</span>
+                <span class="count">2 posts</span>
+            </div>
         </a>
         
-        <a href="/excelz/" class="card">
+        <a href="/excelz/index.html" class="card">
             <h2>Excel y Análisis de Datos</h2>
-            <span class="badge">+excelz</span>
+            <div class="card-footer">
+                <span class="badge">+excelz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/powerbiz/" class="card">
+        <a href="/powerbiz/index.html" class="card">
             <h2>Power BI y Visualización</h2>
-            <span class="badge">+powerbiz</span>
+            <div class="card-footer">
+                <span class="badge">+powerbiz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/remotoz/" class="card">
+        <a href="/remotoz/index.html" class="card">
             <h2>Teletrabajo y Herramientas</h2>
-            <span class="badge">+remotoz</span>
+            <div class="card-footer">
+                <span class="badge">+remotoz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/podcastz/" class="card">
+        <a href="/podcastz/index.html" class="card">
             <h2>Podcast y Podcasting</h2>
-            <span class="badge">+podcastz</span>
+            <div class="card-footer">
+                <span class="badge">+podcastz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/streamz/" class="card">
+        <a href="/streamz/index.html" class="card">
             <h2>Streaming y Twitch Setup</h2>
-            <span class="badge">+streamz</span>
+            <div class="card-footer">
+                <span class="badge">+streamz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/gadgetsz/" class="card">
+        <a href="/gadgetsz/index.html" class="card">
             <h2>Smartphones y Gadgets</h2>
-            <span class="badge">+gadgetsz</span>
+            <div class="card-footer">
+                <span class="badge">+gadgetsz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/audioz/" class="card">
+        <a href="/audioz/index.html" class="card">
             <h2>Audio de Alta Fidelidad (Hi-Fi)</h2>
-            <span class="badge">+audioz</span>
+            <div class="card-footer">
+                <span class="badge">+audioz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
         
-        <a href="/dronesz/" class="card">
+        <a href="/dronesz/index.html" class="card">
             <h2>Drones y Fotografía Aérea</h2>
-            <span class="badge">+dronesz</span>
+            <div class="card-footer">
+                <span class="badge">+dronesz</span>
+                <span class="count">0 posts</span>
+            </div>
         </a>
-        
-    </main>
-
-    <footer>
-        <p>&copy; InfoZ Network — Todos los derechos reservados.</p>
-    </footer>
+        </main>
+    <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
 </body>
 </html>
