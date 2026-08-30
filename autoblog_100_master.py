@@ -13,9 +13,9 @@ from github import Github
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
-REPO_NAME = os.environ.get("REPO_NAME", "tu-usuario/tu-repositorio-blog")
+REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-# Script de tu red de anuncios (PropellerAds / PopAds / Adsterra)
+# Script de tu red de anuncios
 PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
 
 # Clientes API
@@ -160,16 +160,23 @@ def generar_busqueda_ia(nicho: str) -> str:
     res = ai_client.models.generate_content(model='gemini-3.6-flash', contents=prompt)
     return res.text.strip().replace('"', '')
 
-def buscar_video_yt(query: str) -> str:
-    req = yt_client.search().list(q=query, part="snippet", type="video", order="relevance", maxResults=3)
+def buscar_videos_yt(query: str) -> list:
+    """Busca hasta 5 candidatos para tener alternativas si alguno no tiene subtítulos"""
+    req = yt_client.search().list(q=query, part="snippet", type="video", order="relevance", maxResults=5)
     res = req.execute()
     items = res.get("items", [])
-    return items[0]["id"]["videoId"] if items else None
+    return [item["id"]["videoId"] for item in items]
 
 def obtener_transcripcion(video_id: str):
+    """Busca cualquier subtítulo disponible (manual o autogenerado)"""
     try:
-        t = YouTubeTranscriptApi.get_transcript(video_id, languages=['es', 'en'])
-        return " ".join([x['text'] for x in t])
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        try:
+            t = transcript_list.find_transcript(['es', 'en', 'es-419', 'en-US'])
+        except Exception:
+            t = next(iter(transcript_list))
+        data = t.fetch()
+        return " ".join([x['text'] for x in data])
     except Exception:
         return None
 
@@ -210,36 +217,55 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
     
     path = f"{slug_z}/{slugify(idioma)}/{slug_post}.html"
     try:
-        repo.create_file(path, f"Post for {slug_z} ({idioma}): {slug_post}", html)
-        print(f"  ✅ Publicado: {path}")
+        try:
+            # Si ya existe, lo actualiza
+            existing_file = repo.get_contents(path)
+            repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
+            print(f"    ✅ Actualizado: {path}")
+        except Exception:
+            # Si no existe, lo crea
+            repo.create_file(path, f"Post for {slug_z} ({idioma}): {slug_post}", html)
+            print(f"    ✅ Publicado: {path}")
     except Exception as e:
-        print(f"  ❌ Error al subir {path}: {e}")
+        print(f"    ❌ Error al subir {path}: {e}")
 
 # --- 5. BUCLE PRINCIPAL ---
 def ejecutar_bot_masivo():
     historico = cargar_historico()
-    
-    # Toma un lote aleatorio de 5 categorías por ejecución para balancear consumo
     lote = random.sample(CATEGORIAS_100, 5)
     
     for item in lote:
         nicho = item["nicho"]
         slug_z = item["slug_z"]
         
-        print(f"\n🚀 Procesando sitio: {slug_z} ({nicho})")
+        print(f"\n🔍 Procesando sitio: {slug_z} ({nicho})")
         
         kw = generar_busqueda_ia(nicho)
-        video_id = buscar_video_yt(kw)
+        video_ids = buscar_videos_yt(kw)
         
-        if not video_id or video_id in historico:
-            print(f"⚠️ Video omitido (duplicado o inexistente)")
+        if not video_ids:
+            print(f"⚠️ No se encontraron videos para la búsqueda: {kw}")
             continue
             
-        transcripcion = obtener_transcripcion(video_id)
-        if not transcripcion:
-            print(f"⚠️ Video sin transcripción disponible")
+        video_id = None
+        transcripcion = None
+        
+        # Recorre la lista de videos candidatos hasta encontrar uno con transcripción
+        for vid in video_ids:
+            if vid in historico:
+                continue
+            txt = obtener_transcripcion(vid)
+            if txt:
+                video_id = vid
+                transcripcion = txt
+                break
+        
+        if not video_id or not transcripcion:
+            print(f"⚠️ Ninguno de los 5 videos probados tenía transcripción disponible")
             continue
             
+        print(f"🎬 Video seleccionado: {video_id} - Generando entradas...")
+
         # Generar las 25 versiones de idioma
         for lang in IDIOMAS_MAXIMOS:
             try:
@@ -248,7 +274,7 @@ def ejecutar_bot_masivo():
                 publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
                 time.sleep(1.2)  # Pausa táctica anti-rate-limit
             except Exception as err:
-                print(f"  ⚠️ Falló idioma {lang}: {err}")
+                print(f"    ⚠️ Falló idioma {lang}: {err}")
                 continue
             
         historico.append(video_id)
