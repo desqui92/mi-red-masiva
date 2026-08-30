@@ -218,16 +218,95 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
     path = f"{slug_z}/{slugify(idioma)}/{slug_post}.html"
     try:
         try:
-            # Si ya existe, lo actualiza
             existing_file = repo.get_contents(path)
             repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
-            print(f"    ✅ Actualizado: {path}")
+            print(f"    Publicado/Actualizado: {path}")
         except Exception:
-            # Si no existe, lo crea
             repo.create_file(path, f"Post for {slug_z} ({idioma}): {slug_post}", html)
-            print(f"    ✅ Publicado: {path}")
+            print(f"    Publicado: {path}")
     except Exception as e:
-        print(f"    ❌ Error al subir {path}: {e}")
+        print(f"    Error al subir {path}: {e}")
+
+def generar_portada_index():
+    grid_items = ""
+    for cat in CATEGORIAS_100:
+        nicho = cat["nicho"]
+        slug_z = cat["slug_z"]
+        grid_items += f"""
+        <a href="/{slug_z}/" class="card">
+            <h2>{nicho}</h2>
+            <span class="badge">+{slug_z}</span>
+        </a>
+        """
+
+    html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfoZ — Tu Red de Conocimiento Global</title>
+    {PROPELLER_SCRIPT}
+    <style>
+        :root {{
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --accent: #38bdf8;
+            --border: #334155;
+        }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }}
+        body {{ background: var(--bg); color: var(--text); padding: 2rem 1rem; line-height: 1.5; }}
+        header {{ text-align: center; max-width: 800px; margin: 0 auto 3rem; }}
+        h1 {{ font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem; }}
+        p {{ color: #94a3b8; font-size: 1.1rem; }}
+        .grid {{ 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+            gap: 1rem; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }}
+        .card {{ 
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            padding: 1.25rem; 
+            border-radius: 12px; 
+            text-decoration: none; 
+            color: inherit; 
+            transition: transform 0.2s, border-color 0.2s; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+        }}
+        .card:hover {{ transform: translateY(-3px); border-color: var(--accent); }}
+        .card h2 {{ font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }}
+        .badge {{ font-size: 0.75rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }}
+        footer {{ text-align: center; margin-top: 4rem; color: #64748b; font-size: 0.875rem; }}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>InfoZ</h1>
+        <p>Explorá guías, tutoriales y análisis en más de 100 nichos especializados.</p>
+    </header>
+    
+    <main class="grid">
+        {grid_items}
+    </main>
+
+    <footer>
+        <p>&copy; InfoZ Network — Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>"""
+
+    try:
+        existing_file = repo.get_contents("index.html")
+        repo.update_file("index.html", "Update index page", html, existing_file.sha)
+        print("    Portada index.html actualizada")
+    except Exception:
+        repo.create_file("index.html", "Create index page", html)
+        print("    Portada index.html creada")
 
 # --- 5. BUCLE PRINCIPAL ---
 def ejecutar_bot_masivo():
@@ -238,19 +317,18 @@ def ejecutar_bot_masivo():
         nicho = item["nicho"]
         slug_z = item["slug_z"]
         
-        print(f"\n🔍 Procesando sitio: {slug_z} ({nicho})")
+        print(f"\nProcesando sitio: {slug_z} ({nicho})")
         
         kw = generar_busqueda_ia(nicho)
         video_ids = buscar_videos_yt(kw)
         
         if not video_ids:
-            print(f"⚠️ No se encontraron videos para la búsqueda: {kw}")
+            print(f"No se encontraron videos para la búsqueda: {kw}")
             continue
             
         video_id = None
         transcripcion = None
         
-        # Recorre la lista de videos candidatos hasta encontrar uno con transcripción
         for vid in video_ids:
             if vid in historico:
                 continue
@@ -261,24 +339,25 @@ def ejecutar_bot_masivo():
                 break
         
         if not video_id or not transcripcion:
-            print(f"⚠️ Ninguno de los 5 videos probados tenía transcripción disponible")
+            print(f"Ninguno de los videos probados tenía transcripción disponible")
             continue
             
-        print(f"🎬 Video seleccionado: {video_id} - Generando entradas...")
+        print(f"Video seleccionado: {video_id} - Generando entradas...")
 
-        # Generar las 25 versiones de idioma
         for lang in IDIOMAS_MAXIMOS:
             try:
                 art = redactar_post_ia(transcripcion, lang)
                 slug_post = slugify(art["titulo"])
                 publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
-                time.sleep(1.2)  # Pausa táctica anti-rate-limit
+                time.sleep(1.2)
             except Exception as err:
-                print(f"    ⚠️ Falló idioma {lang}: {err}")
+                print(f"    Falló idioma {lang}: {err}")
                 continue
             
         historico.append(video_id)
         guardar_historico(historico)
+        
+    generar_portada_index()
 
 if __name__ == "__main__":
     ejecutar_bot_masivo()
