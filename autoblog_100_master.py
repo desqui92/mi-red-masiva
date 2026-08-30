@@ -326,12 +326,120 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{titulo}</title>
     {PROPELLER_SCRIPT}
+    <style>
+        :root {{
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }}
+        .container {{ 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }}
+        nav {{
+            margin-bottom: 2rem;
+        }}
+        nav a {{
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }}
+        nav a:hover {{
+            text-decoration: underline;
+        }}
+        h1 {{ 
+            font-size: 2.25rem; 
+            color: #f8fafc; 
+            margin-bottom: 1.5rem; 
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+        }}
+        article h2 {{ 
+            font-size: 1.5rem; 
+            color: var(--accent); 
+            margin-top: 2rem; 
+            margin-bottom: 0.75rem; 
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.4rem;
+        }}
+        article h3 {{ 
+            font-size: 1.2rem; 
+            color: #f8fafc; 
+            margin-top: 1.5rem; 
+            margin-bottom: 0.5rem; 
+        }}
+        article p {{ 
+            margin-bottom: 1.25rem; 
+            color: #cbd5e1;
+            font-size: 1.05rem;
+        }}
+        article ul, article ol {{ 
+            margin-bottom: 1.25rem; 
+            padding-left: 1.5rem; 
+            color: #cbd5e1;
+        }}
+        article li {{ 
+            margin-bottom: 0.5rem; 
+        }}
+        article blockquote {{
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: var(--text-muted);
+            background: rgba(56, 189, 248, 0.05);
+            padding: 0.75rem 1rem;
+            border-radius: 0 8px 8px 0;
+        }}
+        article a {{
+            color: var(--accent);
+            text-decoration: underline;
+        }}
+        footer {{
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }}
+        @media (max-width: 640px) {{
+            body {{ padding: 1rem 0.5rem; }}
+            .container {{ padding: 1.5rem 1rem; border-radius: 8px; }}
+            h1 {{ font-size: 1.75rem; }}
+        }}
+    </style>
 </head>
 <body>
-    <article>
-        <h1>{titulo}</h1>
-        {cuerpo_limpio}
-    </article>
+    <div class="container">
+        <nav>
+            <a href="/">← Volver a InfoZ</a>
+        </nav>
+        <article>
+            <h1>{titulo}</h1>
+            {cuerpo_limpio}
+        </article>
+        <footer>
+            <p>&copy; InfoZ Network — Todos los derechos reservados.</p>
+        </footer>
+    </div>
 </body>
 </html>"""
     
