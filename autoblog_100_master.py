@@ -1,3 +1,4 @@
+import sys
 import os
 import json
 import time
@@ -169,10 +170,47 @@ def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int
             else:
                 raise e
 
+def limpiar_y_parsear_json(texto: str) -> dict:
+    """Elimina bloques de código markdown y parsea el JSON tolerando saltos de línea crudos."""
+    if not texto:
+        raise ValueError("Respuesta vacía de la IA")
+    
+    texto = texto.strip()
+    
+    # Remover envoltorios de Markdown tipo ```json ... ```
+    if texto.startswith("```"):
+        lines = texto.splitlines()
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        texto = "\n".join(lines).strip()
+    
+    return json.loads(texto, strict=False)
+
+def limpiar_html_cuerpo(html_str: str) -> str:
+    """Elimina etiquetas de código Markdown que la IA meta dentro del string HTML."""
+    if not html_str:
+        return ""
+    texto = html_str.strip()
+    
+    if texto.startswith("```"):
+        lines = texto.splitlines()
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        texto = "\n".join(lines).strip()
+        
+    return texto
+
 def generar_busqueda_ia(nicho: str) -> str:
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
     res_text = llamar_gemini_con_reintento(prompt)
-    return res_text.strip().replace('"', '')
+    
+    lineas = res_text.strip().splitlines() if res_text else []
+    primera_linea = lineas[0] if lineas else ""
+    return primera_linea.replace('"', '').replace("'", "").strip()
 
 def buscar_videos_yt(query: str) -> list:
     try:
@@ -191,7 +229,6 @@ def buscar_videos_yt(query: str) -> list:
         return []
 
 def obtener_contexto_video(video_id: str) -> str:
-    """Extrae subtítulos o recurre a Título y Descripción si YouTube bloquea la IP"""
     title, desc = "", ""
     try:
         req = yt_client.videos().list(part="snippet", id=video_id)
@@ -203,7 +240,6 @@ def obtener_contexto_video(video_id: str) -> str:
     except Exception:
         pass
 
-    # Intentar obtener transcripción
     subtitulos = None
     try:
         data = YouTubeTranscriptApi.get_transcript(video_id, languages=['es', 'en', 'es-419', 'en-US'])
@@ -228,18 +264,32 @@ def obtener_contexto_video(video_id: str) -> str:
 def redactar_post_ia(contexto: str, idioma: str) -> dict:
     prompt = f"""
     Eres un redactor SEO profesional. Genera un artículo completo de blog bien estructurado a partir del contenido de este video.
-    Responde ÚNICAMENTE un JSON estricto con:
+    
+    REGLAS STRICTAS DE FORMATO:
+    - Responde ÚNICAMENTE un JSON estricto.
+    - En 'contenido_html' usa etiquetas HTML directas (<h2>, <p>, <ul>, <li>).
+    - PROHIBIDO usar bloques de código markdown (como ```html o ```) dentro del string 'contenido_html'.
+    
+    Estructura del JSON:
     {{
         "titulo": "Título SEO atractivo",
-        "contenido_html": "Cuerpo con <h2>, <h3>, <p>, <ul>, <li>"
+        "contenido_html": "<h2>Sección</h2><p>Texto plano con etiquetas HTML reales...</p>"
     }}
+    
     Idioma de salida: {idioma}
     Fuente del video: {contexto[:4000]}
     """
     res_text = llamar_gemini_con_reintento(prompt, mime_type="application/json")
-    return json.loads(res_text)
+    data = limpiar_y_parsear_json(res_text)
+    
+    if "contenido_html" in data:
+        data["contenido_html"] = limpiar_html_cuerpo(data["contenido_html"])
+        
+    return data
 
 def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str):
+    cuerpo_limpio = limpiar_html_cuerpo(cuerpo)
+    
     html = f"""<!DOCTYPE html>
 <html lang="{idioma[:2].lower()}">
 <head>
@@ -251,7 +301,7 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
 <body>
     <article>
         <h1>{titulo}</h1>
-        {cuerpo}
+        {cuerpo_limpio}
     </article>
 </body>
 </html>"""
@@ -349,7 +399,6 @@ def generar_portada_index():
         repo.create_file("index.html", "Create index page", html)
         print("    Portada index.html creada")
 
-# --- 5. BUCLE PRINCIPAL ---
 def ejecutar_bot_masivo():
     historico = cargar_historico()
     lote = random.sample(CATEGORIAS_100, 5)
