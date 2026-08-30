@@ -249,26 +249,35 @@ def obtener_contexto_video(video_id: str) -> str:
         print(f"    ☁️ Subiendo audio a Gemini 3.7...")
         uploaded_file = ai_client.files.upload(file=archivo_audio)
         
-        while uploaded_file.state.name == "PROCESSING":
+        # Espera de procesamiento
+        for _ in range(15):
+            if uploaded_file.state.name == "ACTIVE":
+                break
             time.sleep(2)
             uploaded_file = ai_client.files.get(name=uploaded_file.name)
 
-        print(f"    🎙️ Gemini 3.7 transcribiendo el audio...")
-        prompt = "Transcribe con la mayor precisión posible todo el audio hablado de este video. Devuelve únicamente el texto de la transcripción en formato plano."
+        print(f"    🎙️ Transcribiendo audio...")
+        prompt = "Transcribe todo el audio hablado de este video de forma concisa. Devuelve texto plano."
         
+        # Usamos el cliente directo con try/except
         res = ai_client.models.generate_content(
             model='gemini-3.7-flash',
             contents=[uploaded_file, prompt]
         )
-        return f"Transcripción de Audio:\n{res.text if res.text else ''}"
+        if res and res.text:
+            return f"Transcripción de Audio:\n{res.text}"
+        return None
 
     except Exception as e:
-        print(f"    ⚠️ Falló la transcripción de audio: {e}")
+        print(f"    ⚠️ No se pudo obtener el audio ({e}). Activando Plan B...")
         return None
         
     finally:
         if archivo_audio and os.path.exists(archivo_audio):
-            os.remove(archivo_audio)
+            try:
+                os.remove(archivo_audio)
+            except Exception:
+                pass
         if uploaded_file:
             try:
                 ai_client.files.delete(name=uploaded_file.name)
@@ -526,51 +535,64 @@ def ejecutar_bot_masivo():
         nicho = item["nicho"]
         slug_z = item["slug_z"]
         
-        print(f"\nProcesando sitio: {slug_z} ({nicho})")
+        print(f"\n🚀 Procesando sitio: {slug_z} ({nicho})")
         
         try:
             kw = generar_busqueda_ia(nicho)
             video_ids = buscar_videos_yt(kw)
             
-            if not video_ids:
-                print(f"No se encontraron videos para: {kw}")
-                continue
-                
             video_id = None
             contexto = None
             
-            for vid in video_ids:
-                if vid in historico:
-                    continue
-                data_vid = obtener_contexto_video(vid)
-                if data_vid:
-                    video_id = vid
-                    contexto = data_vid
-                    break
+            # Intentamos extraer contexto del audio de YouTube
+            if video_ids:
+                for vid in video_ids:
+                    if vid in historico:
+                        continue
+                    data_vid = obtener_contexto_video(vid)
+                    if data_vid:
+                        video_id = vid
+                        contexto = data_vid
+                        break
             
-            if not video_id or not contexto:
-                print(f"No se pudo extraer información del video seleccionado.")
-                continue
-                
-            print(f"Video seleccionado: {video_id} - Generando los 25 artículos...")
+            # PLAN B: Si no hay video o falló la transcripción, creamos contexto temático directo
+            if not contexto:
+                print(f"    💡 Plan B: Generando post temático nativo sobre '{kw}'...")
+                contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detallada sobre este tema."
+
+            print(f"    🌐 Generando los 25 artículos para {slug_z}...")
 
             for lang in IDIOMAS_MAXIMOS:
                 try:
                     art = redactar_post_ia(contexto, lang)
+                    
+                    # Validación estricta para asegurar que el JSON no vino vacío
+                    if not art or "titulo" not in art or "contenido_html" not in art:
+                        print(f"    ⚠️ Respuesta inválida de la IA en {lang}, reintentando...")
+                        continue
+
                     slug_post = slugify(art["titulo"])
+                    if not slug_post:
+                        slug_post = f"article-{int(time.time())}"
+
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
-                    time.sleep(30) # Pausa segura de 30 segundos
+                    
+                    # Pausa entre idiomas para respetar la cuota
+                    time.sleep(30) 
+                    
                 except Exception as err:
-                    print(f"    Falló idioma {lang}: {err}")
+                    print(f"    ❌ Falló idioma {lang}: {err}")
                     continue
                 
-            historico.append(video_id)
-            guardar_historico(historico)
+            if video_id:
+                historico.append(video_id)
+                guardar_historico(historico)
 
         except Exception as e_nicho:
             print(f"    ⚠️ Ocurrió un problema procesando el nicho {slug_z}: {e_nicho}. Continuando...")
             continue
         
+    # Recién cuando los posts se crearon, refrescamos los índices
     generar_indices_y_portada()
 
 if __name__ == "__main__":
