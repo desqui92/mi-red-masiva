@@ -2,8 +2,8 @@ import sys
 import os
 import json
 import time
-import yt_dlp
 import random
+import yt_dlp
 from slugify import slugify
 from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -154,7 +154,7 @@ def guardar_historico(historico: list):
     except Exception:
         repo.create_file(REGISTRO_FILE, "Create processed log", json_data)
 
-def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int = 3):
+def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int = 4):
     config = types.GenerateContentConfig(response_mime_type=mime_type) if mime_type else None
     for intento in range(retries):
         try:
@@ -165,20 +165,22 @@ def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int
             )
             return res.text
         except Exception as e:
-            print(f"    ⚠️ Reintento Gemini ({intento + 1}/{retries}) por error: {e}")
-            if intento < retries - 1:
-                time.sleep(5 * (intento + 1))
+            error_msg = str(e).lower()
+            if "429" in error_msg or "quota" in error_msg or "resource_exhausted" in error_msg:
+                wait_time = 15 * (intento + 1)
+                print(f"    ⚠️ Rate limit alcanzado. Esperando {wait_time}s...")
+                time.sleep(wait_time)
             else:
+                print(f"    ⚠️ Reintento Gemini ({intento + 1}/{retries}) por error: {e}")
+                time.sleep(5)
+                
+            if intento == retries - 1:
                 raise e
 
 def limpiar_y_parsear_json(texto: str) -> dict:
-    """Elimina bloques de código markdown y parsea el JSON tolerando saltos de línea crudos."""
     if not texto:
         raise ValueError("Respuesta vacía de la IA")
-    
     texto = texto.strip()
-    
-    # Remover envoltorios de Markdown tipo ```json ... ```
     if texto.startswith("```"):
         lines = texto.splitlines()
         if lines[0].startswith("```"):
@@ -186,15 +188,12 @@ def limpiar_y_parsear_json(texto: str) -> dict:
         if lines and lines[-1].startswith("```"):
             lines = lines[:-1]
         texto = "\n".join(lines).strip()
-    
     return json.loads(texto, strict=False)
 
 def limpiar_html_cuerpo(html_str: str) -> str:
-    """Elimina etiquetas de código Markdown que la IA meta dentro del string HTML."""
     if not html_str:
         return ""
     texto = html_str.strip()
-    
     if texto.startswith("```"):
         lines = texto.splitlines()
         if lines[0].startswith("```"):
@@ -202,13 +201,11 @@ def limpiar_html_cuerpo(html_str: str) -> str:
         if lines and lines[-1].startswith("```"):
             lines = lines[:-1]
         texto = "\n".join(lines).strip()
-        
     return texto
 
 def generar_busqueda_ia(nicho: str) -> str:
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
     res_text = llamar_gemini_con_reintento(prompt)
-    
     lineas = res_text.strip().splitlines() if res_text else []
     primera_linea = lineas[0] if lineas else ""
     return primera_linea.replace('"', '').replace("'", "").strip()
@@ -229,30 +226,22 @@ def buscar_videos_yt(query: str) -> list:
         print(f"    Error buscando en YouTube: {e}")
         return []
 
-
-
 def descargar_audio_youtube(video_id: str) -> str:
-    """Descarga solo el audio del video en formato ligero."""
     url = f"https://www.youtube.com/watch?v={video_id}"
     nombre_base = f"audio_{video_id}"
-    
     ydl_opts = {
         'format': 'm4a/bestaudio/best',
         'outtmpl': f"{nombre_base}.%(ext)s",
         'quiet': True,
         'no_warnings': True,
     }
-    
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info)
-        return filename
+        return ydl.prepare_filename(info)
 
 def obtener_contexto_video(video_id: str) -> str:
-    """Baja el audio, se lo sube a Gemini 3.7 para que lo escuche y transcriba."""
     archivo_audio = None
     uploaded_file = None
-    
     try:
         print(f"    ⬇️ Descargando audio de YouTube ({video_id})...")
         archivo_audio = descargar_audio_youtube(video_id)
@@ -260,7 +249,6 @@ def obtener_contexto_video(video_id: str) -> str:
         print(f"    ☁️ Subiendo audio a Gemini 3.7...")
         uploaded_file = ai_client.files.upload(file=archivo_audio)
         
-        # Esperamos a que la API de archivos termine de procesar el audio
         while uploaded_file.state.name == "PROCESSING":
             time.sleep(2)
             uploaded_file = ai_client.files.get(name=uploaded_file.name)
@@ -272,16 +260,13 @@ def obtener_contexto_video(video_id: str) -> str:
             model='gemini-3.7-flash',
             contents=[uploaded_file, prompt]
         )
-        
-        transcripcion = res.text if res.text else ""
-        return f"Transcripción de Audio:\n{transcripcion}"
+        return f"Transcripción de Audio:\n{res.text if res.text else ''}"
 
     except Exception as e:
-        print(f"    ⚠️ Falló la transcripción directa de audio: {e}")
+        print(f"    ⚠️ Falló la transcripción de audio: {e}")
         return None
         
     finally:
-        # Limpieza absoluta de archivos locales y en los servidores de Gemini
         if archivo_audio and os.path.exists(archivo_audio):
             os.remove(archivo_audio)
         if uploaded_file:
@@ -310,10 +295,8 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     """
     res_text = llamar_gemini_con_reintento(prompt, mime_type="application/json")
     data = limpiar_y_parsear_json(res_text)
-    
     if "contenido_html" in data:
         data["contenido_html"] = limpiar_html_cuerpo(data["contenido_html"])
-        
     return data
 
 def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str):
@@ -339,7 +322,7 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
         body {{ 
             background: var(--bg); 
             color: var(--text); 
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.75; 
             padding: 2rem 1rem; 
         }}
@@ -352,93 +335,29 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
             padding: 2.5rem 2rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }}
-        nav {{
-            margin-bottom: 2rem;
-        }}
-        nav a {{
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }}
-        nav a:hover {{
-            text-decoration: underline;
-        }}
-        h1 {{ 
-            font-size: 2.25rem; 
-            color: #f8fafc; 
-            margin-bottom: 1.5rem; 
-            line-height: 1.25;
-            letter-spacing: -0.02em;
-        }}
-        article h2 {{ 
-            font-size: 1.5rem; 
-            color: var(--accent); 
-            margin-top: 2rem; 
-            margin-bottom: 0.75rem; 
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0.4rem;
-        }}
-        article h3 {{ 
-            font-size: 1.2rem; 
-            color: #f8fafc; 
-            margin-top: 1.5rem; 
-            margin-bottom: 0.5rem; 
-        }}
-        article p {{ 
-            margin-bottom: 1.25rem; 
-            color: #cbd5e1;
-            font-size: 1.05rem;
-        }}
-        article ul, article ol {{ 
-            margin-bottom: 1.25rem; 
-            padding-left: 1.5rem; 
-            color: #cbd5e1;
-        }}
-        article li {{ 
-            margin-bottom: 0.5rem; 
-        }}
-        article blockquote {{
-            border-left: 4px solid var(--accent);
-            padding-left: 1rem;
-            margin: 1.5rem 0;
-            font-style: italic;
-            color: var(--text-muted);
-            background: rgba(56, 189, 248, 0.05);
-            padding: 0.75rem 1rem;
-            border-radius: 0 8px 8px 0;
-        }}
-        article a {{
-            color: var(--accent);
-            text-decoration: underline;
-        }}
-        footer {{
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-        }}
-        @media (max-width: 640px) {{
-            body {{ padding: 1rem 0.5rem; }}
-            .container {{ padding: 1.5rem 1rem; border-radius: 8px; }}
-            h1 {{ font-size: 1.75rem; }}
-        }}
+        nav {{ margin-bottom: 2rem; }}
+        nav a {{ color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }}
+        nav a:hover {{ text-decoration: underline; }}
+        h1 {{ font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }}
+        article h2 {{ font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }}
+        article h3 {{ font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }}
+        article p {{ margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }}
+        article ul, article ol {{ margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }}
+        article li {{ margin-bottom: 0.5rem; }}
+        article blockquote {{ border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }}
+        article a {{ color: var(--accent); text-decoration: underline; }}
+        footer {{ margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }}
+        @media (max-width: 640px) {{ body {{ padding: 1rem 0.5rem; }} .container {{ padding: 1.5rem 1rem; border-radius: 8px; }} h1 {{ font-size: 1.75rem; }} }}
     </style>
 </head>
 <body>
     <div class="container">
-        <nav>
-            <a href="/">← Volver a InfoZ</a>
-        </nav>
+        <nav><a href="/{slug_z}/">← Volver a la categoría</a></nav>
         <article>
             <h1>{titulo}</h1>
             {cuerpo_limpio}
         </article>
-        <footer>
-            <p>&copy; InfoZ Network — Todos los derechos reservados.</p>
-        </footer>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
     </div>
 </body>
 </html>"""
@@ -455,19 +374,109 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
     except Exception as e:
         print(f"    Error al subir {path}: {e}")
 
-def generar_portada_index():
+def generar_indices_y_portada():
+    print("\nGenerando portadas de categorías e índice general...")
+    
+    # 1. Obtenemos todo el árbol del repo en 1 sola llamada API
+    try:
+        branch = repo.get_branch("main")
+        tree = repo.get_git_tree(branch.commit.sha, recursive=True)
+    except Exception:
+        try:
+            branch = repo.get_branch("master")
+            tree = repo.get_git_tree(branch.commit.sha, recursive=True)
+        except Exception as e:
+            print(f"Error obteniendo árbol de repositorios: {e}")
+            return
+
+    # Mapeamos publicaciones por nicho
+    posts_por_nicho = {cat["slug_z"]: [] for cat in CATEGORIAS_100}
+    
+    for item in tree.tree:
+        parts = item.path.split('/')
+        # Buscamos rutas tipo: {slug_z}/{idioma_slug}/{post}.html
+        if len(parts) == 3 and parts[0] in posts_por_nicho and parts[2].endswith('.html') and parts[2] != 'index.html':
+            slug_z = parts[0]
+            lang_slug = parts[1]
+            file_slug = parts[2]
+            
+            titulo = file_slug.replace('.html', '').replace('-', ' ').capitalize()
+            posts_por_nicho[slug_z].append({
+                "path": f"/{item.path}",
+                "titulo": titulo,
+                "idioma": lang_slug.upper()
+            })
+
+    # 2. Creamos o actualizamos el index.html propio de cada carpeta /slug_z/
+    for cat in CATEGORIAS_100:
+        slug_z = cat["slug_z"]
+        nicho = cat["nicho"]
+        posts = posts_por_nicho.get(slug_z, [])
+        
+        items_html = ""
+        if posts:
+            for p in posts:
+                items_html += f"""
+                <li style="margin-bottom: 0.8rem; background: #1e293b; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #334155;">
+                    <span style="font-size: 0.75rem; background: #38bdf8; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 8px;">{p['idioma']}</span>
+                    <a href="{p['path']}" style="color: #f8fafc; text-decoration: none; font-weight: 500;">{p['titulo']}</a>
+                </li>
+                """
+        else:
+            items_html = "<p style='color:#94a3b8;'>Próximamente habrá contenido en este nicho.</p>"
+
+        cat_index_html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{nicho} — InfoZ</title>
+    {PROPELLER_SCRIPT}
+    <style>
+        :root {{ --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }}
+        body {{ background: var(--bg); color: var(--text); padding: 2rem 1rem; line-height: 1.6; }}
+        .container {{ max-width: 800px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; }}
+        h1 {{ color: var(--accent); margin-bottom: 0.5rem; font-size: 2rem; }}
+        p.desc {{ color: #94a3b8; margin-bottom: 1.5rem; }}
+        nav a {{ color: var(--accent); text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 1.5rem; }}
+        ul {{ list-style: none; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="/">← Volver al Inicio</a></nav>
+        <h1>{nicho}</h1>
+        <p class="desc">Artículos publicados en esta categoría:</p>
+        <ul>{items_html}</ul>
+    </div>
+</body>
+</html>"""
+
+        path_cat = f"{slug_z}/index.html"
+        try:
+            existing = repo.get_contents(path_cat)
+            repo.update_file(path_cat, f"Update index for {slug_z}", cat_index_html, existing.sha)
+        except Exception:
+            repo.create_file(path_cat, f"Create index for {slug_z}", cat_index_html)
+
+    # 3. Generamos la Portada Principal (index.html de la raíz)
     grid_items = ""
     for cat in CATEGORIAS_100:
         nicho = cat["nicho"]
         slug_z = cat["slug_z"]
+        cant = len(posts_por_nicho.get(slug_z, []))
         grid_items += f"""
-        <a href="/{slug_z}/" class="card">
+        <a href="/{slug_z}/index.html" class="card">
             <h2>{nicho}</h2>
-            <span class="badge">+{slug_z}</span>
+            <div class="card-footer">
+                <span class="badge">+{slug_z}</span>
+                <span class="count">{cant} posts</span>
+            </div>
         </a>
         """
 
-    html = f"""<!DOCTYPE html>
+    root_index_html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -475,40 +484,19 @@ def generar_portada_index():
     <title>InfoZ — Tu Red de Conocimiento Global</title>
     {PROPELLER_SCRIPT}
     <style>
-        :root {{
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --accent: #38bdf8;
-            --border: #334155;
-        }}
-        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }}
+        :root {{ --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }}
         body {{ background: var(--bg); color: var(--text); padding: 2rem 1rem; line-height: 1.5; }}
         header {{ text-align: center; max-width: 800px; margin: 0 auto 3rem; }}
         h1 {{ font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem; }}
         p {{ color: #94a3b8; font-size: 1.1rem; }}
-        .grid {{ 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
-            gap: 1rem; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-        }}
-        .card {{ 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            padding: 1.25rem; 
-            border-radius: 12px; 
-            text-decoration: none; 
-            color: inherit; 
-            transition: transform 0.2s, border-color 0.2s; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-        }}
+        .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; max-width: 1200px; margin: 0 auto; }}
+        .card {{ background: var(--card-bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 12px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between; }}
         .card:hover {{ transform: translateY(-3px); border-color: var(--accent); }}
         .card h2 {{ font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }}
+        .card-footer {{ display: flex; justify-content: space-between; align-items: center; }}
         .badge {{ font-size: 0.75rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }}
+        .count {{ font-size: 0.75rem; color: #94a3b8; }}
         footer {{ text-align: center; margin-top: 4rem; color: #64748b; font-size: 0.875rem; }}
     </style>
 </head>
@@ -517,24 +505,18 @@ def generar_portada_index():
         <h1>InfoZ</h1>
         <p>Explorá guías, tutoriales y análisis en más de 100 nichos especializados.</p>
     </header>
-    
-    <main class="grid">
-        {grid_items}
-    </main>
-
-    <footer>
-        <p>&copy; InfoZ Network — Todos los derechos reservados.</p>
-    </footer>
+    <main class="grid">{grid_items}</main>
+    <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
 </body>
 </html>"""
 
     try:
         existing_file = repo.get_contents("index.html")
-        repo.update_file("index.html", "Update index page", html, existing_file.sha)
-        print("    Portada index.html actualizada")
+        repo.update_file("index.html", "Update index page", root_index_html, existing_file.sha)
+        print("    Portada principal actualizada con éxito.")
     except Exception:
-        repo.create_file("index.html", "Create index page", html)
-        print("    Portada index.html creada")
+        repo.create_file("index.html", "Create index page", root_index_html)
+        print("    Portada principal creada con éxito.")
 
 def ejecutar_bot_masivo():
     historico = cargar_historico()
@@ -577,7 +559,7 @@ def ejecutar_bot_masivo():
                     art = redactar_post_ia(contexto, lang)
                     slug_post = slugify(art["titulo"])
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
-                    time.sleep(30)
+                    time.sleep(30) # Pausa segura de 30 segundos
                 except Exception as err:
                     print(f"    Falló idioma {lang}: {err}")
                     continue
@@ -589,7 +571,7 @@ def ejecutar_bot_masivo():
             print(f"    ⚠️ Ocurrió un problema procesando el nicho {slug_z}: {e_nicho}. Continuando...")
             continue
         
-    generar_portada_index()
+    generar_indices_y_portada()
 
 if __name__ == "__main__":
     ejecutar_bot_masivo()
