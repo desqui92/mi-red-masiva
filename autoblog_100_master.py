@@ -6,7 +6,6 @@ import random
 import yt_dlp
 from slugify import slugify
 from googleapiclient.discovery import build
-from youtube_transcript_api import YouTubeTranscriptApi
 from google import genai
 from google.genai import types
 from github import Auth, Github
@@ -28,13 +27,14 @@ repo = gh_client.get_repo(REPO_NAME)
 
 REGISTRO_FILE = "procesados.json"
 
-IDIOMAS_MAXIMOS = [
-    "English", "Español", "Português", "Français", "Deutsch", 
-    "Italiano", "Nederlands", "Polski", "Русский", "Türkçe", 
-    "日本語", "한국어", "Tiếng Việt", "Bahasa Indonesia", "ไทย", 
-    "हिन्दी", "العربية", "简体中文", "繁體中文", "Svenska", 
-    "Norsk", "Dansk", "Suomi", "Čeština", "Română"
-]
+# Mapeo seguro para evitar que slugify rompa en idiomas no latinos
+IDIOMAS_MAP = {
+    "English": "en", "Español": "es", "Português": "pt", "Français": "fr", "Deutsch": "de", 
+    "Italiano": "it", "Nederlands": "nl", "Polski": "pl", "Русский": "ru", "Türkçe": "tr", 
+    "日本語": "ja", "한국어": "ko", "Tiếng Việt": "vi", "Bahasa Indonesia": "id", "ไทย": "th", 
+    "हिन्दी": "hi", "العربية": "ar", "简体中文": "zh-cn", "繁體中文": "zh-tw", "Svenska": "sv", 
+    "Norsk": "no", "Dansk": "da", "Suomi": "fi", "Čeština": "cs", "Română": "ro"
+}
 
 CATEGORIAS_100 = [
     {"nicho": "Programación en Python", "slug_z": "pythonz"},
@@ -177,19 +177,6 @@ def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int
             if intento == retries - 1:
                 raise e
 
-def limpiar_y_parsear_json(texto: str) -> dict:
-    if not texto:
-        raise ValueError("Respuesta vacía de la IA")
-    texto = texto.strip()
-    if texto.startswith("```"):
-        lines = texto.splitlines()
-        if lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].startswith("```"):
-            lines = lines[:-1]
-        texto = "\n".join(lines).strip()
-    return json.loads(texto, strict=False)
-
 def limpiar_html_cuerpo(html_str: str) -> str:
     if not html_str:
         return ""
@@ -227,7 +214,7 @@ def buscar_videos_yt(query: str) -> list:
         return []
 
 def descargar_audio_youtube(video_id: str) -> str:
-    url = f"https://www.youtube.com/watch?v={video_id}"
+    url = f"[https://www.youtube.com/watch?v=](https://www.youtube.com/watch?v=){video_id}"
     nombre_base = f"audio_{video_id}"
     ydl_opts = {
         'format': 'm4a/bestaudio/best',
@@ -246,10 +233,9 @@ def obtener_contexto_video(video_id: str) -> str:
         print(f"    ⬇️ Descargando audio de YouTube ({video_id})...")
         archivo_audio = descargar_audio_youtube(video_id)
         
-        print(f"    ☁️ Subiendo audio a Gemini 3.7...")
+        print(f"    ☁️ Subiendo audio a Gemini...")
         uploaded_file = ai_client.files.upload(file=archivo_audio)
         
-        # Espera de procesamiento
         for _ in range(15):
             if uploaded_file.state.name == "ACTIVE":
                 break
@@ -259,7 +245,6 @@ def obtener_contexto_video(video_id: str) -> str:
         print(f"    🎙️ Transcribiendo audio...")
         prompt = "Transcribe todo el audio hablado de este video de forma concisa. Devuelve texto plano."
         
-        # Usamos el cliente directo con try/except
         res = ai_client.models.generate_content(
             model='gemini-3.7-flash',
             contents=[uploaded_file, prompt]
@@ -286,33 +271,40 @@ def obtener_contexto_video(video_id: str) -> str:
 
 def redactar_post_ia(contexto: str, idioma: str) -> dict:
     prompt = f"""
-    Eres un redactor SEO profesional. Genera un artículo completo de blog bien estructurado a partir del contenido de este video.
+    Eres un redactor SEO profesional. Genera un artículo completo de blog bien estructurado sobre este tema.
     
-    REGLAS STRICTAS DE FORMATO:
-    - Responde ÚNICAMENTE un JSON estricto.
-    - En 'contenido_html' usa etiquetas HTML directas (<h2>, <p>, <ul>, <li>).
-    - PROHIBIDO usar bloques de código markdown (como ```html o ```) dentro del string 'contenido_html'.
+    REGLAS OBLIGATORIAS:
+    1. La PRIMERA LÍNEA de tu respuesta DEBE ser el título del artículo envuelto en <h1> y </h1>.
+    2. A partir de la segunda línea, escribe todo el cuerpo del artículo usando etiquetas HTML limpias (<h2>, <p>, <ul>, <li>, blockquote).
+    3. Idioma de salida: {idioma}.
+    4. NO incluyas bloques de código markdown (prohibido usar ```html o ```). Devuelve solo el HTML plano.
     
-    Estructura del JSON:
-    {{
-        "titulo": "Título SEO atractivo",
-        "contenido_html": "<h2>Sección</h2><p>Texto plano con etiquetas HTML reales...</p>"
-    }}
-    
-    Idioma de salida: {idioma}
-    Fuente del video: {contexto[:4000]}
+    Fuente / Contexto:
+    {contexto[:3500]}
     """
-    res_text = llamar_gemini_con_reintento(prompt, mime_type="application/json")
-    data = limpiar_y_parsear_json(res_text)
-    if "contenido_html" in data:
-        data["contenido_html"] = limpiar_html_cuerpo(data["contenido_html"])
-    return data
+    res_text = llamar_gemini_con_reintento(prompt)
+    if not res_text:
+        return None
+        
+    lineas = res_text.strip().splitlines()
+    titulo = "Artículo InfoZ"
+    cuerpo_lineas = []
+    
+    for line in lineas:
+        if "<h1>" in line and "</h1>" in line and titulo == "Artículo InfoZ":
+            titulo = line.replace("<h1>", "").replace("</h1>", "").strip()
+        else:
+            cuerpo_lineas.append(line)
+            
+    cuerpo = "\n".join(cuerpo_lineas).strip()
+    return {"titulo": titulo, "contenido_html": cuerpo}
 
 def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str):
     cuerpo_limpio = limpiar_html_cuerpo(cuerpo)
+    lang_code = IDIOMAS_MAP.get(idioma, "en")
     
     html = f"""<!DOCTYPE html>
-<html lang="{idioma[:2].lower()}">
+<html lang="{lang_code}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -361,7 +353,7 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
 </head>
 <body>
     <div class="container">
-        <nav><a href="/{slug_z}/">← Volver a la categoría</a></nav>
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
         <article>
             <h1>{titulo}</h1>
             {cuerpo_limpio}
@@ -371,22 +363,21 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
 </body>
 </html>"""
     
-    path = f"{slug_z}/{slugify(idioma)}/{slug_post}.html"
+    path = f"{slug_z}/{lang_code}/{slug_post}.html"
     try:
         try:
             existing_file = repo.get_contents(path)
             repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
-            print(f"    Publicado/Actualizado: {path}")
+            print(f"    ✅ Publicado/Actualizado: {path}")
         except Exception:
             repo.create_file(path, f"Post for {slug_z} ({idioma}): {slug_post}", html)
-            print(f"    Publicado: {path}")
+            print(f"    ✅ Publicado: {path}")
     except Exception as e:
-        print(f"    Error al subir {path}: {e}")
+        print(f"    ❌ Error al subir {path}: {e}")
 
-def generar_indices_y_portada():
+def generar_indices_y_portada(nichos_modificados: list):
     print("\nGenerando portadas de categorías e índice general...")
     
-    # 1. Obtenemos todo el árbol del repo en 1 sola llamada API
     try:
         branch = repo.get_branch("main")
         tree = repo.get_git_tree(branch.commit.sha, recursive=True)
@@ -398,12 +389,10 @@ def generar_indices_y_portada():
             print(f"Error obteniendo árbol de repositorios: {e}")
             return
 
-    # Mapeamos publicaciones por nicho
     posts_por_nicho = {cat["slug_z"]: [] for cat in CATEGORIAS_100}
     
     for item in tree.tree:
         parts = item.path.split('/')
-        # Buscamos rutas tipo: {slug_z}/{idioma_slug}/{post}.html
         if len(parts) == 3 and parts[0] in posts_por_nicho and parts[2].endswith('.html') and parts[2] != 'index.html':
             slug_z = parts[0]
             lang_slug = parts[1]
@@ -411,14 +400,17 @@ def generar_indices_y_portada():
             
             titulo = file_slug.replace('.html', '').replace('-', ' ').capitalize()
             posts_por_nicho[slug_z].append({
-                "path": f"/{item.path}",
+                "path": f"../{lang_slug}/{file_slug}",
                 "titulo": titulo,
                 "idioma": lang_slug.upper()
             })
 
-    # 2. Creamos o actualizamos el index.html propio de cada carpeta /slug_z/
+    # Actualizamos ÚNICAMENTE las categorías afectadas para no agotar cuotas de API
     for cat in CATEGORIAS_100:
         slug_z = cat["slug_z"]
+        if slug_z not in nichos_modificados:
+            continue
+            
         nicho = cat["nicho"]
         posts = posts_por_nicho.get(slug_z, [])
         
@@ -454,7 +446,7 @@ def generar_indices_y_portada():
 </head>
 <body>
     <div class="container">
-        <nav><a href="/">← Volver al Inicio</a></nav>
+        <nav><a href="../index.html">← Volver al Inicio</a></nav>
         <h1>{nicho}</h1>
         <p class="desc">Artículos publicados en esta categoría:</p>
         <ul>{items_html}</ul>
@@ -469,14 +461,14 @@ def generar_indices_y_portada():
         except Exception:
             repo.create_file(path_cat, f"Create index for {slug_z}", cat_index_html)
 
-    # 3. Generamos la Portada Principal (index.html de la raíz)
+    # Portada Principal
     grid_items = ""
     for cat in CATEGORIAS_100:
         nicho = cat["nicho"]
         slug_z = cat["slug_z"]
         cant = len(posts_por_nicho.get(slug_z, []))
         grid_items += f"""
-        <a href="/{slug_z}/index.html" class="card">
+        <a href="./{slug_z}/index.html" class="card">
             <h2>{nicho}</h2>
             <div class="card-footer">
                 <span class="badge">+{slug_z}</span>
@@ -530,6 +522,7 @@ def generar_indices_y_portada():
 def ejecutar_bot_masivo():
     historico = cargar_historico()
     lote = random.sample(CATEGORIAS_100, 5)
+    nichos_procesados = []
     
     for item in lote:
         nicho = item["nicho"]
@@ -544,7 +537,6 @@ def ejecutar_bot_masivo():
             video_id = None
             contexto = None
             
-            # Intentamos extraer contexto del audio de YouTube
             if video_ids:
                 for vid in video_ids:
                     if vid in historico:
@@ -555,45 +547,42 @@ def ejecutar_bot_masivo():
                         contexto = data_vid
                         break
             
-            # PLAN B: Si no hay video o falló la transcripción, creamos contexto temático directo
             if not contexto:
                 print(f"    💡 Plan B: Generando post temático nativo sobre '{kw}'...")
                 contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detallada sobre este tema."
 
             print(f"    🌐 Generando los 25 artículos para {slug_z}...")
 
-            for lang in IDIOMAS_MAXIMOS:
+            for lang_name in IDIOMAS_MAP.keys():
                 try:
-                    art = redactar_post_ia(contexto, lang)
+                    art = redactar_post_ia(contexto, lang_name)
                     
-                    # Validación estricta para asegurar que el JSON no vino vacío
                     if not art or "titulo" not in art or "contenido_html" not in art:
-                        print(f"    ⚠️ Respuesta inválida de la IA en {lang}, reintentando...")
+                        print(f"    ⚠️ Respuesta inválida de la IA en {lang_name}, saltando...")
                         continue
 
                     slug_post = slugify(art["titulo"])
                     if not slug_post:
                         slug_post = f"article-{int(time.time())}"
 
-                    publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
-                    
-                    # Pausa entre idiomas para respetar la cuota
-                    time.sleep(30) 
+                    publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
+                    time.sleep(10) # 10s alcanza bien para respetar límites de cuota
                     
                 except Exception as err:
-                    print(f"    ❌ Falló idioma {lang}: {err}")
+                    print(f"    ❌ Falló idioma {lang_name}: {err}")
                     continue
                 
             if video_id:
                 historico.append(video_id)
                 guardar_historico(historico)
 
+            nichos_procesados.append(slug_z)
+
         except Exception as e_nicho:
             print(f"    ⚠️ Ocurrió un problema procesando el nicho {slug_z}: {e_nicho}. Continuando...")
             continue
         
-    # Recién cuando los posts se crearon, refrescamos los índices
-    generar_indices_y_portada()
+    generar_indices_y_portada(nichos_procesados)
 
 if __name__ == "__main__":
     ejecutar_bot_masivo()
