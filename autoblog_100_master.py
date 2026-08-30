@@ -16,7 +16,7 @@ GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = os.environ.get("REPO_NAME", "tu-usuario/tu-repositorio-blog")
 
 # Script de tu red de anuncios (PropellerAds / PopAds / Adsterra)
-PROPELLER_SCRIPT = """<script>(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}}('groleegni.net',1234567,document.createElement('script')))</script>"""
+PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
 
 # Clientes API
 yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
