@@ -440,7 +440,7 @@ def ejecutar_bot_masivo():
                     art = redactar_post_ia(contexto, lang)
                     slug_post = slugify(art["titulo"])
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
-                    time.sleep(1.2)
+                    time.sleep(30)
                 except Exception as err:
                     print(f"    Falló idioma {lang}: {err}")
                     continue
