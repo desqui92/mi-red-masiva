@@ -157,7 +157,7 @@ def guardar_historico(historico: list):
 
 def generar_busqueda_ia(nicho: str) -> str:
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res = ai_client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+    res = ai_client.models.generate_content(model='gemini-3.6-flash', contents=prompt)
     return res.text.strip().replace('"', '')
 
 def buscar_video_yt(query: str) -> str:
@@ -185,7 +185,7 @@ def redactar_post_ia(transcripcion: str, idioma: str) -> dict:
     Transcripción: {transcripcion[:4000]}
     """
     res = ai_client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.6-flash',
         contents=prompt,
         config=types.GenerateContentConfig(response_mime_type="application/json")
     )
