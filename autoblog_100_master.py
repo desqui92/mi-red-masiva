@@ -3,6 +3,7 @@ import os
 import json
 import time
 import random
+import re
 import yt_dlp
 from slugify import slugify
 from googleapiclient.discovery import build
@@ -16,18 +17,24 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
+# Modelo válido de la API
+MODEL_GEMINI = "gemini-2.5-flash"
 
-yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
-ai_client = genai.Client(api_key=GEMINI_API_KEY)
+PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='[https://n6wxm.com/vignette.min.js](https://n6wxm.com/vignette.min.js)'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
 
-auth = Auth.Token(GITHUB_TOKEN)
-gh_client = Github(auth=auth)
-repo = gh_client.get_repo(REPO_NAME)
+# Inicialización segura
+yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY) if YOUTUBE_API_KEY else None
+ai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+
+if GITHUB_TOKEN:
+    auth = Auth.Token(GITHUB_TOKEN)
+    gh_client = Github(auth=auth)
+    repo = gh_client.get_repo(REPO_NAME)
+else:
+    repo = None
 
 REGISTRO_FILE = "procesados.json"
 
-# Mapeo seguro para evitar que slugify rompa en idiomas no latinos
 IDIOMAS_MAP = {
     "English": "en", "Español": "es", "Português": "pt", "Français": "fr", "Deutsch": "de", 
     "Italiano": "it", "Nederlands": "nl", "Polski": "pl", "Русский": "ru", "Türkçe": "tr", 
@@ -140,6 +147,8 @@ CATEGORIAS_100 = [
 ]
 
 def cargar_historico() -> list:
+    if not repo:
+        return []
     try:
         content = repo.get_contents(REGISTRO_FILE)
         return json.loads(content.decoded_content.decode('utf-8'))
@@ -147,6 +156,8 @@ def cargar_historico() -> list:
         return []
 
 def guardar_historico(historico: list):
+    if not repo:
+        return
     json_data = json.dumps(historico, indent=2)
     try:
         content = repo.get_contents(REGISTRO_FILE)
@@ -155,11 +166,13 @@ def guardar_historico(historico: list):
         repo.create_file(REGISTRO_FILE, "Create processed log", json_data)
 
 def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int = 4):
+    if not ai_client:
+        raise ValueError("GEMINI_API_KEY no está configurada.")
     config = types.GenerateContentConfig(response_mime_type=mime_type) if mime_type else None
     for intento in range(retries):
         try:
             res = ai_client.models.generate_content(
-                model='gemini-3.7-flash',
+                model=MODEL_GEMINI,
                 contents=prompt,
                 config=config
             )
@@ -168,10 +181,10 @@ def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int
             error_msg = str(e).lower()
             if "429" in error_msg or "quota" in error_msg or "resource_exhausted" in error_msg:
                 wait_time = 15 * (intento + 1)
-                print(f"    ⚠️ Rate limit alcanzado. Esperando {wait_time}s...")
+                print(f"    Rate limit alcanzado. Esperando {wait_time}s...")
                 time.sleep(wait_time)
             else:
-                print(f"    ⚠️ Reintento Gemini ({intento + 1}/{retries}) por error: {e}")
+                print(f"    Reintento Gemini ({intento + 1}/{retries}) por error: {e}")
                 time.sleep(5)
                 
             if intento == retries - 1:
@@ -181,23 +194,20 @@ def limpiar_html_cuerpo(html_str: str) -> str:
     if not html_str:
         return ""
     texto = html_str.strip()
-    if texto.startswith("```"):
-        lines = texto.splitlines()
-        if lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].startswith("```"):
-            lines = lines[:-1]
-        texto = "\n".join(lines).strip()
-    return texto
+    texto = re.sub(r"^```[a-zA-Z]*\n?", "", texto)
+    texto = re.sub(r"\n?```$", "", texto)
+    return texto.strip()
 
 def generar_busqueda_ia(nicho: str) -> str:
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
     res_text = llamar_gemini_con_reintento(prompt)
     lineas = res_text.strip().splitlines() if res_text else []
-    primera_linea = lineas[0] if lineas else ""
+    primera_linea = lineas[0] if lineas else nicho
     return primera_linea.replace('"', '').replace("'", "").strip()
 
 def buscar_videos_yt(query: str) -> list:
+    if not yt_client:
+        return []
     try:
         req = yt_client.search().list(
             q=query, 
@@ -214,6 +224,7 @@ def buscar_videos_yt(query: str) -> list:
         return []
 
 def descargar_audio_youtube(video_id: str) -> str:
+    # URL corregida sin sintaxis markdown
     url = f"[https://www.youtube.com/watch?v=](https://www.youtube.com/watch?v=){video_id}"
     nombre_base = f"audio_{video_id}"
     ydl_opts = {
@@ -230,10 +241,10 @@ def obtener_contexto_video(video_id: str) -> str:
     archivo_audio = None
     uploaded_file = None
     try:
-        print(f"    ⬇️ Descargando audio de YouTube ({video_id})...")
+        print(f"    Descargando audio de YouTube ({video_id})...")
         archivo_audio = descargar_audio_youtube(video_id)
         
-        print(f"    ☁️ Subiendo audio a Gemini...")
+        print(f"    Subiendo audio a Gemini...")
         uploaded_file = ai_client.files.upload(file=archivo_audio)
         
         for _ in range(15):
@@ -242,11 +253,11 @@ def obtener_contexto_video(video_id: str) -> str:
             time.sleep(2)
             uploaded_file = ai_client.files.get(name=uploaded_file.name)
 
-        print(f"    🎙️ Transcribiendo audio...")
+        print(f"    Transcribiendo audio...")
         prompt = "Transcribe todo el audio hablado de este video de forma concisa. Devuelve texto plano."
         
         res = ai_client.models.generate_content(
-            model='gemini-3.7-flash',
+            model=MODEL_GEMINI,
             contents=[uploaded_file, prompt]
         )
         if res and res.text:
@@ -254,7 +265,7 @@ def obtener_contexto_video(video_id: str) -> str:
         return None
 
     except Exception as e:
-        print(f"    ⚠️ No se pudo obtener el audio ({e}). Activando Plan B...")
+        print(f"    No se pudo obtener el audio ({e}). Activando Plan B...")
         return None
         
     finally:
@@ -277,7 +288,7 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     1. La PRIMERA LÍNEA de tu respuesta DEBE ser el título del artículo envuelto en <h1> y </h1>.
     2. A partir de la segunda línea, escribe todo el cuerpo del artículo usando etiquetas HTML limpias (<h2>, <p>, <ul>, <li>, blockquote).
     3. Idioma de salida: {idioma}.
-    4. NO incluyas bloques de código markdown (prohibido usar ```html o ```). Devuelve solo el HTML plano.
+    4. NO incluyas bloques de código markdown (prohibido usar ```html). Devuelve solo el HTML plano.
     
     Fuente / Contexto:
     {contexto[:3500]}
@@ -285,8 +296,9 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     res_text = llamar_gemini_con_reintento(prompt)
     if not res_text:
         return None
-        
-    lineas = res_text.strip().splitlines()
+    
+    texto_limpio = limpiar_html_cuerpo(res_text)
+    lineas = texto_limpio.splitlines()
     titulo = "Artículo InfoZ"
     cuerpo_lineas = []
     
@@ -300,6 +312,10 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     return {"titulo": titulo, "contenido_html": cuerpo}
 
 def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str):
+    if not repo:
+        print("    Error: Conexión con GitHub no inicializada.")
+        return
+
     cuerpo_limpio = limpiar_html_cuerpo(cuerpo)
     lang_code = IDIOMAS_MAP.get(idioma, "en")
     
@@ -368,14 +384,16 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
         try:
             existing_file = repo.get_contents(path)
             repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
-            print(f"    ✅ Publicado/Actualizado: {path}")
+            print(f"    Publicado/Actualizado: {path}")
         except Exception:
             repo.create_file(path, f"Post for {slug_z} ({idioma}): {slug_post}", html)
-            print(f"    ✅ Publicado: {path}")
+            print(f"    Publicado: {path}")
     except Exception as e:
-        print(f"    ❌ Error al subir {path}: {e}")
+        print(f"    Error al subir {path}: {e}")
 
 def generar_indices_y_portada(nichos_modificados: list):
+    if not repo:
+        return
     print("\nGenerando portadas de categorías e índice general...")
     
     try:
@@ -405,7 +423,6 @@ def generar_indices_y_portada(nichos_modificados: list):
                 "idioma": lang_slug.upper()
             })
 
-    # Actualizamos ÚNICAMENTE las categorías afectadas para no agotar cuotas de API
     for cat in CATEGORIAS_100:
         slug_z = cat["slug_z"]
         if slug_z not in nichos_modificados:
@@ -461,7 +478,6 @@ def generar_indices_y_portada(nichos_modificados: list):
         except Exception:
             repo.create_file(path_cat, f"Create index for {slug_z}", cat_index_html)
 
-    # Portada Principal
     grid_items = ""
     for cat in CATEGORIAS_100:
         nicho = cat["nicho"]
@@ -528,7 +544,7 @@ def ejecutar_bot_masivo():
         nicho = item["nicho"]
         slug_z = item["slug_z"]
         
-        print(f"\n🚀 Procesando sitio: {slug_z} ({nicho})")
+        print(f"\nProcesando sitio: {slug_z} ({nicho})")
         
         try:
             kw = generar_busqueda_ia(nicho)
@@ -548,17 +564,17 @@ def ejecutar_bot_masivo():
                         break
             
             if not contexto:
-                print(f"    💡 Plan B: Generando post temático nativo sobre '{kw}'...")
+                print(f"    Plan B: Generando post temático nativo sobre '{kw}'...")
                 contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detallada sobre este tema."
 
-            print(f"    🌐 Generando los 25 artículos para {slug_z}...")
+            print(f"    Generando los 25 artículos para {slug_z}...")
 
             for lang_name in IDIOMAS_MAP.keys():
                 try:
                     art = redactar_post_ia(contexto, lang_name)
                     
                     if not art or "titulo" not in art or "contenido_html" not in art:
-                        print(f"    ⚠️ Respuesta inválida de la IA en {lang_name}, saltando...")
+                        print(f"    Respuesta inválida de la IA en {lang_name}, saltando...")
                         continue
 
                     slug_post = slugify(art["titulo"])
@@ -566,10 +582,10 @@ def ejecutar_bot_masivo():
                         slug_post = f"article-{int(time.time())}"
 
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
-                    time.sleep(10) # 10s alcanza bien para respetar límites de cuota
+                    time.sleep(10)
                     
                 except Exception as err:
-                    print(f"    ❌ Falló idioma {lang_name}: {err}")
+                    print(f"    Falló idioma {lang_name}: {err}")
                     continue
                 
             if video_id:
@@ -579,7 +595,7 @@ def ejecutar_bot_masivo():
             nichos_procesados.append(slug_z)
 
         except Exception as e_nicho:
-            print(f"    ⚠️ Ocurrió un problema procesando el nicho {slug_z}: {e_nicho}. Continuando...")
+            print(f"    Ocurrió un problema procesando el nicho {slug_z}: {e_nicho}. Continuando...")
             continue
         
     generar_indices_y_portada(nichos_procesados)
