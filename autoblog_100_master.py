@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
 from google import genai
 from google.genai import types
-from github import Github
+from github import Auth, Github
 
 # --- 1. CREDENCIALES Y CONFIGURACIÓN ---
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
@@ -21,7 +21,10 @@ PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='http
 # Clientes API
 yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
-gh_client = Github(GITHUB_TOKEN)
+
+# Autenticación actualizada para GitHub
+auth = Auth.Token(GITHUB_TOKEN)
+gh_client = Github(auth=auth)
 repo = gh_client.get_repo(REPO_NAME)
 
 REGISTRO_FILE = "procesados.json"
@@ -155,30 +158,60 @@ def guardar_historico(historico: list):
     except Exception:
         repo.create_file(REGISTRO_FILE, "Create processed log", json_data)
 
+def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int = 3):
+    """Maneja caídas 503 o límites de cuota reintentando con espera progresiva"""
+    config = types.GenerateContentConfig(response_mime_type=mime_type) if mime_type else None
+    for intento in range(retries):
+        try:
+            res = ai_client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+                config=config
+            )
+            return res.text
+        except Exception as e:
+            print(f"    ⚠️ Reintento Gemini ({intento + 1}/{retries}) por error: {e}")
+            if intento < retries - 1:
+                time.sleep(6 * (intento + 1))
+            else:
+                raise e
+
 def generar_busqueda_ia(nicho: str) -> str:
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res = ai_client.models.generate_content(model='gemini-3.6-flash', contents=prompt)
-    return res.text.strip().replace('"', '')
+    res_text = llamar_gemini_con_reintento(prompt)
+    return res_text.strip().replace('"', '')
 
 def buscar_videos_yt(query: str) -> list:
-    """Busca hasta 5 candidatos para tener alternativas si alguno no tiene subtítulos"""
-    req = yt_client.search().list(q=query, part="snippet", type="video", order="relevance", maxResults=5)
-    res = req.execute()
-    items = res.get("items", [])
-    return [item["id"]["videoId"] for item in items]
+    """Filtra explícitamente por videos con subtítulos habilitados (videoCaption='closedCaption')"""
+    try:
+        req = yt_client.search().list(
+            q=query, 
+            part="snippet", 
+            type="video", 
+            videoCaption="closedCaption",
+            order="relevance", 
+            maxResults=5
+        )
+        res = req.execute()
+        items = res.get("items", [])
+        return [item["id"]["videoId"] for item in items]
+    except Exception as e:
+        print(f"    Error buscando en YouTube: {e}")
+        return []
 
 def obtener_transcripcion(video_id: str):
-    """Busca cualquier subtítulo disponible (manual o autogenerado)"""
+    """Busca transcripciones con soporte fallback directo"""
     try:
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-        try:
-            t = transcript_list.find_transcript(['es', 'en', 'es-419', 'en-US'])
-        except Exception:
-            t = next(iter(transcript_list))
-        data = t.fetch()
+        data = YouTubeTranscriptApi.get_transcript(video_id, languages=['es', 'en', 'es-419', 'en-US'])
         return " ".join([x['text'] for x in data])
     except Exception:
-        return None
+        try:
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            for t in transcript_list:
+                data = t.fetch()
+                return " ".join([x['text'] for x in data])
+        except Exception:
+            return None
 
 def redactar_post_ia(transcripcion: str, idioma: str) -> dict:
     prompt = f"""
@@ -191,12 +224,8 @@ def redactar_post_ia(transcripcion: str, idioma: str) -> dict:
     Idioma de salida: {idioma}
     Transcripción: {transcripcion[:4000]}
     """
-    res = ai_client.models.generate_content(
-        model='gemini-3.6-flash',
-        contents=prompt,
-        config=types.GenerateContentConfig(response_mime_type="application/json")
-    )
-    return json.loads(res.text)
+    res_text = llamar_gemini_con_reintento(prompt, mime_type="application/json")
+    return json.loads(res_text)
 
 def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str):
     html = f"""<!DOCTYPE html>
@@ -319,43 +348,48 @@ def ejecutar_bot_masivo():
         
         print(f"\nProcesando sitio: {slug_z} ({nicho})")
         
-        kw = generar_busqueda_ia(nicho)
-        video_ids = buscar_videos_yt(kw)
-        
-        if not video_ids:
-            print(f"No se encontraron videos para la búsqueda: {kw}")
-            continue
+        try:
+            kw = generar_busqueda_ia(nicho)
+            video_ids = buscar_videos_yt(kw)
             
-        video_id = None
-        transcripcion = None
-        
-        for vid in video_ids:
-            if vid in historico:
+            if not video_ids:
+                print(f"No se encontraron videos aptos para la búsqueda: {kw}")
                 continue
-            txt = obtener_transcripcion(vid)
-            if txt:
-                video_id = vid
-                transcripcion = txt
-                break
-        
-        if not video_id or not transcripcion:
-            print(f"Ninguno de los videos probados tenía transcripción disponible")
-            continue
+                
+            video_id = None
+            transcripcion = None
             
-        print(f"Video seleccionado: {video_id} - Generando entradas...")
+            for vid in video_ids:
+                if vid in historico:
+                    continue
+                txt = obtener_transcripcion(vid)
+                if txt:
+                    video_id = vid
+                    transcripcion = txt
+                    break
+            
+            if not video_id or not transcripcion:
+                print(f"Ninguno de los videos probados tenía transcripción ejecutable")
+                continue
+                
+            print(f"Video seleccionado: {video_id} - Generando entradas...")
 
-        for lang in IDIOMAS_MAXIMOS:
-            try:
-                art = redactar_post_ia(transcripcion, lang)
-                slug_post = slugify(art["titulo"])
-                publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
-                time.sleep(1.2)
-            except Exception as err:
-                print(f"    Falló idioma {lang}: {err}")
-                continue
-            
-        historico.append(video_id)
-        guardar_historico(historico)
+            for lang in IDIOMAS_MAXIMOS:
+                try:
+                    art = redactar_post_ia(transcripcion, lang)
+                    slug_post = slugify(art["titulo"])
+                    publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang)
+                    time.sleep(1.2)
+                except Exception as err:
+                    print(f"    Falló idioma {lang}: {err}")
+                    continue
+                
+            historico.append(video_id)
+            guardar_historico(historico)
+
+        except Exception as e_nicho:
+            print(f"    ⚠️ Ocurrió un problema procesando el nicho {slug_z}: {e_nicho}. Continuando con el siguiente...")
+            continue
         
     generar_portada_index()
 
