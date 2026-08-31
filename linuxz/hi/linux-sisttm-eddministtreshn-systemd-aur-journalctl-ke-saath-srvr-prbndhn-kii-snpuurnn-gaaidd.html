@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux सिस्टम एडमिनिस्ट्रेशन: systemd और journalctl के साथ सर्वर प्रबंधन की संपूर्ण गाइड</title>
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Linux सिस्टम एडमिनिस्ट्रेशन: systemd और journalctl के साथ सर्वर प्रबंधन की संपूर्ण गाइड</h1>
+            <p>आधुनिक Linux वितरणों (जैसे RHEL, CentOS, Ubuntu, Debian) में <strong>systemd</strong> अब मानक init सिस्टम बन चुका है। यह न केवल सिस्टम को बूट करता है, बल्कि सेवाओं (services), सॉकेट्स, टाइमर और माउंट पॉइंट्स को भी मैनेज करता है। वहीं, <strong>journalctl</strong> systemd का लॉगिंग टूल है, जो पूरे सिस्टम का केंद्रीकृत लॉग प्रदान करता है। इस गाइड में हम सीखेंगे कि किसी प्रोडक्शन सर्वर को प्रभावी ढंग से कैसे चलाया जाए, समस्याओं का निदान कैसे किया जाए, और systemd की शक्ति का पूरा उपयोग कैसे किया जाए।</p>
+
+<h2>1. systemd की मूल अवधारणा और यूनिट्स (Units) को समझें</h2>
+<p>systemd में सब कुछ एक "यूनिट" है। यूनिट फाइलें सर्विस, सॉकेट, टाइमर, या माउंट को परिभाषित करती हैं। इन फाइलों का विस्तार <strong>.service</strong>, <strong>.socket</strong>, <strong>.timer</strong> आदि होता है। एक सिस्टम एडमिन के रूप में आपको सबसे अधिक बार <code>systemctl</code> कमांड का उपयोग करना होगा।</p>
+<ul>
+  <li><strong>स्टार्ट और स्टॉप:</strong> <code>sudo systemctl start nginx.service</code> (स्टार्ट) और <code>sudo systemctl stop nginx.service</code> (स्टॉप)।</li>
+  <li><strong>रीस्टार्ट और रीलोड:</strong> <code>sudo systemctl restart nginx</code> (पूरी तरह बंद करके चालू करें) और <code>sudo systemctl reload nginx</code> (कॉन्फिग बदलने पर बिना डाउनटाइम के नई सेटिंग्स लागू करें)।</li>
+  <li><strong>स्टेटस जांच:</strong> <code>systemctl status nginx</code> - यह आपको बताता है कि सेवा चल रही है या नहीं, उसका PID, मेमोरी उपयोग और हालिया लॉग दिखाता है।</li>
+  <li><strong>बूट पर सक्षम/अक्षम करना:</strong> <code>sudo systemctl enable nginx</code> (सिस्टम बूट पर स्वतः चालू) और <code>sudo systemctl disable nginx</code> (बूट पर न चलें)।</li>
+</ul>
+<blockquote>प्रो टिप: <code>systemctl list-units --type=service --state=running</code> चलाकर आप सभी चालू सेवाओं की सूची देख सकते हैं। यह सर्वर पर संसाधन खपत का त्वरित विश्लेषण करने में मदद करता है।</blockquote>
+
+<h2>2. कस्टम systemd सर्विस फाइल कैसे बनाएं?</h2>
+<p>मान लीजिए आपके पास एक Python या Node.js स्क्रिप्ट है जो सर्वर पर बैकग्राउंड में चलनी चाहिए। इसे systemd के अंतर्गत चलाने के लिए आपको <code>/etc/systemd/system/myapp.service</code> में एक फाइल बनानी होगी।</p>
+<pre>[Unit]
+Description=My Custom Application
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/myapp
+ExecStart=/usr/bin/python3 /var/www/myapp/app.py
+Restart=on-failure
+RestartSec=5
+Environment="NODE_ENV=production"
+
+[Install]
+WantedBy=multi-user.target</pre>
+<p>फाइल बनाने के बाद, निम्न कमांड चलाएं:</p>
+<ul>
+  <li><code>sudo systemctl daemon-reload</code> (नई यूनिट फाइल को पहचानने के लिए)</li>
+  <li><code>sudo systemctl start myapp</code></li>
+  <li><code>sudo systemctl enable myapp</code></li>
+</ul>
+<p>यहाँ <code>Restart=on-failure</code> का मतलब है कि अगर प्रोसेस क्रैश होता है, तो systemd 5 सेकंड बाद उसे फिर से शुरू कर देगा। यह प्रोडक्शन सर्वर के लिए बेहद आवश्यक है।</p>
+
+<h2>3. journalctl: लॉग्स का पावरहाउस</h2>
+<p><code>journalctl</code> systemd का लॉग व्यूअर है। यह <code>/var/log/</code> में बिखरी फाइलों के बजाय बाइनरी फॉर्मेट में केंद्रीय रूप से लॉग स्टोर करता है। इसे पढ़ना और फिल्टर करना बहुत आसान है।</p>
+<ul>
+  <li><strong>पूरा लॉग देखें:</strong> <code>journalctl</code></li>
+  <li><strong>सिर्फ एक सर्विस के लॉग:</strong> <code>journalctl -u nginx.service</code></li>
+  <li><strong>अंतिम 50 लाइनें:</strong> <code>journalctl -n 50</code></li>
+  <li><strong>लाइव (फॉलो) मोड:</strong> <code>journalctl -f</code> (यह tail -f की तरह है, रीयल-टाइम में नए लॉग देखने के लिए)</li>
+  <li><strong>समय के अनुसार फिल्टर:</strong> <code>journalctl --since "2025-01-20 10:00:00" --until "2025-01-20 12:00:00"</code></li>
+</ul>
+<blockquote>महत्वपूर्ण: <code>journalctl -u nginx --since today</code> का उपयोग करके आप आज के सभी nginx लॉग्स देख सकते हैं। यह डेली चेकअप के लिए सबसे तेज़ तरीका है।</blockquote>
+
+<h2>4. journalctl से समस्या निदान (Troubleshooting) के उन्नत तरीके</h2>
+<p>जब सर्वर पर कोई समस्या आती है, तो journalctl आपकी पहली पसंद होना चाहिए। यहाँ कुछ प्रो-लेवल फिल्टर दिए गए हैं:</p>
+<ul>
+  <li><strong>गंभीर त्रुटियां (Errors) खोजें:</strong> <code>journalctl -p err</code> (यह केवल error, critical, alert और emergency लेवल के लॉग दिखाता है)</li>
+  <li><strong>कर्नेल मैसेज देखें:</strong> <code>journalctl -k</code> (हार्डवेयर समस्याओं के लिए)</li>
+  <li><strong>एक पार्टिकुलर प्रोसेस का लॉग:</strong> <code>journalctl _PID=1234</code> (PID जानने के लिए पहले <code>pgrep -f "app.py"</code> चलाएं)</li>
+  <li><strong>बूट से संबंधित लॉग:</strong> <code>journalctl -b -1</code> (पिछले बूट के लॉग दिखाता है। जब सर्वर क्रैश होकर रिबूट हुआ हो, तो यह सबसे महत्वपूर्ण है)</li>
+</ul>
+
+<h2>5. systemd टाइमर के साथ शेड्यूलिंग (Cron का आधुनिक विकल्प)</h2>
+<p>पुराने cron की तुलना में systemd टाइमर अधिक लचीले और विश्वसनीय हैं। वे मिस्ड जॉब्स को पकड़ सकते हैं और लॉगिंग बेहतर करते हैं। उदाहरण के लिए, एक बैकअप स्क्रिप्ट को रोजाना रात 2 बजे चलाने के लिए:</p>
+<p><strong>स्टेप 1:</strong> <code>/etc/systemd/system/backup.service</code> बनाएं:</p>
+<pre>[Unit]
+Description=Daily Backup Script
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup.sh</pre>
+<p><strong>स्टेप 2:</strong> <code>/etc/systemd/system/backup.timer</code> बनाएं:</p>
+<pre>[Unit]
+Description=Run backup daily at 2AM
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target</pre>
+<p><strong>स्टेप 3:</strong> टाइमर को सक्रिय करें:</p>
+<p><code>sudo systemctl enable --now backup.timer</code></p>
+<p>अब आप <code>systemctl list-timers</code> से सभी टाइमर की स्थिति देख सकते हैं। <code>Persistent=true</code> का मतलब है कि अगर सर्वर उस समय बंद था, तो बूट होने के तुरंत बाद जॉब चलेगी।</p>
+
+<h2>6. संसाधन नियंत्रण (Resource Control) और सुरक्षा</h2>
+<p>systemd आपको प्रत्येक सेवा के लिए CPU, मेमोरी और I/O सीमा निर्धारित करने की सुविधा देता है। यह किसी एक एप्लिकेशन को पूरा सर्वर हैंग करने से रोकता है।</p>
+<p>उदाहरण के लिए, अपनी सर्विस फाइल में निम्नलिखित जोड़ें:</p>
+<pre>[Service]
+MemoryMax=512M
+CPUQuota=50%
+TasksMax=100</pre>
+<p>यह सेटिंग्स सुनिश्चित करती हैं कि आपका ऐप अधिकतम 512MB मेमोरी और 1 CPU कोर का 50% उपयोग करेगा। सुरक्षा के लिए, आप <code>PrivateTmp=true</code> और <code>NoNewPrivileges=true</code> जैसे सैंडबॉक्सिंग विकल्प भी जोड़ सकते हैं।</p>
+
+<h2>7. journald को स्थायी (Persistent) स्टोरेज कैसे दें?</h2>
+<p>डिफ़ॉल्ट रूप से, journald लॉग्स को RAM में स्टोर करता है, जो रिबूट पर गायब हो जाते हैं। प्रोडक्शन सर्वर के लिए इसे डिस्क पर सेव करना आवश्यक है।</p>
+<ul>
+  <li><code>sudo mkdir -p /var/log/journal</code> (यह डायरेक्टरी बनाते ही journald स्वचालित रूप से डिस्क स्टोरेज पर स्विच हो जाता है)</li>
+  <li><code>sudo systemctl restart systemd-journald</code> (सेवा को रीस्टार्ट करें)</li>
+</ul>
+<p>अब आपके सर्वर के सभी लॉग रिबूट के बाद भी उपलब्ध रहेंगे। डिस्क स्पेस बचाने के लिए, <code>/etc/systemd/journald.conf</code> में <code>SystemMaxUse=500M</code> सेट करें।</p>
+
+<h2>8. वास्तविक परिदृश्य: सर्वर क्रैश का विश्लेषण</h2>
+<p>मान लीजिए आपका वेब सर्वर आधी रात को क्रैश हो गया और उपयोगकर्ता शिकायत कर रहे हैं। आपकी जांच प्रक्रिया ऐसी होनी चाहिए:</p>
+<ol>
+  <li><strong>स्टेटस जांचें:</strong> <code>systemctl status nginx</code> (यह आपको बताएगा कि सेवा active (running) है या failed है)</li>
+  <li><strong>error लेवल के लॉग देखें:</strong> <code>journalctl -p err -u nginx --since "2025-01-20 00:00"</code></li>
+  <li><strong>अगर कुछ नहीं मिला, तो कर्नेल लॉग जांचें:</strong> <code>journalctl -k -b -1 | grep -i "oom\|error"</code> (यह पिछले बूट में OOM killer या हार्डवेयर त्रुटि दिखाएगा)</li>
+  <li><strong>मेमोरी उपयोग की पुष्टि करें:</strong> <code>systemctl show nginx -p MemoryCurrent</code> (यह वर्तमान मेमोरी खपत दिखाता है)</li>
+</ol>
+<p>इस तरह की व्यवस्थित जांच से आप कुछ ही मिनटों में समस्या की जड़ तक पहुंच सकते हैं।</p>
+
+<h2>निष्कर्ष</h2>
+<p>systemd और journalctl सीखना आज के Linux सिस्टम एडमिन के लिए अनिवार्य है। ये उपकरण न केवल आपका समय बचाते हैं, बल्कि सर्वर की स्थिरता और सुरक्षा को भी बढ़ाते हैं। शुरुआत में थोड़ा जटिल लगने के बावजूद, एक बार जब आप इन कमांड्स के साथ सहज हो जाते हैं, तो पुराने SysVinit और syslog की ओर लौटना असंभव लगेगा। अभ्यास के लिए, अपने एक डेवलपमेंट सर्वर पर एक कस्टम सर्विस बनाएं, उसके लॉग्स journalctl से मॉनिटर करें, और धीरे-धीरे production पर लागू करें।</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
