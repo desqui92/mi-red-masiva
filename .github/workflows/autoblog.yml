@@ -17,7 +17,7 @@ jobs:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: uses/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
@@ -29,14 +29,11 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           
-          # 1. Instalamos las dependencias sin caché
-          pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai httpx
+          # Instalación limpia fijando paquetes oficiales sin usar caché
+          pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp "openai>=1.50.0" "httpx>=0.27.0"
           
-          # 2. Eliminamos paquetes basura
-          pip uninstall -y httpx2 httpcore2 || true
-          
-          # 3. PARCHE A LA FUERZA: Reemplaza cualquier 'httpx2' por 'httpx' dentro de site-packages
-          find venv/lib/python3.10/site-packages/ -type f -name "*.py" -exec sed -i 's/httpx2/httpx/g' {} +
+          # Diagnóstico: Nos muestra en la consola del runner qué versiones exactas quedaron
+          pip list | grep -E "httpx|openai" || true
 
       - name: Ejecutar Bot
         run: |
