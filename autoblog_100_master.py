@@ -667,7 +667,7 @@ def ejecutar_bot_masivo():
 
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
                     
-                    time.sleep(10)
+                    time.sleep(2)
                     
                 except Exception as err:
                     logger.error(f"Error procesando idioma {lang_name}: {err}")
