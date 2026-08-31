@@ -608,7 +608,7 @@ def ejecutar_bot_masivo():
     historico = cargar_historico()
     
     lote_tamano = 5
-    lote = random.sample(CATEGORIAS_100, min(lote_tamano, len(CATEGORIAS_100)))
+    lote = random.sample(CATEGORIAS_100, len(CATEGORIAS_100))
     
     logger.info(f"Lote de {len(lote)} nichos seleccionados para esta ronda: {[c['slug_z'] for c in lote]}")
     nichos_procesados = []
