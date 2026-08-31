@@ -3,7 +3,13 @@
   <channel>
     <title>InfoZ Network</title>
     <link>https://infoz.site</link>
-    <description>Feed inicial de prueba</description>
+    <description>Feed de Noticias de InfoZ</description>
     <language>es</language>
+    <item>
+      <title>Bienvenido a InfoZ</title>
+      <link>https://infoz.site/</link>
+      <description>Primer contenido de prueba para habilitar el feed RSS.</description>
+      <guid>https://infoz.site/#1</guid>
+    </item>
   </channel>
 </rss>
