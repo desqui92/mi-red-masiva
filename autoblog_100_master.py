@@ -23,7 +23,7 @@ logger = logging.getLogger("InfoZBot")
 
 # --- 1. CREDENCIALES Y CONFIGURACIÓN ---
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
-YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
+YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
@@ -278,17 +278,13 @@ def descargar_audio_youtube(video_id):
         }
     }
     
-    # --- INICIO MODIFICACIÓN COOKIES ---
     if YOUTUBE_COOKIES:
         if os.path.isfile(YOUTUBE_COOKIES):
-            # Si YOUTUBE_COOKIES es la ruta a un archivo (ej: "cookies.txt")
             ydl_opts['cookiefile'] = YOUTUBE_COOKIES
         else:
-            # Si YOUTUBE_COOKIES contiene el texto Netscape pegado en el Secret de GitHub
             with open("temp_cookies.txt", "w", encoding="utf-8") as f:
                 f.write(YOUTUBE_COOKIES)
             ydl_opts['cookiefile'] = "temp_cookies.txt"
-    # --- FIN MODIFICACIÓN COOKIES ---
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
@@ -304,7 +300,6 @@ def obtener_contexto_video(video_id: str) -> str:
         uploaded_file = ai_client.files.upload(file=archivo_audio)
         logger.info(f"Archivo subido. ID asignado por Gemini: {uploaded_file.name}")
         
-        # Espera activa del procesamiento en la nube
         for loop_idx in range(15):
             if uploaded_file.state.name == "ACTIVE":
                 logger.info("El archivo de audio se procesó correctamente en Gemini.")
@@ -611,9 +606,11 @@ def generar_indices_y_portada(nichos_modificados: list):
 def ejecutar_bot_masivo():
     logger.info("=== INICIANDO EJECUCIÓN DEL BOT MASIVO ===")
     historico = cargar_historico()
-    lote = random.sample(CATEGORIAS_100, 1)
     
-    logger.info(f"Lote de 5 nichos seleccionados para esta ronda: {[c['slug_z'] for c in lote]}")
+    lote_tamano = 5
+    lote = random.sample(CATEGORIAS_100, min(lote_tamano, len(CATEGORIAS_100)))
+    
+    logger.info(f"Lote de {len(lote)} nichos seleccionados para esta ronda: {[c['slug_z'] for c in lote]}")
     nichos_procesados = []
     
     for i, item in enumerate(lote, 1):
@@ -621,7 +618,7 @@ def ejecutar_bot_masivo():
         slug_z = item["slug_z"]
         
         logger.info(f"\n==================================================")
-        logger.info(f" PROCESANDO NICHO ({i}/5): {slug_z} -> [{nicho}]")
+        logger.info(f" PROCESANDO NICHO ({i}/{len(lote)}): {slug_z} -> [{nicho}]")
         logger.info(f"==================================================")
         
         try:
@@ -649,7 +646,7 @@ def ejecutar_bot_masivo():
                         logger.warning(f"No se obtuvo contexto del video {vid}, probando siguiente...")
             
             if not contexto:
-                logger.warning(f"⚠️ Plan B activado: Generando post temático nativo sobre '{kw}' sin soporte de video.")
+                logger.warning(f"Plan B activado: Generando post temático nativo sobre '{kw}' sin soporte de video.")
                 contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detallada sobre este tema."
 
             total_idiomas = len(IDIOMAS_MAP)
@@ -670,7 +667,6 @@ def ejecutar_bot_masivo():
 
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
                     
-                    # Pausa anti rate-limit
                     time.sleep(10)
                     
                 except Exception as err:
