@@ -18,3 +18,4 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
