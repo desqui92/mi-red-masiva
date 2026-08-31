@@ -11,6 +11,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+      - run: pip uninstall -y httpx2 httpcore2
+      - run: pip install -U httpx openai
       - run: pip install PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai
       - run: python autoblog_100_master.py
         env:
