@@ -1,4 +1,5 @@
 import sys
+from openai import OpenAI
 import os
 import json
 import time
@@ -33,6 +34,10 @@ GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
+deepseek_client = OpenAI(
+    api_key=os.environ["DEEPSEEK_API_KEY"],
+    base_url="https://api.deepseek.com"
+)
 
 MODEL_GEMINI = "gemini-3.6-flash"
 REGISTRO_FILE = "procesados.json"
@@ -182,7 +187,14 @@ def llamar_gemini(prompt: str, mime_type: str = None) -> str:
         config=config
     )
     return res.text
-
+    
+def llamar_deepseek(prompt: str) -> str:
+    res = deepseek_client.chat.completions.create(
+        model="deepseek-chat",  # Invoca a DeepSeek-V3 por detrás
+        messages=[{"role": "user", "content": prompt}],
+        stream=False
+    )
+    return res.choices[0].message.content
 def limpiar_html_cuerpo(html_str: str) -> str:
     texto = html_str.strip()
     texto = re.sub(r"^```[a-zA-Z]*\n?", "", texto)
@@ -192,7 +204,7 @@ def limpiar_html_cuerpo(html_str: str) -> str:
 def generar_busqueda_ia(nicho: str) -> str:
     logger.info(f"Generando búsqueda con IA para: '{nicho}'...")
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res_text = llamar_gemini(prompt)
+    res_text = llamar_deepseek(prompt)
     lineas = res_text.strip().splitlines()
     kw = lineas[0].replace('"', '').replace("'", "").strip()
     logger.info(f"Término generado: '{kw}'")
@@ -280,7 +292,7 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     Fuente / Contexto:
     {contexto[:3500]}
     """
-    res_text = llamar_gemini(prompt)
+    res_text = llamar_deepseek(prompt)
     texto_limpio = limpiar_html_cuerpo(res_text)
     lineas = texto_limpio.splitlines()
     titulo = "Artículo InfoZ"
