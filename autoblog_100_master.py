@@ -38,6 +38,11 @@ deepseek_client = OpenAI(
     api_key=os.environ["DEEPSEEK_API_KEY"],
     base_url="https://api.deepseek.com"
 )
+groq_client = OpenAI(
+    api_key=os.environ["GROQ_API_KEY"],
+    base_url="https://api.groq.com/openai/v1"
+)
+
 
 MODEL_GEMINI = "gemini-3.6-flash"
 REGISTRO_FILE = "procesados.json"
@@ -195,6 +200,13 @@ def llamar_deepseek(prompt: str) -> str:
         stream=False
     )
     return res.choices[0].message.content
+def llamar_groq(prompt: str) -> str:
+    res = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",  # Excelente calidad y muy rápido
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return res.choices[0].message.content
+    
 def limpiar_html_cuerpo(html_str: str) -> str:
     texto = html_str.strip()
     texto = re.sub(r"^```[a-zA-Z]*\n?", "", texto)
@@ -204,7 +216,7 @@ def limpiar_html_cuerpo(html_str: str) -> str:
 def generar_busqueda_ia(nicho: str) -> str:
     logger.info(f"Generando búsqueda con IA para: '{nicho}'...")
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res_text = llamar_deepseek(prompt)
+    res_text = llamar_groq(prompt)
     lineas = res_text.strip().splitlines()
     kw = lineas[0].replace('"', '').replace("'", "").strip()
     logger.info(f"Término generado: '{kw}'")
@@ -292,7 +304,7 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     Fuente / Contexto:
     {contexto[:3500]}
     """
-    res_text = llamar_deepseek(prompt)
+    res_text = llamar_groq(prompt)
     texto_limpio = limpiar_html_cuerpo(res_text)
     lineas = texto_limpio.splitlines()
     titulo = "Artículo InfoZ"
