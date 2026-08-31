@@ -29,14 +29,14 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           
-          # 1. Instalamos las dependencias base
+          # 1. Instalamos las dependencias sin caché
           pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai httpx
           
-          # 2. Eliminamos los paquetes pirata que se hayan colado
+          # 2. Eliminamos paquetes basura
           pip uninstall -y httpx2 httpcore2 || true
           
-          # 3. Restauramos OpenAI y httpx originales pisando cualquier archivo alterado
-          pip install --force-reinstall --no-deps openai httpx
+          # 3. PARCHE A LA FUERZA: Reemplaza cualquier 'httpx2' por 'httpx' dentro de site-packages
+          find venv/lib/python3.10/site-packages/ -type f -name "*.py" -exec sed -i 's/httpx2/httpx/g' {} +
 
       - name: Ejecutar Bot
         run: |
