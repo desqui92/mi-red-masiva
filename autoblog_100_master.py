@@ -1,5 +1,4 @@
 import sys
-from openai import OpenAI
 import os
 import json
 import time
@@ -28,20 +27,11 @@ logging.basicConfig(
 logger = logging.getLogger("InfoZBot")
 
 # --- 1. CREDENCIALES Y CONFIGURACIÓN ---
-# Si alguna falta, Python levantará KeyError inmediatamente
 YOUTUBE_API_KEY = os.environ["YOUTUBE_API_KEY"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
-YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
+YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
-
-url = os.getenv("GITHUB_MODELS_URL", "https://models.inference.ai.azure.com")
-print(f"DEBUG URL: '{url}'")
-
-github_client = OpenAI(
-    base_url=url,
-    api_key=os.getenv("GITHUB_TOKEN")
-)
 
 MODEL_GEMINI = "gemini-3.6-flash"
 REGISTRO_FILE = "procesados.json"
@@ -177,21 +167,17 @@ def cargar_historico() -> list:
 
 def guardar_historico(historico: list):
     json_data = json.dumps(historico, indent=2)
-    # Sin try/except: si falla la API de GitHub, revienta aquí con el error real
     content = repo.get_contents(REGISTRO_FILE)
     repo.update_file(content.path, "Update processed log", json_data, content.sha)
     logger.info("Registro de histórico actualizado en GitHub.")
 
-
-    
-def llamar_github_model(prompt: str) -> str:
-    res = github_client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model="gpt-4o-mini", # O "Llama-3.3-70b-Instruct"
-        temperature=0.7
+def llamar_gemini_texto(prompt: str) -> str:
+    res = ai_client.models.generate_content(
+        model=MODEL_GEMINI,
+        contents=prompt
     )
-    return res.choices[0].message.content
-    
+    return res.text.strip()
+
 def limpiar_html_cuerpo(html_str: str) -> str:
     texto = html_str.strip()
     texto = re.sub(r"^```[a-zA-Z]*\n?", "", texto)
@@ -201,7 +187,7 @@ def limpiar_html_cuerpo(html_str: str) -> str:
 def generar_busqueda_ia(nicho: str) -> str:
     logger.info(f"Generando búsqueda con IA para: '{nicho}'...")
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res_text = llamar_github_model(prompt)
+    res_text = llamar_gemini_texto(prompt)
     lineas = res_text.strip().splitlines()
     kw = lineas[0].replace('"', '').replace("'", "").strip()
     logger.info(f"Término generado: '{kw}'")
@@ -235,17 +221,13 @@ def descargar_audio_youtube(video_id):
         }
     }
     
-    # --- INICIO MODIFICACIÓN COOKIES ---
     if YOUTUBE_COOKIES:
         if os.path.isfile(YOUTUBE_COOKIES):
-            # Si YOUTUBE_COOKIES es la ruta a un archivo (ej: "cookies.txt")
             ydl_opts['cookiefile'] = YOUTUBE_COOKIES
         else:
-            # Si YOUTUBE_COOKIES contiene el texto Netscape pegado en el Secret de GitHub
             with open("temp_cookies.txt", "w", encoding="utf-8") as f:
                 f.write(YOUTUBE_COOKIES)
             ydl_opts['cookiefile'] = "temp_cookies.txt"
-    # --- FIN MODIFICACIÓN COOKIES ---
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
@@ -289,7 +271,7 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     Fuente / Contexto:
     {contexto[:3500]}
     """
-    res_text = llamar_github_model(prompt)
+    res_text = llamar_gemini_texto(prompt)
     texto_limpio = limpiar_html_cuerpo(res_text)
     lineas = texto_limpio.splitlines()
     titulo = "Artículo InfoZ"
@@ -369,8 +351,11 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
 </html>"""
     
     path = f"{slug_z}/{lang_code}/{slug_post}.html"
-    existing_file = repo.get_contents(path)
-    repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
+    try:
+        existing_file = repo.get_contents(path)
+        repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
+    except Exception:
+        repo.create_file(path, f"Create post {slug_post}", html)
     logger.info(f"✔ Publicado en GitHub: {path}")
 
 def generar_indices_y_portada(nichos_modificados: list):
@@ -445,8 +430,11 @@ def generar_indices_y_portada(nichos_modificados: list):
 </html>"""
 
         path_cat = f"{slug_z}/index.html"
-        existing = repo.get_contents(path_cat)
-        repo.update_file(path_cat, f"Update index for {slug_z}", cat_index_html, existing.sha)
+        try:
+            existing = repo.get_contents(path_cat)
+            repo.update_file(path_cat, f"Update index for {slug_z}", cat_index_html, existing.sha)
+        except Exception:
+            repo.create_file(path_cat, f"Create index for {slug_z}", cat_index_html)
         logger.info(f"✔ Actualizado index de categoría: {path_cat}")
 
     grid_items = ""
@@ -498,8 +486,11 @@ def generar_indices_y_portada(nichos_modificados: list):
 </body>
 </html>"""
 
-    existing_file = repo.get_contents("index.html")
-    repo.update_file("index.html", "Update index page", root_index_html, existing_file.sha)
+    try:
+        existing_file = repo.get_contents("index.html")
+        repo.update_file("index.html", "Update index page", root_index_html, existing_file.sha)
+    except Exception:
+        repo.create_file("index.html", "Create index page", root_index_html)
     logger.info("✔ Portada principal (index.html raíz) actualizada.")
 
 def ejecutar_bot_masivo():
@@ -532,10 +523,13 @@ def ejecutar_bot_masivo():
                     continue
                 
                 logger.info(f"Intentando extraer audio/transcripción de {vid}...")
-                contexto = obtener_contexto_video(vid)
-                video_id = vid
-                logger.info(f"Video {vid} procesado con éxito.")
-                break
+                try:
+                    contexto = obtener_contexto_video(vid)
+                    video_id = vid
+                    logger.info(f"Video {vid} procesado con éxito.")
+                    break
+                except Exception as e:
+                    logger.warning(f"Error procesando video {vid}: {e}")
 
         if not contexto:
             logger.warning(f"Plan B: Generando post nativo sobre '{kw}' sin video.")
