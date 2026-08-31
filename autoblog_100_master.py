@@ -488,7 +488,7 @@ def generar_indices_y_portada(nichos_modificados: list):
             
             titulo = file_slug.replace('.html', '').replace('-', ' ').capitalize()
             posts_por_nicho[slug_z].append({
-                "path": f"../{lang_slug}/{file_slug}",
+                "path": f"{lang_slug}/{file_slug}",
                 "titulo": titulo,
                 "idioma": lang_slug.upper()
             })
