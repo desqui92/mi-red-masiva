@@ -3,18 +3,37 @@ on:
   schedule:
     - cron: '0 */2 * * *' # Ejecuta cada 2 horas
   workflow_dispatch:
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - run: pip uninstall -y httpx2 httpcore2
-      - run: pip install -U httpx openai
-      - run: pip install PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai
-      - run: python autoblog_100_master.py
+
+      - name: Preparar entorno virtual e instalar dependencias
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai httpx
+          
+          # Diagnóstico: Nos asegura en la consola si httpx2 se coló y quién lo trajo
+          pip show httpx2 || echo "✔ httpx2 no está presente en el entorno virtual."
+
+      - name: Ejecutar Bot
+        run: |
+          source venv/bin/activate
+          python autoblog_100_master.py
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
