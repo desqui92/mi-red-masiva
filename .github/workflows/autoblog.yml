@@ -9,7 +9,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     
-    # Declaramos las variables acá para que sirvan en todo el job sin duplicar 'env'
+    # Declaradas acá se heredan en todos los pasos sin repetir 'env:' abajo
     env:
       YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -30,15 +30,11 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai httpx
-          pip show httpx2 || echo "httpx2 no esta presente"
+          
+          # Desinstalación forzada del paquete parásito
+          pip uninstall -y httpx2 httpcore2 || true
 
       - name: Ejecutar Bot
         run: |
           source venv/bin/activate
           python autoblog_100_master.py
-        env:
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_NAME: ${{ secrets.REPO_NAME }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
