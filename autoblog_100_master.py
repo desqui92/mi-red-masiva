@@ -8,9 +8,8 @@ import logging
 import yt_dlp
 from slugify import slugify
 from googleapiclient.discovery import build
-from google import genai
-from google.genai import types
 from github import Auth, Github
+from openai import OpenAI
 
 # --- CONFIGURACIÓN DE LOGS EN CONSOLA ---
 logging.basicConfig(
@@ -23,12 +22,11 @@ logger = logging.getLogger("InfoZBot")
 
 # --- 1. CREDENCIALES Y CONFIGURACIÓN ---
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
-YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-MODEL_GEMINI = "gemini-3.5-flash"
+MODEL_DEEPSEEK = "deepseek-chat"
 REGISTRO_FILE = "procesados.json"
 
 PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
@@ -37,13 +35,18 @@ PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='http
 logger.info("Verificando credenciales de entorno...")
 if not YOUTUBE_API_KEY:
     logger.warning("YOUTUBE_API_KEY no detectada. La búsqueda de videos estará desactivada.")
-if not GEMINI_API_KEY:
-    logger.error("GEMINI_API_KEY no detectada. El bot no podrá generar contenido.")
+if not DEEPSEEK_API_KEY:
+    logger.error("DEEPSEEK_API_KEY no detectada. El bot no podrá generar contenido.")
 if not GITHUB_TOKEN:
     logger.warning("GITHUB_TOKEN no detectado. No se publicará contenido en GitHub.")
 
 yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY) if YOUTUBE_API_KEY else None
-ai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+
+# Cliente de DeepSeek a través del SDK de OpenAI
+ds_client = OpenAI(
+    api_key=DEEPSEEK_API_KEY, 
+    base_url="https://api.deepseek.com"
+) if DEEPSEEK_API_KEY else None
 
 if GITHUB_TOKEN:
     try:
@@ -197,32 +200,32 @@ def guardar_historico(historico: list):
     except Exception as e:
         logger.error(f"Error al guardar el histórico en GitHub: {e}")
 
-def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int = 4):
-    if not ai_client:
-        raise ValueError("GEMINI_API_KEY no está configurada.")
-    
-    config = types.GenerateContentConfig(response_mime_type=mime_type) if mime_type else None
+def llamar_deepseek_con_reintento(prompt: str, retries: int = 4) -> str:
+    if not ds_client:
+        raise ValueError("DEEPSEEK_API_KEY no está configurada.")
     
     for intento in range(retries):
         try:
-            res = ai_client.models.generate_content(
-                model=MODEL_GEMINI,
-                contents=prompt,
-                config=config
+            response = ds_client.chat.completions.create(
+                model=MODEL_DEEPSEEK,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7
             )
-            return res.text
+            return response.choices[0].message.content
         except Exception as e:
             error_msg = str(e).lower()
-            if "429" in error_msg or "quota" in error_msg or "resource_exhausted" in error_msg:
+            if "429" in error_msg or "rate" in error_msg or "balance" in error_msg:
                 wait_time = 15 * (intento + 1)
-                logger.warning(f"Rate limit en Gemini. Intento {intento + 1}/{retries}. Esperando {wait_time}s...")
+                logger.warning(f"Rate limit / cuota en DeepSeek. Intento {intento + 1}/{retries}. Esperando {wait_time}s...")
                 time.sleep(wait_time)
             else:
-                logger.error(f"Error en Gemini (Intento {intento + 1}/{retries}): {e}")
+                logger.error(f"Error en DeepSeek (Intento {intento + 1}/{retries}): {e}")
                 time.sleep(5)
             
             if intento == retries - 1:
-                logger.critical(f"Agotados los reintentos con Gemini para la solicitud.")
+                logger.critical("Agotados los reintentos con DeepSeek para la solicitud.")
                 raise e
 
 def limpiar_html_cuerpo(html_str: str) -> str:
@@ -234,9 +237,9 @@ def limpiar_html_cuerpo(html_str: str) -> str:
     return texto.strip()
 
 def generar_busqueda_ia(nicho: str) -> str:
-    logger.info(f"Generando término de búsqueda con IA para el nicho: '{nicho}'...")
+    logger.info(f"Generando término de búsqueda con DeepSeek para el nicho: '{nicho}'...")
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res_text = llamar_gemini_con_reintento(prompt)
+    res_text = llamar_deepseek_con_reintento(prompt)
     lineas = res_text.strip().splitlines() if res_text else []
     primera_linea = lineas[0] if lineas else nicho
     kw = primera_linea.replace('"', '').replace("'", "").strip()
@@ -265,84 +268,28 @@ def buscar_videos_yt(query: str) -> list:
         logger.error(f"Error al realizar búsqueda en YouTube: {e}")
         return []
 
-def descargar_audio_youtube(video_id):
+def obtener_contexto_video(video_id: str) -> str:
     url = f"https://www.youtube.com/watch?v={video_id}"
     ydl_opts = {
-        'format': 'm4a/bestaudio/best',
+        'skip_download': True,
+        'writeautomaticsub': True,
+        'subtitleslangs': ['es', 'en'],
         'quiet': True,
-        'no_warnings': True,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['android', 'ios']
-            }
-        }
+        'no_warnings': True
     }
     
-    if YOUTUBE_COOKIES:
-        if os.path.isfile(YOUTUBE_COOKIES):
-            ydl_opts['cookiefile'] = YOUTUBE_COOKIES
-        else:
-            with open("temp_cookies.txt", "w", encoding="utf-8") as f:
-                f.write(YOUTUBE_COOKIES)
-            ydl_opts['cookiefile'] = "temp_cookies.txt"
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        return ydl.prepare_filename(info)
-
-def obtener_contexto_video(video_id: str) -> str:
-    archivo_audio = None
-    uploaded_file = None
     try:
-        archivo_audio = descargar_audio_youtube(video_id)
-        
-        logger.info(f"Subiendo archivo {archivo_audio} a la File API de Gemini...")
-        uploaded_file = ai_client.files.upload(file=archivo_audio)
-        logger.info(f"Archivo subido. ID asignado por Gemini: {uploaded_file.name}")
-        
-        for loop_idx in range(15):
-            if uploaded_file.state.name == "ACTIVE":
-                logger.info("El archivo de audio se procesó correctamente en Gemini.")
-                break
-            logger.info(f"Esperando procesamiento del audio en Gemini... Estado actual: {uploaded_file.state.name} ({loop_idx+1}/15)")
-            time.sleep(2)
-            uploaded_file = ai_client.files.get(name=uploaded_file.name)
-
-        if uploaded_file.state.name != "ACTIVE":
-            logger.error("El archivo de audio no alcanzó el estado ACTIVE a tiempo.")
-            return None
-
-        logger.info("Solicitando transcripción del audio a Gemini...")
-        prompt = "Transcribe todo el audio hablado de este video de forma concisa. Devuelve texto plano."
-        
-        res = ai_client.models.generate_content(
-            model=MODEL_GEMINI,
-            contents=[uploaded_file, prompt]
-        )
-        if res and res.text:
-            logger.info("Transcripción completada con éxito.")
-            return f"Transcripción de Audio:\n{res.text}"
-        
-        logger.warning("Gemini devolvió respuesta vacía para la transcripción.")
-        return None
-
+        logger.info(f"Extrayendo metadatos y subtítulos del video {video_id}...")
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            titulo = info.get('title', '')
+            descripcion = info.get('description', '')
+            
+            contexto = f"Título del video: {titulo}\nDescripción: {descripcion[:1000]}"
+            return contexto
     except Exception as e:
-        logger.error(f"Fallo al procesar audio del video {video_id}: {e}")
+        logger.error(f"Fallo al extraer contexto del video {video_id}: {e}")
         return None
-        
-    finally:
-        if archivo_audio and os.path.exists(archivo_audio):
-            try:
-                os.remove(archivo_audio)
-                logger.info(f"Archivo local eliminado: {archivo_audio}")
-            except Exception as e_del:
-                logger.warning(f"No se pudo eliminar archivo temporal {archivo_audio}: {e_del}")
-        if uploaded_file:
-            try:
-                ai_client.files.delete(name=uploaded_file.name)
-                logger.info(f"Archivo eliminado de la API de Gemini: {uploaded_file.name}")
-            except Exception as e_del_api:
-                logger.warning(f"No se pudo eliminar archivo en Gemini API: {e_del_api}")
 
 def redactar_post_ia(contexto: str, idioma: str) -> dict:
     prompt = f"""
@@ -357,7 +304,7 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     Fuente / Contexto:
     {contexto[:3500]}
     """
-    res_text = llamar_gemini_con_reintento(prompt)
+    res_text = llamar_deepseek_con_reintento(prompt)
     if not res_text:
         return None
     
@@ -604,10 +551,10 @@ def generar_indices_y_portada(nichos_modificados: list):
         logger.info("✔ Portada principal (index.html raíz) creada con éxito.")
 
 def ejecutar_bot_masivo():
-    logger.info("=== INICIANDO EJECUCIÓN DEL BOT MASIVO ===")
+    logger.info("=== INICIANDO EJECUCIÓN DEL BOT MASIVO (DEEPSEEK) ===")
     historico = cargar_historico()
     
-    lote_tamano = 5
+    # Procesa las 100 categorías mezcladas
     lote = random.sample(CATEGORIAS_100, len(CATEGORIAS_100))
     
     logger.info(f"Lote de {len(lote)} nichos seleccionados para esta ronda: {[c['slug_z'] for c in lote]}")
@@ -635,12 +582,12 @@ def ejecutar_bot_masivo():
                         logger.info(f"Video {vid} ya fue procesado anteriormente. Omitiendo...")
                         continue
                     
-                    logger.info(f"Intentando extraer transcripción del video: {vid}")
+                    logger.info(f"Intentando extraer metadatos del video: {vid}")
                     data_vid = obtener_contexto_video(vid)
                     if data_vid:
                         video_id = vid
                         contexto = data_vid
-                        logger.info(f"Video {vid} aceptado como fuente principal de contexto.")
+                        logger.info(f"Video {vid} aceptado como fuente de contexto.")
                         break
                     else:
                         logger.warning(f"No se obtuvo contexto del video {vid}, probando siguiente...")
@@ -658,7 +605,7 @@ def ejecutar_bot_masivo():
                     art = redactar_post_ia(contexto, lang_name)
                     
                     if not art or "titulo" not in art or "contenido_html" not in art:
-                        logger.error(f"Respuesta inválida de la IA para idioma {lang_name}. Saltando...")
+                        logger.error(f"Respuesta inválida de DeepSeek para idioma {lang_name}. Saltando...")
                         continue
 
                     slug_post = slugify(art["titulo"])
@@ -667,6 +614,7 @@ def ejecutar_bot_masivo():
 
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
                     
+                    # Pausa anti rate-limit de 2 segundos
                     time.sleep(2)
                     
                 except Exception as err:
