@@ -21,19 +21,17 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Preparar entorno virtual e instalar dependencias
         run: |
-          python -m venv venv
+          # DESTRUCCIÓN TOTAL: Si vino un venv podrido desde el repo, lo borramos de raíz
+          rm -rf venv
+          python -m venv venv --clear
           source venv/bin/activate
+          
           pip install --upgrade pip
-          
-          # Instalación limpia fijando paquetes oficiales sin usar caché
-          pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp "openai>=1.50.0" "httpx>=0.27.0"
-          
-          # Diagnóstico: Nos muestra en la consola del runner qué versiones exactas quedaron
-          pip list | grep -E "httpx|openai" || true
+          pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai httpx
 
       - name: Ejecutar Bot
         run: |
