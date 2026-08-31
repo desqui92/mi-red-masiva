@@ -35,9 +35,12 @@ GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
+url = os.getenv("GITHUB_MODELS_URL", "https://models.inference.ai.azure.com")
+print(f"DEBUG URL: '{url}'")
+
 github_client = OpenAI(
-    base_url="https://models.inference.ai.azure.com",
-    api_key=os.environ["GITHUB_TOKEN"]
+    base_url=url,
+    api_key=os.getenv("GITHUB_TOKEN")
 )
 
 MODEL_GEMINI = "gemini-3.6-flash"
