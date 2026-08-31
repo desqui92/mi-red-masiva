@@ -40,7 +40,6 @@ github_client = OpenAI(
     api_key=os.environ["GITHUB_TOKEN"]
 )
 
-
 MODEL_GEMINI = "gemini-3.6-flash"
 REGISTRO_FILE = "procesados.json"
 
