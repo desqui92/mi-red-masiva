@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือเจาะลึกเทคนิค WDT และการ Calibrate เอสเปรสโซเพื่อกาแฟสเปเชียลตี้ระดับมืออาชีพ</title>
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>คู่มือเจาะลึกเทคนิค WDT และการ Calibrate เอสเปรสโซเพื่อกาแฟสเปเชียลตี้ระดับมืออาชีพ</h1>
+            <p>ในโลกของกาแฟสเปเชียลตี้ (Specialty Coffee) ความพิถีพิถันในทุกขั้นตอนคือหัวใจสำคัญของการดึงรสชาติและกลิ่นรสที่ดีที่สุดของเมล็ดกาแฟออกมา สำหรับบาริสต้าและผู้หลงใหลในกาแฟ การสกัดเอสเปรสโซให้ได้รสชาติที่สมบูรณ์แบบ (Perfect Shot) ไม่ได้ขึ้นอยู่กับเพียงแค่คุณภาพของเมล็ดกาแฟหรือเครื่องชงราคาแพงเท่านั้น แต่ยังรวมถึงเทคนิคการเตรียมผงกาแฟและการปรับตั้งค่าการสกัด หรือที่เรียกว่าการ <strong>Calibrate กาแฟ</strong> อีกด้วย</p>
+<p>บทความนี้จะพาคุณไปทำความรู้จักกับ <strong>เทคนิค WDT (Weiss Distribution Technique)</strong> และกระบวนการ Calibrate เอสเปรสโซอย่างเป็นระบบ เพื่อยกระดับการชงกาแฟของคุณให้มีความแม่นยำและสม่ำเสมอในระดับมืออาชีพ</p>
+
+<h2>เทคนิค WDT (Weiss Distribution Technique) คืออะไร?</h2>
+<p><strong>WDT</strong> หรือ <strong>Weiss Distribution Technique</strong> คิดค้นขึ้นในปี 2005 โดย John Weiss เป็นเทคนิคการกระจายผงกาแฟในพอร์ตตาฟิลเตอร์ (Portafilter) โดยใช้เข็มขนาดเล็ก (ความหนาประมาณ 0.25 - 0.4 มิลลิเมตร) คนผงกาแฟที่บดแล้วให้กระจายตัวออกจากกันอย่างทั่วถึง</p>
+<p>เมื่อเครื่องบดกาแฟทำงาน ผงกาแฟมักจะจับตัวกันเป็นก้อน (Clumps) เนื่องจากไฟฟ้าสถิตและความชื้น หากเรานำผงกาแฟที่จับตัวเป็นก้อนไปอัดแน่น (Tamping) ทันที จะทำให้ความหนาแน่นของก้อนกาแฟในบาสเก็ตไม่เท่ากัน ส่งผลเสียต่อกระบวนการสกัดโดยตรง</p>
+
+<h2>ทำไม WDT ถึงสำคัญต่อการสกัดเอสเปรสโซ?</h2>
+<p>การใช้เทคนิค WDT มีประโยชน์มหาศาลต่อคุณภาพของเอสเปรสโซช็อต โดยเฉพาะในกาแฟคั่วอ่อนถึงคั่วกลางที่สกัดได้ยากกว่าปกติ:</p>
+<ul>
+    <li><strong>ป้องกันการเกิด Channeling:</strong> เมื่อน้ำแรงดันสูงจากเครื่องชงกดลงมา น้ำจะพยายามหาทางไหลผ่านจุดที่มีความต้านทานน้อยที่สุด หากผงกาแฟจับตัวเป็นก้อน น้ำจะไหลเจาะเป็นช่องทาง (Channeling) ทำให้กาแฟบางส่วนถูกสกัดมากเกินไป (Over-extracted) และบางส่วนถูกสกัดน้อยเกินไป (Under-extracted) การทำ WDT จะช่วยลายก้อนกาแฟและทำให้ความหนาแน่นสม่ำเสมอ</li>
+    <li><strong>เพิ่มอัตราการสกัด (Extraction Yield):</strong> เมื่อผงกาแฟกระจายตัวอย่างทั่วถึง น้ำจะสามารถสัมผัสและสกัดสารประกอบรสชาติออกจากผงกาแฟได้อย่างมีประสิทธิภาพและเท่าเทียมกันทุกอนุภาค</li>
+    <li><strong>สร้างความสม่ำเสมอ (Consistency):</strong> ช่วยให้การชงกาแฟในแต่ละช็อตมีรสชาติและเวลาในการสกัดที่ใกล้เคียงกัน ลดความผันผวนของการทำกาแฟ</li>
+</ul>
+
+<h2>ขั้นตอนการทำ WDT อย่างถูกวิธี</h2>
+<p>การทำ WDT ไม่ใช่แค่การเอาเข็มไปคนกาแฟมั่วๆ แต่มีขั้นตอนที่ถูกต้องดังนี้:</p>
+<ul>
+    <li><strong>ขั้นตอนที่ 1:</strong> สวมวงแหวนตวงกาแฟ (Dosing Funnel) เข้ากับ Portafilter เพื่อป้องกันไม่ให้ผงกาแฟหกเลอะเทอะขณะคน</li>
+    <li><strong>ขั้นตอนที่ 2:</strong> บดกาแฟลงใน Portafilter ตามน้ำหนักที่กำหนด</li>
+    <li><strong>ขั้นตอนที่ 3:</strong> ใช้เครื่องมือ WDT เริ่มคนจากบริเวณด้านล่างสุดของบาสเก็ตขึ้นมา โดยเคลื่อนไหวเข็มเป็นวงกลมเล็กๆ ให้ทั่ว เพื่อสลายก้อนกาแฟที่ชั้นล่างสุด</li>
+    <li><strong>ขั้นตอนที่ 4:</strong> ค่อยๆ ถอยเข็มขึ้นมาวนเกลี่ยผงกาแฟบริเวณชั้นบนให้เรียบเสมอทั่วกัน</li>
+    <li><strong>ขั้นตอนที่ 5:</strong> ถอด Dosing Funnel ออก เคาะ Portafilter กับยางรองเบาๆ 1 ครั้งในแนวดิ่งเพื่อให้ผงกาแฟเซ็ตตัว แล้วจึงทำการกดกาแฟ (Tamping) ด้วยแรงที่สม่ำเสมอ</li>
+</ul>
+
+<h2>การ Calibrate Espresso: ศิลปะและวิทยาศาสตร์ของการปรับตั้งค่า</h2>
+<p>นอกจากการเตรียมผงกาแฟด้วย WDT แล้ว การปรับตั้งค่าหรือการ <strong>Calibrate เอสเปรสโซ</strong> คือทักษะสำคัญที่บาริสต้าต้องทำในทุกๆ เช้า หรือเมื่อมีการเปลี่ยนเมล็ดกาแฟ เพื่อให้ได้รสชาติกาแฟตามมาตรฐานที่ต้องการ</p>
+
+<h2>4 ปัจจัยหลักในการ Calibrate Espresso</h2>
+<p>ในการ Calibrate กาแฟ บาริสต้าจะต้องควบคุมและปรับแต่งตัวแปรสำคัญ 4 ประการ ดังนี้:</p>
+<ul>
+    <li><strong>Dose (ปริมาณผงกาแฟแห้ง):</strong> น้ำหนักกาแฟที่บดใส่ในบาสเก็ต (วัดเป็นกรัม) เช่น 18 กรัม</li>
+    <li><strong>Yield (ปริมาณน้ำกาแฟที่สกัดได้):</strong> น้ำหนักของเอสเปรสโซช็อตที่ออกมา (วัดเป็นกรัม) เช่น 36 กรัม (คิดเป็นอัตราส่วน 1:2)</li>
+    <li><strong>Time (เวลาในการสกัด):</strong> ระยะเวลาที่ใช้ในการสกัดกาแฟจนได้ Yield ที่ต้องการ โดยทั่วไปจะอยู่ในช่วง 25 - 30 วินาที</li>
+    <li><strong>Grind Size (ขนาดเบอร์บด):</strong> ปัจจัยหลักที่บาริสต้าใช้ปรับแก้ อัตราการไหลของน้ำจะเร็วหรือช้าขึ้นอยู่กับความละเอียดหรือหยาบของผงกาแฟ</li>
+</ul>
+
+<h2>แนวทางการวิเคราะห์และปรับแก้รสชาติกาแฟ</h2>
+<p>การ Calibrate ที่ดีต้องอาศัยการชิม (Tasting) และการวิเคราะห์รสชาติร่วมกับเครื่องมือวัดค่า ดังนี้:</p>
+
+<p><strong>กรณีที่ 1: กาแฟสกัดน้อยเกินไป (Under-Extraction)</strong></p>
+<p>ลักษณะที่พบ: น้ำกาแฟไหลเร็วเกินไป (เวลาน้อยกว่า 25 วินาที), รสชาติเปรี้ยวแหลม (Sour), ฝาดเค็ม, ไม่มีบอดี้ และรสชาติจบไว (Short finish)</p>
+<p><em>วิธีแก้ไข:</em> ปรับเบอร์บดให้ <strong>ละเอียดขึ้น (Finer)</strong> เพื่อเพิ่มความต้านทานน้ำ ทำให้น้ำไหลช้าลงและใช้เวลาสกัดนานขึ้น</p>
+
+<p><strong>กรณีที่ 2: กาแฟสกัดมากเกินไป (Over-Extraction)</strong></p>
+<p>ลักษณะที่พบ: น้ำกาแฟไหลช้ามากหรือหยดเป็นสายเล็กๆ (เวลามากกว่า 35 วินาที), รสชาติขมไหม้ (Bitter), แห้งในคอ (Astringent), และกลบกลิ่นหอมของกาแฟ</p>
+<p><em>วิธีแก้ไข:</em> ปรับเบอร์บดให้ <strong>หยาบขึ้น (Coarser)</strong> เพื่อลดความต้านทานน้ำ ทำให้น้ำไหลเร็วขึ้นและใช้เวลาสกัดน้อยลง</p>
+
+<blockquote>
+"การทำ WDT ช่วยกำจัดความผันผวนด้านโครงสร้างของผงกาแฟ ทำให้การ Calibrate รสชาติเอสเปรสโซมีความแม่นยำและตอบสนองต่อการปรับเบอร์บดได้อย่างตรงไปตรงมามากที่สุด"
+</blockquote>
+
+<h2>บทสรุป</h2>
+<p>เทคนิค <strong>WDT</strong> และการ <strong>Calibrate เอสเปรสโซ</strong> เป็นสองสิ่งที่ต้องทำควบคู่กันในการชงกาแฟสเปเชียลตี้ การใช้ WDT ช่วยให้โครงสร้างผงกาแฟในบาสเก็ตมีความเรียบเนียนสม่ำเสมอ ลดปัญหา Channeling ขณะที่การ Calibrate อย่างพิถีพิถันช่วยให้เราควบคุมอัตราการสกัดให้อยู่ในจุดที่สมดุลที่สุด (Sweet Spot)</p>
+<p>เมื่อบาริสต้าใส่ใจในรายละเอียดเล็กๆ น้อยๆ เหล่านี้ คุณจะสามารถดึงเสน่ห์ เอกลักษณ์ และรสชาติอันซับซ้อนที่ซ่อนอยู่ในเมล็ดกาแฟสเปเชียลตี้ออกมาในเอสเปรสโซทุกๆ แก้วได้อย่างสมบูรณ์แบบ</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
