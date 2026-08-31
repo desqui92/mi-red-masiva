@@ -192,7 +192,7 @@ def llamar_gemini(prompt: str, mime_type: str = None) -> str:
     
 def llamar_groq(prompt: str) -> str:
     res = groq_client.chat.completions.create(
-        model="llama-3.1-8b-instant",  # <-- CAMBIÁ ESTO
+        model="Llama-3-Groq-70B-Tool-Use",  # <-- CAMBIÁ ESTO
         messages=[{"role": "user", "content": prompt}]
     )
     return res.choices[0].message.content
