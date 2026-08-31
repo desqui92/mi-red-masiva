@@ -182,15 +182,7 @@ def guardar_historico(historico: list):
     repo.update_file(content.path, "Update processed log", json_data, content.sha)
     logger.info("Registro de histórico actualizado en GitHub.")
 
-def llamar_gemini(prompt: str, mime_type: str = None) -> str:
-    time.sleep(4)
-    config = types.GenerateContentConfig(response_mime_type=mime_type) if mime_type else None
-    res = ai_client.models.generate_content(
-        model=MODEL_GEMINI,
-        contents=prompt,
-        config=config
-    )
-    return res.text
+
     
 def llamar_github_model(prompt: str) -> str:
     res = github_client.chat.completions.create(
