@@ -35,9 +35,9 @@ GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-groq_client = OpenAI(
-    api_key=os.environ["GROQ_API_KEY"],
-    base_url="https://api.groq.com/openai/v1"
+github_client = OpenAI(
+    endpoint="https://models.inference.ai.azure.com",
+    api_key=os.environ["GITHUB_TOKEN"]
 )
 
 
@@ -190,10 +190,11 @@ def llamar_gemini(prompt: str, mime_type: str = None) -> str:
     )
     return res.text
     
-def llamar_groq(prompt: str) -> str:
-    res = groq_client.chat.completions.create(
-        model="Llama-3-Groq-70B-Tool-Use",  # <-- CAMBIÁ ESTO
-        messages=[{"role": "user", "content": prompt}]
+def llamar_github_model(prompt: str) -> str:
+    res = github_client.chat.completions.create(
+        messages=[{"role": "user", "content": prompt}],
+        model="gpt-4o-mini", # O "Llama-3.3-70b-Instruct"
+        temperature=0.7
     )
     return res.choices[0].message.content
     
@@ -206,7 +207,7 @@ def limpiar_html_cuerpo(html_str: str) -> str:
 def generar_busqueda_ia(nicho: str) -> str:
     logger.info(f"Generando búsqueda con IA para: '{nicho}'...")
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res_text = llamar_groq(prompt)
+    res_text = llamar_github_model(prompt)
     lineas = res_text.strip().splitlines()
     kw = lineas[0].replace('"', '').replace("'", "").strip()
     logger.info(f"Término generado: '{kw}'")
@@ -294,7 +295,7 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     Fuente / Contexto:
     {contexto[:3500]}
     """
-    res_text = llamar_groq(prompt)
+    res_text = llamar_github_model(prompt)
     texto_limpio = limpiar_html_cuerpo(res_text)
     lineas = texto_limpio.splitlines()
     titulo = "Artículo InfoZ"
