@@ -174,6 +174,7 @@ def guardar_historico(historico: list):
     logger.info("Registro de histórico actualizado en GitHub.")
 
 def llamar_gemini(prompt: str, mime_type: str = None) -> str:
+    time.sleep(4)
     config = types.GenerateContentConfig(response_mime_type=mime_type) if mime_type else None
     res = ai_client.models.generate_content(
         model=MODEL_GEMINI,
@@ -542,7 +543,7 @@ def ejecutar_bot_masivo():
                 slug_post = f"article-{int(time.time())}"
 
             publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
-            time.sleep(10)
+            time.sleep(20)
             
         if video_id:
             historico.append(video_id)
@@ -550,7 +551,7 @@ def ejecutar_bot_masivo():
 
         nichos_procesados.append(slug_z)
         logger.info(f"Nicho {slug_z} finalizado con éxito.")
-        
+        time.sleep(30)
     generar_indices_y_portada(nichos_procesados)
     logger.info("=== EJECUCIÓN FINALIZADA COMPLETAMENTE ===")
 
