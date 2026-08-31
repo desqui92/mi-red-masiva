@@ -32,7 +32,7 @@ GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-MODEL_GEMINI = "gemini-1.5-flash"
+MODEL_GEMINI = "gemini-3.6-flash"
 REGISTRO_FILE = "procesados.json"
 
 PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
