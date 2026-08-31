@@ -36,7 +36,7 @@ YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
 github_client = OpenAI(
-    endpoint="https://models.inference.ai.azure.com",
+    base_url="https://models.inference.ai.azure.com",
     api_key=os.environ["GITHUB_TOKEN"]
 )
 
