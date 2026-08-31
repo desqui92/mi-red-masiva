@@ -611,7 +611,7 @@ def generar_indices_y_portada(nichos_modificados: list):
 def ejecutar_bot_masivo():
     logger.info("=== INICIANDO EJECUCIÓN DEL BOT MASIVO ===")
     historico = cargar_historico()
-    lote = random.sample(CATEGORIAS_100, 5)
+    lote = random.sample(CATEGORIAS_100, 1)
     
     logger.info(f"Lote de 5 nichos seleccionados para esta ronda: {[c['slug_z'] for c in lote]}")
     nichos_procesados = []
