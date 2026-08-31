@@ -1,17 +1,22 @@
 name: Autoblog Runner 24/7
+
 on:
   schedule:
-    - cron: '0 */6 * * *' # Ejecuta cada 2 horas
+    - cron: '0 */6 * * *' # Se ejecuta cada 6 horas
   workflow_dispatch:
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - run: pip install PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai
+          
+      - run: pip install PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai tweepy
+      
       - run: python autoblog_100_master.py
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -19,3 +24,8 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
