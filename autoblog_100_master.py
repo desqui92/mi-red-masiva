@@ -8,8 +8,7 @@ import logging
 import yt_dlp
 from slugify import slugify
 from googleapiclient.discovery import build
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 from github import Auth, Github
 
 # --- LOGGING UNBUFFERED (IMPRESION EN TIEMPO REAL SIN BUFFER) ---
@@ -33,14 +32,14 @@ GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-MODEL_GEMINI = "gemini-3.6-flash"
+MODEL_GEMINI = "gemini-1.5-flash"
 REGISTRO_FILE = "procesados.json"
 
 PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
 
 logger.info("Inicializando clientes de API...")
 yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
-ai_client = genai.Client(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
 
 auth = Auth.Token(GITHUB_TOKEN)
 gh_client = Github(auth=auth)
@@ -172,10 +171,8 @@ def guardar_historico(historico: list):
     logger.info("Registro de histórico actualizado en GitHub.")
 
 def llamar_gemini_texto(prompt: str) -> str:
-    res = ai_client.models.generate_content(
-        model=MODEL_GEMINI,
-        contents=prompt
-    )
+    model = genai.GenerativeModel(MODEL_GEMINI)
+    res = model.generate_content(prompt)
     return res.text.strip()
 
 def limpiar_html_cuerpo(html_str: str) -> str:
@@ -237,24 +234,22 @@ def obtener_contexto_video(video_id: str) -> str:
     archivo_audio = descargar_audio_youtube(video_id)
     
     logger.info(f"Subiendo {archivo_audio} a Gemini File API...")
-    uploaded_file = ai_client.files.upload(file=archivo_audio)
+    uploaded_file = genai.upload_file(archivo_audio)
     logger.info(f"Archivo subido: {uploaded_file.name}")
     
     while uploaded_file.state.name != "ACTIVE":
         logger.info(f"Esperando estado ACTIVE en Gemini... Estado actual: {uploaded_file.state.name}")
         time.sleep(2)
-        uploaded_file = ai_client.files.get(name=uploaded_file.name)
+        uploaded_file = genai.get_file(uploaded_file.name)
 
     logger.info("Transcribiendo audio...")
     prompt = "Transcribe todo el audio hablado de este video de forma concisa. Devuelve texto plano."
     
-    res = ai_client.models.generate_content(
-        model=MODEL_GEMINI,
-        contents=[uploaded_file, prompt]
-    )
+    model = genai.GenerativeModel(MODEL_GEMINI)
+    res = model.generate_content([uploaded_file, prompt])
     
     os.remove(archivo_audio)
-    ai_client.files.delete(name=uploaded_file.name)
+    genai.delete_file(uploaded_file.name)
 
     return f"Transcripción de Audio:\n{res.text}"
 
@@ -533,7 +528,7 @@ def ejecutar_bot_masivo():
 
         if not contexto:
             logger.warning(f"Plan B: Generando post nativo sobre '{kw}' sin video.")
-            contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detallada sobre este tema."
+            contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detailed sobre este tema."
 
         total_idiomas = len(IDIOMAS_MAP)
         logger.info(f"Iniciando generación multilingüe ({total_idiomas} idiomas)...")
