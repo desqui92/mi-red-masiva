@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Sunucu Yönetiminde Systemd ve Journalctl Rehberi</title>
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Linux Sunucu Yönetiminde Systemd ve Journalctl Rehberi</h1>
+            <p>Modern Linux dağıtımlarının neredeyse tamamı, sistem başlatma sürecini ve servis yönetimini <strong>systemd</strong> üzerinden gerçekleştirir. Eski SysVinit sistemlerinin yerini alan bu devrim niteliğindeki yapı, yalnızca servisleri başlatıp durdurmakla kalmaz; aynı zamanda gelişmiş günlük (log) kayıtları, hedefler (targets), zamanlayıcılar (timers) ve kaynak kontrolü gibi sayısız özellik sunar. Bu rehberde, bir Linux sistem yöneticisinin (SysAdmin) olmazsa olmazı olan <strong>systemd</strong> komutlarını ve <strong>journalctl</strong> ile log analizini derinlemesine inceleyeceğiz.</p>
+
+<h2>1. Systemd Nedir ve Neden Önemlidir?</h2>
+
+<p>Systemd, Linux çekirdeği üzerinde çalışan bir <em>init sistemi</em> ve servis yöneticisidir. PID 1 olarak çalışan bu yazılım, sistem açılışından kapanışına kadar tüm süreçleri yönetir. Geleneksel yöntemlere göre en büyük avantajı, servisler arasındaki bağımlılıkları paralel olarak başlatabilmesi ve böylece açılış süresini ciddi şekilde kısaltmasıdır.</p>
+
+<p>Systemd’nin temel bileşenleri şunlardır:</p>
+<ul>
+    <li><strong>systemd:</strong> Sistemin ilk çalışan süreci (PID 1).</li>
+    <li><strong>systemctl:</strong> Servisleri ve sistem durumunu kontrol eden ana komut satırı aracı.</li>
+    <li><strong>journald:</strong> Tüm sistem ve servis loglarını merkezi olarak toplayan ve yöneten arka plan servisi.</li>
+    <li><strong>journalctl:</strong> Journald tarafından toplanan logları görüntülemek için kullanılan yardımcı program.</li>
+    <li><strong>systemd-analyze:</strong> Sistem açılış süresini ve servis başlangıç sürelerini analiz eden araç.</li>
+</ul>
+
+<h2>2. Temel Systemctl Komutları ile Servis Yönetimi</h2>
+
+<p>Bir SysAdmin’in günlük iş akışının büyük bir kısmı servisleri kontrol etmekten geçer. İşte en sık kullanılan <code>systemctl</code> komutları:</p>
+
+<h3>Servis Durumu ve Bilgi Sorgulama</h3>
+<ul>
+    <li><code>systemctl status nginx.service</code>: Servisin aktif mi, pasif mi, hata mı verdiğini ve son log kayıtlarını gösterir.</li>
+    <li><code>systemctl is-active nginx</code>: Sadece aktiflik durumunu döndürür (active/inactive).</li>
+    <li><code>systemctl is-enabled nginx</code>: Servisin sistem açılışında otomatik başlatılıp başlatılmayacağını kontrol eder.</li>
+    <li><code>systemctl list-units --type=service --state=running</code>: Şu anda çalışan tüm servisleri listeler.</li>
+</ul>
+
+<h3>Servis Başlatma, Durdurma ve Yeniden Başlatma</h3>
+<ul>
+    <li><code>systemctl start nginx</code>: Servisi başlatır.</li>
+    <li><code>systemctl stop nginx</code>: Servisi durdurur.</li>
+    <li><code>systemctl restart nginx</code>: Servisi durdurup tekrar başlatır. Yapılandırma değişikliklerinde sıklıkla kullanılır.</li>
+    <li><code>systemctl reload nginx</code>: Servisi durdurmadan yapılandırma dosyasını yeniden okutur. Kesintisiz hizmet için idealdir.</li>
+    <li><code>systemctl enable nginx</code>: Servisin açılışta otomatik başlamasını sağlar.</li>
+    <li><code>systemctl disable nginx</code>: Servisin açılışta otomatik başlamasını engeller.</li>
+    <li><code>systemctl enable --now nginx</code>: Hem açılışa ekler hem de anında başlatır (kısayol).</li>
+</ul>
+
+<blockquote>
+    <strong>İpucu:</strong> Servis ismi yazarken <code>.service</code> uzantısını yazmasanız da olur; systemd otomatik olarak tamamlar. Ancak birden fazla türde birim (unit) varsa karışıklığı önlemek için uzantıyı belirtmek iyi bir alışkanlıktır.
+</blockquote>
+
+<h2>3. Journalctl ile Derinlemesine Log Analizi</h2>
+
+<p>Log dosyalarını <code>/var/log/</code> dizininde tek tek aramak artık çağ dışı. <strong>journalctl</strong> komutu, tüm logları yapılandırılmış bir veritabanında (binary format) tutar ve size filtreleme, arama ve analiz imkanı sunar.</p>
+
+<h3>Journalctl Temel Kullanımı</h3>
+<ul>
+    <li><code>journalctl</code>: Tüm logları sayfalama yaparak gösterir (less kullanır).</li>
+    <li><code>journalctl -u nginx</code>: Sadece nginx servisine ait logları gösterir. Hata ayıklamada en sık kullanılan komuttur.</li>
+    <li><code>journalctl -f</code>: Canlı (follow) modda logları izler. Tıpkı <code>tail -f</code> gibi çalışır.</li>
+    <li><code>journalctl -p err</code>: Sadece hata (error) ve daha kritik seviyedeki logları gösterir. (Seviyeler: emerg, alert, crit, err, warning, notice, info, debug)</li>
+</ul>
+
+<h3>Zaman Bazlı Filtreleme</h3>
+<p>Logları belirli bir zaman dilimine göre filtrelemek, sorunun ne zaman başladığını tespit etmek için kritik öneme sahiptir.</p>
+<ul>
+    <li><code>journalctl --since "2024-05-20 10:00:00"</code>: Belirtilen tarihten itibaren tüm logları gösterir.</li>
+    <li><code>journalctl --until "2024-05-20 12:00:00"</code>: Belirtilen tarihe kadar olan logları gösterir.</li>
+    <li><code>journalctl --since "1 hour ago"</code>: Son 1 saatin loglarını gösterir.</li>
+    <li><code>journalctl --since yesterday --until today</code>: Dünkü tüm logları gösterir.</li>
+</ul>
+
+<h3>Gelişmiş Filtreleme ve Çıktı Kontrolü</h3>
+<ul>
+    <li><code>journalctl -u nginx -u mysql --since today</code>: Birden fazla servisi aynı anda filtreleyebilirsiniz.</li>
+    <li><code>journalctl -k</code>: Sadece çekirdek (kernel) mesajlarını gösterir. Donanım sorunlarında hayat kurtarıcıdır.</li>
+    <li><code>journalctl -o json-pretty</code>: Logları JSON formatında, okunaklı bir şekilde dışa aktarır. Programatik analizler için idealdir.</li>
+    <li><code>journalctl --no-pager</code>: Çıktıyı sayfalama yapmadan direkt olarak terminale basar. Logları bir dosyaya yönlendirmek için kullanışlıdır.</li>
+    <li><code>journalctl -u nginx --since "30 min ago" > /tmp/nginx.log</code>: Filtrelenmiş logları bir dosyaya kaydeder.</li>
+</ul>
+
+<h2>4. Kalıcı Log Depolama ve Yapılandırma</h2>
+
+<p>Varsayılan olarak systemd, logları RAM üzerinde tutar (volatile). Bu, yeniden başlatma sonrası logların kaybolması anlamına gelir. Kalıcı depolama için <code>/var/log/journal/</code> dizinini oluşturmanız gerekir.</p>
+
+<p>Kalıcı log kaydını aktifleştirmek için şu adımları izleyin:</p>
+<ol>
+    <li>Dizini oluşturun: <code>sudo mkdir -p /var/log/journal</code></li>
+    <li>Dizine doğru izinleri verin: <code>sudo chown root:systemd-journal /var/log/journal</code></li>
+    <li>Journal servisini yeniden başlatın: <code>sudo systemctl restart systemd-journald</code></li>
+</ol>
+
+<p>Ayrıca <code>/etc/systemd/journald.conf</code> dosyasını düzenleyerek log boyutu limitlerini ve saklama sürelerini ayarlayabilirsiniz. Örneğin, <code>SystemMaxUse=500M</code> satırı ile logların toplam boyutunu 500 MB ile sınırlayabilirsiniz.</p>
+
+<h2>5. Systemd Unit Dosyaları ve Özel Servis Oluşturma</h2>
+
+<p>Kendi scriptinizi veya uygulamanızı bir servis olarak tanımlamak için <code>.service</code> uzantılı bir unit dosyası oluşturmalısınız. Dosyalar genellikle <code>/etc/systemd/system/</code> dizininde bulunur.</p>
+
+<p>Örnek bir unit dosyası (<code>myapp.service</code>):</p>
+
+<pre>
+[Unit]
+Description=My Custom Application
+After=network.target
+
+[Service]
+Type=simple
+User=myuser
+WorkingDirectory=/opt/myapp
+ExecStart=/usr/bin/python3 /opt/myapp/app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+</pre>
+
+<p>Dosyayı oluşturduktan sonra şu komutları çalıştırın:</p>
+<ol>
+    <li><code>sudo systemctl daemon-reload</code>: Yeni unit dosyasını systemd’ye tanıtır.</li>
+    <li><code>sudo systemctl enable myapp</code>: Açılışta başlatılmasını sağlar.</li>
+    <li><code>sudo systemctl start myapp</code>: Servisi başlatır.</li>
+</ol>
+
+<h2>6. Sistem Performans Analizi ve Sorun Giderme</h2>
+
+<p>Systemd, performans sorunlarını tespit etmek için de güçlü araçlar sunar.</p>
+
+<h3>Sistem Açılış Süresi Analizi</h3>
+<ul>
+    <li><code>systemd-analyze</code>: Toplam açılış süresini gösterir.</li>
+    <li><code>systemd-analyze blame</code>: Açılış süresini en çok uzatan servisleri süreleriyle birlikte listeler. Optimizasyon için kritik bilgidir.</li>
+    <li><code>systemd-analyze critical-chain</code>: Açılışta en kritik olan bağımlılık zincirini gösterir.</li>
+</ul>
+
+<h3>Kaynak Kullanımını Kontrol Etme</h3>
+<p>Bir servisin CPU veya bellek kullanımını görmek için <code>systemd-cgtop</code> komutunu kullanabilirsiniz. Bu komut, <code>top</code> komutuna benzer şekilde çalışır ancak systemd’nin kontrol grupları (cgroups) üzerinden servis bazında kaynak kullanımını gösterir.</p>
+
+<h2>7. Journalctl ile Güvenlik ve Denetim (Audit)</h2>
+
+<p>Güvenlik olaylarını incelemek için journalctl mükemmel bir başlangıç noktasıdır. Örneğin, SSH bağlantı girişimlerini görmek için:</p>
+<ul>
+    <li><code>journalctl -u ssh -p info --since "1 day ago"</code>: Son 1 gündeki SSH bağlantı loglarını gösterir.</li>
+    <li><code>journalctl _COMM=sudo</code>: Sudo komutuyla yapılan tüm yetki yükseltme işlemlerini listeler. Bu, sistemde kimin hangi komutu çalıştırdığını denetlemek için harika bir yöntemdir.</li>
+    <li><code>journalctl _UID=1000</code>: Belirli bir kullanıcı ID’sine ait tüm işlemleri gösterir.</li>
+</ul>
+
+<h2>Sonuç</h2>
+
+<p>Systemd ve journalctl, modern Linux sunucu yönetiminin temel taşlarıdır. Bu araçlara hakim olmak, bir SysAdmin’in iş yükünü önemli ölçüde azaltır ve sorun giderme sürecini hızlandırır. Özellikle <code>systemctl status</code> ve <code>journalctl -u servis -f</code> komutlarını kullanmayı alışkanlık haline getirin. Unutmayın ki, loglar sisteminizin hafızasıdır; onları ne kadar iyi okursanız, sisteminizi o kadar iyi yönetirsiniz. Bu rehberdeki komutları kendi sunucunuzda deneyerek öğrenme sürecinizi hızlandırabilir ve karşılaştığınız sorunları çok daha hızlı çözebilirsiniz.
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
