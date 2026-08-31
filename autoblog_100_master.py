@@ -34,10 +34,7 @@ GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
-deepseek_client = OpenAI(
-    api_key=os.environ["DEEPSEEK_API_KEY"],
-    base_url="https://api.deepseek.com"
-)
+
 groq_client = OpenAI(
     api_key=os.environ["GROQ_API_KEY"],
     base_url="https://api.groq.com/openai/v1"
@@ -193,13 +190,6 @@ def llamar_gemini(prompt: str, mime_type: str = None) -> str:
     )
     return res.text
     
-def llamar_deepseek(prompt: str) -> str:
-    res = deepseek_client.chat.completions.create(
-        model="deepseek-chat",  # Invoca a DeepSeek-V3 por detrás
-        messages=[{"role": "user", "content": prompt}],
-        stream=False
-    )
-    return res.choices[0].message.content
 def llamar_groq(prompt: str) -> str:
     res = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",  # Excelente calidad y muy rápido
