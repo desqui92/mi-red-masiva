@@ -8,43 +8,53 @@ import logging
 import yt_dlp
 from slugify import slugify
 from googleapiclient.discovery import build
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from github import Auth, Github
 
-# --- LOGGING UNBUFFERED (IMPRESION EN TIEMPO REAL SIN BUFFER) ---
-class UnbufferedStreamHandler(logging.StreamHandler):
-    def emit(self, record):
-        super().emit(record)
-        self.flush()
-
+# --- CONFIGURACIÓN DE LOGS EN CONSOLA ---
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[UnbufferedStreamHandler(sys.stdout)]
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger("InfoZBot")
 
 # --- 1. CREDENCIALES Y CONFIGURACIÓN ---
-YOUTUBE_API_KEY = os.environ["YOUTUBE_API_KEY"]
-GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
-YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")
+YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-MODEL_GEMINI = "gemini-3.6-flash"
+MODEL_GEMINI = "gemini-2.5-flash"
 REGISTRO_FILE = "procesados.json"
 
 PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
 
-logger.info("Inicializando clientes de API...")
-yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
-genai.configure(api_key=GEMINI_API_KEY)
+# Verificación de credenciales al iniciar
+logger.info("Verificando credenciales de entorno...")
+if not YOUTUBE_API_KEY:
+    logger.warning("YOUTUBE_API_KEY no detectada. La búsqueda de videos estará desactivada.")
+if not GEMINI_API_KEY:
+    logger.error("GEMINI_API_KEY no detectada. El bot no podrá generar contenido.")
+if not GITHUB_TOKEN:
+    logger.warning("GITHUB_TOKEN no detectado. No se publicará contenido en GitHub.")
 
-auth = Auth.Token(GITHUB_TOKEN)
-gh_client = Github(auth=auth)
-repo = gh_client.get_repo(REPO_NAME)
-logger.info(f"Conexión exitosa a GitHub: {REPO_NAME}")
+yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY) if YOUTUBE_API_KEY else None
+ai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+
+if GITHUB_TOKEN:
+    try:
+        auth = Auth.Token(GITHUB_TOKEN)
+        gh_client = Github(auth=auth)
+        repo = gh_client.get_repo(REPO_NAME)
+        logger.info(f"Conectado exitosamente al repositorio GitHub: {REPO_NAME}")
+    except Exception as e:
+        logger.error(f"Error al conectar con GitHub: {e}")
+        repo = None
+else:
+    repo = None
 
 IDIOMAS_MAP = {
     "English": "en", "Español": "es", "Português": "pt", "Français": "fr", "Deutsch": "de", 
@@ -158,100 +168,174 @@ CATEGORIAS_100 = [
 ]
 
 def cargar_historico() -> list:
-    logger.info(f"Cargando historial desde {REGISTRO_FILE}...")
-    content = repo.get_contents(REGISTRO_FILE)
-    data = json.loads(content.decoded_content.decode('utf-8'))
-    logger.info(f"Histórico cargado: {len(data)} elementos.")
-    return data
+    if not repo:
+        logger.warning("Sin repositorio configurado. Histórico no cargado.")
+        return []
+    try:
+        logger.info(f"Cargando historial desde {REGISTRO_FILE}...")
+        content = repo.get_contents(REGISTRO_FILE)
+        data = json.loads(content.decoded_content.decode('utf-8'))
+        logger.info(f"Histórico cargado exitosamente. {len(data)} items en registro.")
+        return data
+    except Exception as e:
+        logger.warning(f"No se pudo cargar el histórico ({e}). Iniciando lista vacía.")
+        return []
 
 def guardar_historico(historico: list):
+    if not repo:
+        return
     json_data = json.dumps(historico, indent=2)
-    content = repo.get_contents(REGISTRO_FILE)
-    repo.update_file(content.path, "Update processed log", json_data, content.sha)
-    logger.info("Registro de histórico actualizado en GitHub.")
+    try:
+        try:
+            content = repo.get_contents(REGISTRO_FILE)
+            repo.update_file(content.path, "Update processed log", json_data, content.sha)
+            logger.info("Registro de histórico actualizado en GitHub.")
+        except Exception:
+            repo.create_file(REGISTRO_FILE, "Create processed log", json_data)
+            logger.info("Registro de histórico creado por primera vez en GitHub.")
+    except Exception as e:
+        logger.error(f"Error al guardar el histórico en GitHub: {e}")
 
-def llamar_gemini_texto(prompt: str) -> str:
-    model = genai.GenerativeModel(MODEL_GEMINI)
-    res = model.generate_content(prompt)
-    return res.text.strip()
+def llamar_gemini_con_reintento(prompt: str, mime_type: str = None, retries: int = 4):
+    if not ai_client:
+        raise ValueError("GEMINI_API_KEY no está configurada.")
+    
+    config = types.GenerateContentConfig(response_mime_type=mime_type) if mime_type else None
+    
+    for intento in range(retries):
+        try:
+            res = ai_client.models.generate_content(
+                model=MODEL_GEMINI,
+                contents=prompt,
+                config=config
+            )
+            return res.text
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "429" in error_msg or "quota" in error_msg or "resource_exhausted" in error_msg:
+                wait_time = 15 * (intento + 1)
+                logger.warning(f"Rate limit en Gemini. Intento {intento + 1}/{retries}. Esperando {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                logger.error(f"Error en Gemini (Intento {intento + 1}/{retries}): {e}")
+                time.sleep(5)
+            
+            if intento == retries - 1:
+                logger.critical(f"Agotados los reintentos con Gemini para la solicitud.")
+                raise e
 
 def limpiar_html_cuerpo(html_str: str) -> str:
+    if not html_str:
+        return ""
     texto = html_str.strip()
     texto = re.sub(r"^```[a-zA-Z]*\n?", "", texto)
     texto = re.sub(r"\n?```$", "", texto)
     return texto.strip()
 
 def generar_busqueda_ia(nicho: str) -> str:
-    logger.info(f"Generando búsqueda con IA para: '{nicho}'...")
+    logger.info(f"Generando término de búsqueda con IA para el nicho: '{nicho}'...")
     prompt = f"Dame 1 término de búsqueda en YouTube muy específico y tendencia sobre: '{nicho}'. Responde SOLO con el término en texto plano."
-    res_text = llamar_gemini_texto(prompt)
-    lineas = res_text.strip().splitlines()
-    kw = lineas[0].replace('"', '').replace("'", "").strip()
+    res_text = llamar_gemini_con_reintento(prompt)
+    lineas = res_text.strip().splitlines() if res_text else []
+    primera_linea = lineas[0] if lineas else nicho
+    kw = primera_linea.replace('"', '').replace("'", "").strip()
     logger.info(f"Término generado: '{kw}'")
     return kw
 
 def buscar_videos_yt(query: str) -> list:
-    logger.info(f"Buscando videos en YouTube para: '{query}'...")
-    req = yt_client.search().list(
-        q=query, 
-        part="snippet", 
-        type="video", 
-        order="relevance", 
-        maxResults=5
-    )
-    res = req.execute()
-    items = res.get("items", [])
-    video_ids = [item["id"]["videoId"] for item in items]
-    logger.info(f"Videos encontrados ({len(video_ids)}): {video_ids}")
-    return video_ids
+    if not yt_client:
+        logger.warning("Búsqueda de YouTube omitida (sin cliente configurado).")
+        return []
+    try:
+        logger.info(f"Buscando videos en YouTube para la query: '{query}'...")
+        req = yt_client.search().list(
+            q=query, 
+            part="snippet", 
+            type="video", 
+            order="relevance", 
+            maxResults=5
+        )
+        res = req.execute()
+        items = res.get("items", [])
+        video_ids = [item["id"]["videoId"] for item in items]
+        logger.info(f"Se encontraron {len(video_ids)} videos: {video_ids}")
+        return video_ids
+    except Exception as e:
+        logger.error(f"Error al realizar búsqueda en YouTube: {e}")
+        return []
 
-def descargar_audio_youtube(video_id):
+def descargar_audio_youtube(video_id: str) -> str:
+    # URL corregida
     url = f"https://www.youtube.com/watch?v={video_id}"
+    nombre_base = f"audio_{video_id}"
+    logger.info(f"Iniciando descarga de audio yt_dlp para {url}...")
+    
     ydl_opts = {
         'format': 'm4a/bestaudio/best',
+        'outtmpl': f"{nombre_base}.%(ext)s",
         'quiet': True,
         'no_warnings': True,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['android', 'ios']
-            }
-        }
     }
-    
-    if YOUTUBE_COOKIES:
-        if os.path.isfile(YOUTUBE_COOKIES):
-            ydl_opts['cookiefile'] = YOUTUBE_COOKIES
-        else:
-            with open("temp_cookies.txt", "w", encoding="utf-8") as f:
-                f.write(YOUTUBE_COOKIES)
-            ydl_opts['cookiefile'] = "temp_cookies.txt"
-
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
-        return ydl.prepare_filename(info)
+        filename = ydl.prepare_filename(info)
+        logger.info(f"Audio descargado localmente: {filename}")
+        return filename
 
 def obtener_contexto_video(video_id: str) -> str:
-    archivo_audio = descargar_audio_youtube(video_id)
-    
-    logger.info(f"Subiendo {archivo_audio} a Gemini File API...")
-    uploaded_file = genai.upload_file(archivo_audio)
-    logger.info(f"Archivo subido: {uploaded_file.name}")
-    
-    while uploaded_file.state.name != "ACTIVE":
-        logger.info(f"Esperando estado ACTIVE en Gemini... Estado actual: {uploaded_file.state.name}")
-        time.sleep(2)
-        uploaded_file = genai.get_file(uploaded_file.name)
+    archivo_audio = None
+    uploaded_file = None
+    try:
+        archivo_audio = descargar_audio_youtube(video_id)
+        
+        logger.info(f"Subiendo archivo {archivo_audio} a la File API de Gemini...")
+        uploaded_file = ai_client.files.upload(file=archivo_audio)
+        logger.info(f"Archivo subido. ID asignado por Gemini: {uploaded_file.name}")
+        
+        # Espera activa del procesamiento en la nube
+        for loop_idx in range(15):
+            if uploaded_file.state.name == "ACTIVE":
+                logger.info("El archivo de audio se procesó correctamente en Gemini.")
+                break
+            logger.info(f"Esperando procesamiento del audio en Gemini... Estado actual: {uploaded_file.state.name} ({loop_idx+1}/15)")
+            time.sleep(2)
+            uploaded_file = ai_client.files.get(name=uploaded_file.name)
 
-    logger.info("Transcribiendo audio...")
-    prompt = "Transcribe todo el audio hablado de este video de forma concisa. Devuelve texto plano."
-    
-    model = genai.GenerativeModel(MODEL_GEMINI)
-    res = model.generate_content([uploaded_file, prompt])
-    
-    os.remove(archivo_audio)
-    genai.delete_file(uploaded_file.name)
+        if uploaded_file.state.name != "ACTIVE":
+            logger.error("El archivo de audio no alcanzó el estado ACTIVE a tiempo.")
+            return None
 
-    return f"Transcripción de Audio:\n{res.text}"
+        logger.info("Solicitando transcripción del audio a Gemini...")
+        prompt = "Transcribe todo el audio hablado de este video de forma concisa. Devuelve texto plano."
+        
+        res = ai_client.models.generate_content(
+            model=MODEL_GEMINI,
+            contents=[uploaded_file, prompt]
+        )
+        if res and res.text:
+            logger.info("Transcripción completada con éxito.")
+            return f"Transcripción de Audio:\n{res.text}"
+        
+        logger.warning("Gemini devolvió respuesta vacía para la transcripción.")
+        return None
+
+    except Exception as e:
+        logger.error(f"Fallo al procesar audio del video {video_id}: {e}")
+        return None
+        
+    finally:
+        if archivo_audio and os.path.exists(archivo_audio):
+            try:
+                os.remove(archivo_audio)
+                logger.info(f"Archivo local eliminado: {archivo_audio}")
+            except Exception as e_del:
+                logger.warning(f"No se pudo eliminar archivo temporal {archivo_audio}: {e_del}")
+        if uploaded_file:
+            try:
+                ai_client.files.delete(name=uploaded_file.name)
+                logger.info(f"Archivo eliminado de la API de Gemini: {uploaded_file.name}")
+            except Exception as e_del_api:
+                logger.warning(f"No se pudo eliminar archivo en Gemini API: {e_del_api}")
 
 def redactar_post_ia(contexto: str, idioma: str) -> dict:
     prompt = f"""
@@ -266,7 +350,10 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     Fuente / Contexto:
     {contexto[:3500]}
     """
-    res_text = llamar_gemini_texto(prompt)
+    res_text = llamar_gemini_con_reintento(prompt)
+    if not res_text:
+        return None
+    
     texto_limpio = limpiar_html_cuerpo(res_text)
     lineas = texto_limpio.splitlines()
     titulo = "Artículo InfoZ"
@@ -282,6 +369,10 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     return {"titulo": titulo, "contenido_html": cuerpo}
 
 def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str):
+    if not repo:
+        logger.error("Error: Conexión con GitHub no inicializada. Imposible publicar.")
+        return
+
     cuerpo_limpio = limpiar_html_cuerpo(cuerpo)
     lang_code = IDIOMAS_MAP.get(idioma, "en")
     
@@ -347,17 +438,32 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
     
     path = f"{slug_z}/{lang_code}/{slug_post}.html"
     try:
-        existing_file = repo.get_contents(path)
-        repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
-    except Exception:
-        repo.create_file(path, f"Create post {slug_post}", html)
-    logger.info(f"✔ Publicado en GitHub: {path}")
+        try:
+            existing_file = repo.get_contents(path)
+            repo.update_file(path, f"Update post {slug_post}", html, existing_file.sha)
+            logger.info(f"✔ Publicado/Actualizado en GitHub: {path}")
+        except Exception:
+            repo.create_file(path, f"Post for {slug_z} ({idioma}): {slug_post}", html)
+            logger.info(f"✔ Publicado nuevo post en GitHub: {path}")
+    except Exception as e:
+        logger.error(f"❌ Error al subir {path} a GitHub: {e}")
 
 def generar_indices_y_portada(nichos_modificados: list):
+    if not repo:
+        logger.warning("Sin repositorio. Se omite la generación de índices.")
+        return
     logger.info("--- GENERANDO PORTADAS DE CATEGORÍAS E ÍNDICE GENERAL ---")
-    branch = repo.get_branch("main")
-    tree = repo.get_git_tree(branch.commit.sha, recursive=True)
-    logger.info(f"Árbol Git obtenido ({len(tree.tree)} elementos).")
+    
+    try:
+        try:
+            branch = repo.get_branch("main")
+        except Exception:
+            branch = repo.get_branch("master")
+        tree = repo.get_git_tree(branch.commit.sha, recursive=True)
+        logger.info(f"Árbol Git obtenido correctamente ({len(tree.tree)} elementos encontrados).")
+    except Exception as e:
+        logger.error(f"Error obteniendo árbol del repositorio Git: {e}")
+        return
 
     posts_por_nicho = {cat["slug_z"]: [] for cat in CATEGORIAS_100}
     
@@ -382,7 +488,7 @@ def generar_indices_y_portada(nichos_modificados: list):
             
         nicho = cat["nicho"]
         posts = posts_por_nicho.get(slug_z, [])
-        logger.info(f"Generando index.html para '{slug_z}'...")
+        logger.info(f"Generando index.html para nicho '{slug_z}' ({len(posts)} posts asociados)...")
         
         items_html = ""
         if posts:
@@ -428,9 +534,10 @@ def generar_indices_y_portada(nichos_modificados: list):
         try:
             existing = repo.get_contents(path_cat)
             repo.update_file(path_cat, f"Update index for {slug_z}", cat_index_html, existing.sha)
+            logger.info(f"✔ Actualizado index de categoría: {path_cat}")
         except Exception:
             repo.create_file(path_cat, f"Create index for {slug_z}", cat_index_html)
-        logger.info(f"✔ Actualizado index de categoría: {path_cat}")
+            logger.info(f"✔ Creado index de categoría: {path_cat}")
 
     grid_items = ""
     for cat in CATEGORIAS_100:
@@ -484,16 +591,17 @@ def generar_indices_y_portada(nichos_modificados: list):
     try:
         existing_file = repo.get_contents("index.html")
         repo.update_file("index.html", "Update index page", root_index_html, existing_file.sha)
+        logger.info("✔ Portada principal (index.html raíz) actualizada con éxito.")
     except Exception:
         repo.create_file("index.html", "Create index page", root_index_html)
-    logger.info("✔ Portada principal (index.html raíz) actualizada.")
+        logger.info("✔ Portada principal (index.html raíz) creada con éxito.")
 
 def ejecutar_bot_masivo():
     logger.info("=== INICIANDO EJECUCIÓN DEL BOT MASIVO ===")
     historico = cargar_historico()
     lote = random.sample(CATEGORIAS_100, 5)
     
-    logger.info(f"Lote de 5 nichos seleccionados: {[c['slug_z'] for c in lote]}")
+    logger.info(f"Lote de 5 nichos seleccionados para esta ronda: {[c['slug_z'] for c in lote]}")
     nichos_procesados = []
     
     for i, item in enumerate(lote, 1):
@@ -504,52 +612,70 @@ def ejecutar_bot_masivo():
         logger.info(f" PROCESANDO NICHO ({i}/5): {slug_z} -> [{nicho}]")
         logger.info(f"==================================================")
         
-        kw = generar_busqueda_ia(nicho)
-        video_ids = buscar_videos_yt(kw)
-        
-        video_id = None
-        contexto = None
-        
-        if video_ids:
-            logger.info(f"Analizando {len(video_ids)} candidatos de video...")
-            for vid in video_ids:
-                if vid in historico:
-                    logger.info(f"Video {vid} ya procesado previamente.")
+        try:
+            kw = generar_busqueda_ia(nicho)
+            video_ids = buscar_videos_yt(kw)
+            
+            video_id = None
+            contexto = None
+            
+            if video_ids:
+                logger.info(f"Analizando {len(video_ids)} candidatos de video...")
+                for vid in video_ids:
+                    if vid in historico:
+                        logger.info(f"Video {vid} ya fue procesado anteriormente. Omitiendo...")
+                        continue
+                    
+                    logger.info(f"Intentando extraer transcripción del video: {vid}")
+                    data_vid = obtener_contexto_video(vid)
+                    if data_vid:
+                        video_id = vid
+                        contexto = data_vid
+                        logger.info(f"Video {vid} aceptado como fuente principal de contexto.")
+                        break
+                    else:
+                        logger.warning(f"No se obtuvo contexto del video {vid}, probando siguiente...")
+            
+            if not contexto:
+                logger.warning(f"⚠️ Plan B activado: Generando post temático nativo sobre '{kw}' sin soporte de video.")
+                contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detallada sobre este tema."
+
+            total_idiomas = len(IDIOMAS_MAP)
+            logger.info(f"Iniciando generación multilingüe ({total_idiomas} idiomas)...")
+
+            for idx_lang, (lang_name, lang_code) in enumerate(IDIOMAS_MAP.items(), 1):
+                logger.info(f"[{idx_lang}/{total_idiomas}] Generando versión en '{lang_name}' ({lang_code})...")
+                try:
+                    art = redactar_post_ia(contexto, lang_name)
+                    
+                    if not art or "titulo" not in art or "contenido_html" not in art:
+                        logger.error(f"Respuesta inválida de la IA para idioma {lang_name}. Saltando...")
+                        continue
+
+                    slug_post = slugify(art["titulo"])
+                    if not slug_post:
+                        slug_post = f"article-{int(time.time())}"
+
+                    publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
+                    
+                    # Pausa anti rate-limit
+                    time.sleep(10)
+                    
+                except Exception as err:
+                    logger.error(f"Error procesando idioma {lang_name}: {err}")
                     continue
                 
-                logger.info(f"Intentando extraer audio/transcripción de {vid}...")
-                try:
-                    contexto = obtener_contexto_video(vid)
-                    video_id = vid
-                    logger.info(f"Video {vid} procesado con éxito.")
-                    break
-                except Exception as e:
-                    logger.warning(f"Error procesando video {vid}: {e}")
+            if video_id:
+                historico.append(video_id)
+                guardar_historico(historico)
 
-        if not contexto:
-            logger.warning(f"Plan B: Generando post nativo sobre '{kw}' sin video.")
-            contexto = f"Tema principal: {nicho}. Enfoque específico: {kw}. Genera una guía completa y detailed sobre este tema."
+            nichos_procesados.append(slug_z)
+            logger.info(f"Nicho {slug_z} finalizado con éxito.")
 
-        total_idiomas = len(IDIOMAS_MAP)
-        logger.info(f"Iniciando generación multilingüe ({total_idiomas} idiomas)...")
-
-        for idx_lang, (lang_name, lang_code) in enumerate(IDIOMAS_MAP.items(), 1):
-            logger.info(f"[{idx_lang}/{total_idiomas}] Generando en '{lang_name}' ({lang_code})...")
-            art = redactar_post_ia(contexto, lang_name)
-            slug_post = slugify(art["titulo"])
-            if not slug_post:
-                slug_post = f"article-{int(time.time())}"
-
-            publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
-            time.sleep(20)
-            
-        if video_id:
-            historico.append(video_id)
-            guardar_historico(historico)
-
-        nichos_procesados.append(slug_z)
-        logger.info(f"Nicho {slug_z} finalizado con éxito.")
-        time.sleep(30)
+        except Exception as e_nicho:
+            logger.error(f"Ocurrió un problema procesando el nicho {slug_z}: {e_nicho}. Continuando con el siguiente...")
+            continue
+        
     generar_indices_y_portada(nichos_procesados)
     logger.info("=== EJECUCIÓN FINALIZADA COMPLETAMENTE ===")
 
