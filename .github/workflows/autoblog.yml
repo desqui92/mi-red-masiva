@@ -1,7 +1,7 @@
 name: Autoblog Runner 24/7
 on:
   schedule:
-    - cron: '0 */1 * * *' # Ejecuta cada 2 horas
+    - cron: '0 */5 * * *' # Ejecuta cada 2 horas
   workflow_dispatch:
 jobs:
   run:
