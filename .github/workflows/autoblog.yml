@@ -8,8 +8,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    
-    # Declaradas acá se heredan en todos los pasos sin repetir 'env:' abajo
+
     env:
       YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -29,10 +28,15 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
+          
+          # 1. Instalamos las dependencias base
           pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai httpx
           
-          # Desinstalación forzada del paquete parásito
+          # 2. Eliminamos los paquetes pirata que se hayan colado
           pip uninstall -y httpx2 httpcore2 || true
+          
+          # 3. Restauramos OpenAI y httpx originales pisando cualquier archivo alterado
+          pip install --force-reinstall --no-deps openai httpx
 
       - name: Ejecutar Bot
         run: |
