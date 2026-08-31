@@ -5,6 +5,7 @@ import time
 import random
 import re
 import logging
+import urllib.parse
 import xml.etree.ElementTree as ET
 import email.utils
 import yt_dlp
@@ -202,7 +203,7 @@ def tuitear_post_nuevo(titulo: str, url: str):
         logger.error(f"❌ Error al publicar tweet en X: {e}")
 
 def generar_y_subir_feed_rss(posts_recientes: list, site_url: str):
-    """Genera el archivo feed.xml y lo sube al repo para Pinterest."""
+    """Genera el archivo feed.xml con imágenes adjuntas para Pinterest y lo sube al repo."""
     if not repo:
         logger.warning("Sin repositorio. Se omite la generación de feed.xml.")
         return
@@ -228,6 +229,18 @@ def generar_y_subir_feed_rss(posts_recientes: list, site_url: str):
         ET.SubElement(item, "guid").text = url_post
         ET.SubElement(item, "description").text = post["titulo"]
         ET.SubElement(item, "pubDate").text = email.utils.formatdate(usegmt=True)
+        
+        # Imagen dinámica de Pollinations.ai para Pinterest
+        img_url = post.get("imagen_url")
+        if not img_url:
+            prompt_encoded = urllib.parse.quote(post["titulo"])
+            img_url = f"https://image.pollinations.ai/prompt/{prompt_encoded}?width=800&height=1200&nologo=true"
+
+        ET.SubElement(item, "enclosure", {
+            "url": img_url,
+            "length": "0",
+            "type": "image/jpeg"
+        })
         
     xml_str = ET.tostring(rss, encoding="utf-8")
     
@@ -394,7 +407,7 @@ def redactar_post_ia(contexto: str, idioma: str) -> dict:
     cuerpo = "\n".join(cuerpo_lineas).strip()
     return {"titulo": titulo, "contenido_html": cuerpo}
 
-def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str):
+def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, idioma: str, imagen_url: str):
     if not repo:
         logger.error("Error: Conexión con GitHub no inicializada. Imposible publicar.")
         return
@@ -408,6 +421,9 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{titulo}</title>
+    <meta property="og:title" content="{titulo}" />
+    <meta property="og:image" content="{imagen_url}" />
+    <meta property="og:type" content="article" />
     {PROPELLER_SCRIPT}
     <style>
         :root {{
@@ -439,6 +455,7 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
         nav a {{ color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }}
         nav a:hover {{ text-decoration: underline; }}
         h1 {{ font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }}
+        .post-banner {{ width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }}
         article h2 {{ font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }}
         article h3 {{ font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }}
         article p {{ margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }}
@@ -455,6 +472,7 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
         <nav><a href="../index.html">← Volver a la categoría</a></nav>
         <article>
             <h1>{titulo}</h1>
+            <img src="{imagen_url}" alt="{titulo}" class="post-banner" />
             {cuerpo_limpio}
         </article>
         <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
@@ -685,13 +703,18 @@ def ejecutar_bot_masivo():
                     if not slug_post:
                         slug_post = f"article-{int(time.time())}"
 
-                    publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
+                    # Generar URL de imagen externa para Pollinations.ai (formato vertical 800x1200)
+                    prompt_encoded = urllib.parse.quote(art["titulo"])
+                    imagen_url = f"[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/){prompt_encoded}?width=800&height=1200&nologo=true"
+
+                    publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name, imagen_url)
                     
                     # Guardamos la info para el RSS
                     path_relativo = f"{slug_z}/{lang_code}/{slug_post}.html"
                     posts_creados_rss.append({
                         "titulo": art["titulo"],
-                        "path": path_relativo
+                        "path": path_relativo,
+                        "imagen_url": imagen_url
                     })
 
                     # Publicación automática en X (Twitter) solo para la versión en español
