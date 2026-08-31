@@ -5,7 +5,10 @@ import time
 import random
 import re
 import logging
+import xml.etree.ElementTree as ET
+import email.utils
 import yt_dlp
+import tweepy
 from slugify import slugify
 from googleapiclient.discovery import build
 from github import Auth, Github
@@ -25,6 +28,13 @@ YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
+SITE_URL = os.environ.get("SITE_URL", "https://desqui92.github.io/mi-red-masiva")
+
+# Credenciales de X (Twitter)
+TWITTER_API_KEY = os.environ.get("TWITTER_API_KEY")
+TWITTER_API_SECRET = os.environ.get("TWITTER_API_SECRET")
+TWITTER_ACCESS_TOKEN = os.environ.get("TWITTER_ACCESS_TOKEN")
+TWITTER_ACCESS_TOKEN_SECRET = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
 
 MODEL_DEEPSEEK = "deepseek-chat"
 REGISTRO_FILE = "procesados.json"
@@ -39,6 +49,8 @@ if not DEEPSEEK_API_KEY:
     logger.error("DEEPSEEK_API_KEY no detectada. El bot no podrá generar contenido.")
 if not GITHUB_TOKEN:
     logger.warning("GITHUB_TOKEN no detectado. No se publicará contenido en GitHub.")
+if not all([TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET]):
+    logger.warning("Credenciales de X (Twitter) incompletas. La auto-publicación en X estará desactivada.")
 
 yt_client = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY) if YOUTUBE_API_KEY else None
 
@@ -170,6 +182,66 @@ CATEGORIAS_100 = [
     {"nicho": "Audio de Alta Fidelidad (Hi-Fi)", "slug_z": "audioz"},
     {"nicho": "Drones y Fotografía Aérea", "slug_z": "dronesz"}
 ]
+
+def tuitear_post_nuevo(titulo: str, url: str):
+    """Manda un tweet automático a X usando Tweepy."""
+    if not all([TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET]):
+        return
+
+    try:
+        client = tweepy.Client(
+            consumer_key=TWITTER_API_KEY,
+            consumer_secret=TWITTER_API_SECRET,
+            access_token=TWITTER_ACCESS_TOKEN,
+            access_token_secret=TWITTER_ACCESS_TOKEN_SECRET
+        )
+        mensaje = f"🔥 Nuevo artículo publicado:\n\n{titulo[:180]}\n\nLee la guía completa acá 👇\n{url}"
+        response = client.create_tweet(text=mensaje)
+        logger.info(f"✔ Tweet publicado con éxito en X (ID: {response.data['id']})")
+    except Exception as e:
+        logger.error(f"❌ Error al publicar tweet en X: {e}")
+
+def generar_y_subir_feed_rss(posts_recientes: list, site_url: str):
+    """Genera el archivo feed.xml y lo sube al repo para Pinterest."""
+    if not repo:
+        logger.warning("Sin repositorio. Se omite la generación de feed.xml.")
+        return
+
+    logger.info("--- GENERANDO Y SUBIENDO FEED RSS (feed.xml) ---")
+    site_url = site_url.rstrip('/')
+    
+    rss = ET.Element("rss", version="2.0")
+    channel = ET.SubElement(rss, "channel")
+    
+    ET.SubElement(channel, "title").text = "InfoZ Network — Guías y Artículos"
+    ET.SubElement(channel, "link").text = site_url
+    ET.SubElement(channel, "description").text = "Últimas publicaciones masivas multilingües de InfoZ Network"
+    ET.SubElement(channel, "language").text = "es"
+    
+    # Tomamos hasta 100 posts recientes para mantener liviano el feed
+    for post in posts_recientes[:100]:
+        item = ET.SubElement(channel, "item")
+        ET.SubElement(item, "title").text = post["titulo"]
+        
+        url_post = f"{site_url}/{post['path']}"
+        ET.SubElement(item, "link").text = url_post
+        ET.SubElement(item, "guid").text = url_post
+        ET.SubElement(item, "description").text = post["titulo"]
+        ET.SubElement(item, "pubDate").text = email.utils.formatdate(usegmt=True)
+        
+    xml_str = ET.tostring(rss, encoding="utf-8")
+    
+    path_feed = "feed.xml"
+    try:
+        try:
+            existing = repo.get_contents(path_feed)
+            repo.update_file(path_feed, "Update feed.xml", xml_str.decode('utf-8'), existing.sha)
+            logger.info("✔ feed.xml actualizado en GitHub para Pinterest.")
+        except Exception:
+            repo.create_file(path_feed, "Create feed.xml", xml_str.decode('utf-8'))
+            logger.info("✔ feed.xml creado en GitHub para Pinterest.")
+    except Exception as e:
+        logger.error(f"❌ Error al guardar feed.xml en GitHub: {e}")
 
 def cargar_historico() -> list:
     if not repo:
@@ -559,6 +631,7 @@ def ejecutar_bot_masivo():
     
     logger.info(f"Lote de {len(lote)} nichos seleccionados para esta ronda: {[c['slug_z'] for c in lote]}")
     nichos_procesados = []
+    posts_creados_rss = []
     
     for i, item in enumerate(lote, 1):
         nicho = item["nicho"]
@@ -614,6 +687,18 @@ def ejecutar_bot_masivo():
 
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name)
                     
+                    # Guardamos la info para el RSS
+                    path_relativo = f"{slug_z}/{lang_code}/{slug_post}.html"
+                    posts_creados_rss.append({
+                        "titulo": art["titulo"],
+                        "path": path_relativo
+                    })
+
+                    # Publicación automática en X (Twitter) solo para la versión en español
+                    if lang_code == "es":
+                        url_publica = f"{SITE_URL.rstrip('/')}/{path_relativo}"
+                        tuitear_post_nuevo(art["titulo"], url_publica)
+
                     # Pausa anti rate-limit de 2 segundos
                     time.sleep(2)
                     
@@ -633,6 +718,7 @@ def ejecutar_bot_masivo():
             continue
         
     generar_indices_y_portada(nichos_procesados)
+    generar_y_subir_feed_rss(posts_creados_rss, SITE_URL)
     logger.info("=== EJECUCIÓN FINALIZADA COMPLETAMENTE ===")
 
 if __name__ == "__main__":
