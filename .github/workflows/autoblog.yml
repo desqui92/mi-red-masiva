@@ -23,15 +23,25 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Preparar entorno virtual e instalar dependencias
+      - name: Preparar entorno e inspeccionar culpable
         run: |
-          # DESTRUCCIÓN TOTAL: Si vino un venv podrido desde el repo, lo borramos de raíz
           rm -rf venv
-          python -m venv venv --clear
+          python -m venv venv
           source venv/bin/activate
-          
           pip install --upgrade pip
+          
+          # Instalamos dependencias
           pip install --no-cache-dir PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp openai httpx
+          
+          echo "=================================================="
+          echo "🔍 DIAGNÓSTICO: ¿Quién carajos instaló httpx2?"
+          echo "=================================================="
+          pip show httpx2 || echo "✔ httpx2 NO fue instalado por pip directamente."
+          
+          echo "=================================================="
+          echo "🔍 Buscando la palabra httpx2 dentro del código del repo..."
+          echo "=================================================="
+          grep -rn "httpx2" . --exclude-dir=venv || echo "✔ No hay menciones de httpx2 en tus archivos .py"
 
       - name: Ejecutar Bot
         run: |
