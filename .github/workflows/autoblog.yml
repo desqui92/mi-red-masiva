@@ -1,37 +1,20 @@
 name: Autoblog Runner 24/7
-
 on:
   schedule:
     - cron: '0 */2 * * *' # Ejecuta cada 2 horas
   workflow_dispatch:
-
 jobs:
   run:
     runs-on: ubuntu-latest
-
-    env:
-      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      REPO_NAME: ${{ secrets.REPO_NAME }}
-      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Preparar entorno virtual e instalar dependencias
-        run: |
-          rm -rf venv
-          python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install --no-cache-dir PyGithub google-generativeai youtube-transcript-api google-api-python-client python-slugify yt-dlp
-
-      - name: Ejecutar Bot
-        run: |
-          source venv/bin/activate
-          python autoblog_100_master.py
+          python-version: '3.10'
+      - run: pip install PyGithub google-genai youtube-transcript-api google-api-python-client python-slugify yt-dlp
+      - run: python autoblog_100_master.py
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
