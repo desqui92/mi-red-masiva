@@ -23,11 +23,12 @@ logger = logging.getLogger("InfoZBot")
 
 # --- 1. CREDENCIALES Y CONFIGURACIÓN ---
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
+YOUTUBE_COOKIES = os.environ.get("YOUTUBE_COOKIES")  # Se agrega esta línea
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = os.environ.get("REPO_NAME", "desqui92/mi-red-masiva")
 
-MODEL_GEMINI = "gemini-2.5-flash"
+MODEL_GEMINI = "gemini-3.6-flash"
 REGISTRO_FILE = "procesados.json"
 
 PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
@@ -264,23 +265,34 @@ def buscar_videos_yt(query: str) -> list:
         logger.error(f"Error al realizar búsqueda en YouTube: {e}")
         return []
 
-def descargar_audio_youtube(video_id: str) -> str:
-    # URL corregida
+def descargar_audio_youtube(video_id):
     url = f"https://www.youtube.com/watch?v={video_id}"
-    nombre_base = f"audio_{video_id}"
-    logger.info(f"Iniciando descarga de audio yt_dlp para {url}...")
-    
     ydl_opts = {
         'format': 'm4a/bestaudio/best',
-        'outtmpl': f"{nombre_base}.%(ext)s",
         'quiet': True,
         'no_warnings': True,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'ios']
+            }
+        }
     }
+    
+    # --- INICIO MODIFICACIÓN COOKIES ---
+    if YOUTUBE_COOKIES:
+        if os.path.isfile(YOUTUBE_COOKIES):
+            # Si YOUTUBE_COOKIES es la ruta a un archivo (ej: "cookies.txt")
+            ydl_opts['cookiefile'] = YOUTUBE_COOKIES
+        else:
+            # Si YOUTUBE_COOKIES contiene el texto Netscape pegado en el Secret de GitHub
+            with open("temp_cookies.txt", "w", encoding="utf-8") as f:
+                f.write(YOUTUBE_COOKIES)
+            ydl_opts['cookiefile'] = "temp_cookies.txt"
+    # --- FIN MODIFICACIÓN COOKIES ---
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info)
-        logger.info(f"Audio descargado localmente: {filename}")
-        return filename
+        return ydl.prepare_filename(info)
 
 def obtener_contexto_video(video_id: str) -> str:
     archivo_audio = None
