@@ -708,7 +708,8 @@ def ejecutar_bot_masivo():
 
                     # Generar URL de imagen externa para Pollinations.ai (formato vertical 800x1200)
                     prompt_encoded = urllib.parse.quote(art["titulo"])
-                    imagen_url = f"[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/){prompt_encoded}?width=800&height=1200&nologo=true"
+                    # ✔️ ASÍ DEBE QUEDAR:
+                    imagen_url = f"https://image.pollinations.ai/prompt/{prompt_encoded}?width=800&height=1200&nologo=true"
 
                     publicar_en_github(slug_z, slug_post, art["titulo"], art["contenido_html"], lang_name, imagen_url)
                     
