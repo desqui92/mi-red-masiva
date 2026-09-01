@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment construire un robot suiveur de ligne avec Arduino Uno : Le guide complet pour débutants</title>
+    <meta property="og:title" content="Comment construire un robot suiveur de ligne avec Arduino Uno : Le guide complet pour débutants" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Comment%20construire%20un%20robot%20suiveur%20de%20ligne%20avec%20Arduino%20Uno%20%3A%20Le%20guide%20complet%20pour%20d%C3%A9butants?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Comment construire un robot suiveur de ligne avec Arduino Uno : Le guide complet pour débutants</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Comment%20construire%20un%20robot%20suiveur%20de%20ligne%20avec%20Arduino%20Uno%20%3A%20Le%20guide%20complet%20pour%20d%C3%A9butants?width=800&height=1200&nologo=true" alt="Comment construire un robot suiveur de ligne avec Arduino Uno : Le guide complet pour débutants" class="post-banner" />
+            <p>Construire un robot suiveur de ligne est sans doute l'un des projets les plus gratifiants et les plus pédagogiques dans le monde de la robotique DIY. Que vous soyez un étudiant en électronique, un hobbyiste curieux ou un enseignant cherchant un projet pratique, ce tutoriel est fait pour vous. Grâce à la simplicité de la carte <strong>Arduino Uno</strong> et à quelques composants abordables, vous allez pouvoir assembler, câbler et programmer votre propre machine capable de suivre une trajectoire noire sur un fond blanc (ou l'inverse). Cet article vous guidera pas à pas, du choix des matériaux à la mise en service, en passant par la logique de programmation.</p>
+
+<h2>1. Pourquoi un robot suiveur de ligne ? Les fondamentaux</h2>
+<p>Avant de vous lancer dans le câblage, il est essentiel de comprendre le principe de fonctionnement. Un robot suiveur de ligne utilise des capteurs de proximité infrarouge (IR) pour détecter la réflectance de la surface. Une surface blanche réfléchit la lumière, tandis qu'une surface noire l'absorbe. En lisant ces variations, la carte Arduino peut prendre des décisions pour actionner les moteurs et corriger la trajectoire du robot.</p>
+<p>Ce projet est idéal pour apprendre :</p>
+<ul>
+    <li><strong>La logique de contrôle</strong> (boucles conditionnelles et capteurs).</li>
+    <li><strong>Les bases de l'électronique</strong> (pont en H, résistances, alimentation).</li>
+    <li><strong>La programmation embarquée</strong> (lecture analogique et numérique).</li>
+</ul>
+
+<h2>2. La liste complète du matériel nécessaire</h2>
+<p>Pour ce tutoriel, nous allons utiliser une approche modulaire. Voici la liste exhaustive des composants dont vous aurez besoin :</p>
+<ul>
+    <li><strong>1x Carte Arduino Uno</strong> (ou un clone compatible).</li>
+    <li><strong>1x Module pont en H L298N</strong> (pour contrôler deux moteurs à courant continu).</li>
+    <li><strong>2x Moteurs à courant continu</strong> avec réducteurs (idéalement 3V à 6V) et leurs roues.</li>
+    <li><strong>1x Module capteur suiveur de ligne</strong> (souvent vendu comme "TCRT5000" ou "module 5 canaux"). Pour un début, un module à 2 ou 3 capteurs suffit.</li>
+    <li><strong>1x Roue folle</strong> (ou bille de maintien) pour l'équilibre à l'avant.</li>
+    <li><strong>1x Support de piles</strong> pour 4 piles AA (6V) ou une batterie LiPo 7.4V.</li>
+    <li><strong>Des câbles Dupont</strong> (mâle-mâle et mâle-femelle).</li>
+    <li><strong>Un châssis</strong> (en acrylique, impression 3D ou même en carton rigide).</li>
+    <li><strong>Des serre-câbles ou du ruban adhésif double face</strong> pour fixer les composants.</li>
+</ul>
+
+<blockquote>
+    <strong>Astuce de pro :</strong> Si vous achetez un "kit robot suiveur de ligne", il contient souvent tous ces éléments. Vérifiez simplement que le capteur est bien un module TCRT5000 pour une meilleure précision.
+</blockquote>
+
+<h2>3. Le câblage : Connecter les composants à l'Arduino</h2>
+<p>Le câblage est une étape critique. Une erreur de connexion peut endommager votre carte. Suivez ce schéma de câblage méticuleusement.</p>
+<p><strong>Connexion du pont en H L298N :</strong></p>
+<ul>
+    <li>Broche <strong>12V</strong> du L298N -> <strong>+6V</strong> de la batterie (ou le fil positif).</li>
+    <li>Broche <strong>GND</strong> du L298N -> <strong>GND</strong> de la batterie ET broche <strong>GND</strong> de l'Arduino.</li>
+    <li>Broche <strong>5V</strong> du L298N -> Broche <strong>5V</strong> de l'Arduino (pour alimenter les capteurs).</li>
+    <li>Broches <strong>IN1, IN2, IN3, IN4</strong> -> Broches numériques <strong>D8, D9, D10, D11</strong> de l'Arduino.</li>
+    <li>Broches <strong>ENA</strong> et <strong>ENB</strong> -> Broches <strong>D5</strong> et <strong>D6</strong> (pour le contrôle de vitesse PWM).</li>
+</ul>
+<p><strong>Connexion des moteurs :</strong></p>
+<ul>
+    <li>Moteur gauche -> Borniers <strong>OUT1</strong> et <strong>OUT2</strong>.</li>
+    <li>Moteur droit -> Borniers <strong>OUT3</strong> et <strong>OUT4</strong>.</li>
+</ul>
+<p><strong>Connexion du capteur (exemple avec 2 capteurs) :</strong></p>
+<ul>
+    <li>VCC du capteur -> Broche <strong>5V</strong> de l'Arduino.</li>
+    <li>GND du capteur -> Broche <strong>GND</strong> de l'Arduino.</li>
+    <li>Sortie gauche (OUT1 ou DO) -> Broche analogique <strong>A0</strong>.</li>
+    <li>Sortie droite (OUT2 ou DO) -> Broche analogique <strong>A1</strong>.</li>
+</ul>
+
+<blockquote>
+    <strong>Important :</strong> N'oubliez jamais de connecter la masse (GND) de la batterie moteur à la masse de l'Arduino. Sans cette liaison, les signaux seront instables et le robot ne fonctionnera pas correctement.
+</blockquote>
+
+<h2>4. La logique de programmation : Le cerveau du robot</h2>
+<p>La programmation est le cœur du projet. Le principe est simple : lire les capteurs, comparer les valeurs, et ajuster la vitesse des roues. Voici la logique de base pour un suiveur à 2 capteurs :</p>
+<ul>
+    <li><strong>Si les deux capteurs voient du blanc</strong> : Le robot avance tout droit.</li>
+    <li><strong>Si le capteur gauche voit du noir</strong> : Le robot tourne à gauche (le robot est dévié vers la droite).</li>
+    <li><strong>Si le capteur droit voit du noir</strong> : Le robot tourne à droite.</li>
+    <li><strong>Si les deux voient du noir</strong> : Le robot s'arrête (fin de piste ou intersection).</li>
+</ul>
+<p>Pour une précision accrue, on utilise souvent un PID (Proportionnel, Intégral, Dérivé), mais pour un premier montage, une simple logique "if/else" suffit amplement.</p>
+
+<h2>5. Le code Arduino commenté pas à pas</h2>
+<p>Voici un code fonctionnel et commenté pour votre robot. Copiez-collez ce code dans votre IDE Arduino.</p>
+<pre>
+// Définition des broches
+const int moteurGaucheAvant = 8;
+const int moteurGaucheArriere = 9;
+const int moteurDroitAvant = 10;
+const int moteurDroitArriere = 11;
+
+const int capteurGauche = A0;
+const int capteurDroit = A1;
+
+int vitesseBase = 150; // Vitesse de base (0-255)
+int virage = 100; // Vitesse de correction pour les virages
+
+void setup() {
+  // Configuration des broches moteurs
+  pinMode(moteurGaucheAvant, OUTPUT);
+  pinMode(moteurGaucheArriere, OUTPUT);
+  pinMode(moteurDroitAvant, OUTPUT);
+  pinMode(moteurDroitArriere, OUTPUT);
+  
+  // Configuration des broches capteurs
+  pinMode(capteurGauche, INPUT);
+  pinMode(capteurDroit, INPUT);
+  
+  // Initialisation de la communication série pour le debug
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Lecture des capteurs (0 = noir, 1 = blanc selon le module)
+  int valeurGauche = digitalRead(capteurGauche);
+  int valeurDroit = digitalRead(capteurDroit);
+  
+  // Affiche les valeurs dans le moniteur série
+  Serial.print("Gauche: ");
+  Serial.print(valeurGauche);
+  Serial.print(" | Droite: ");
+  Serial.println(valeurDroit);
+  
+  // Logique de suivi de ligne
+  if (valeurGauche == 0 && valeurDroit == 0) {
+    // Les deux capteurs sur le noir -> stop
+    arreter();
+  } 
+  else if (valeurGauche == 0 && valeurDroit == 1) {
+    // Capteur gauche sur noir -> tourner à gauche
+    tournerGauche();
+  } 
+  else if (valeurGauche == 1 && valeurDroit == 0) {
+    // Capteur droit sur noir -> tourner à droite
+    tournerDroit();
+  } 
+  else {
+    // Les deux capteurs sur blanc -> avancer tout droit
+    avancer();
+  }
+}
+
+void avancer() {
+  digitalWrite(moteurGaucheAvant, HIGH);
+  digitalWrite(moteurGaucheArriere, LOW);
+  digitalWrite(moteurDroitAvant, HIGH);
+  digitalWrite(moteurDroitArriere, LOW);
+}
+
+void tournerGauche() {
+  digitalWrite(moteurGaucheAvant, LOW);
+  digitalWrite(moteurGaucheArriere, HIGH);
+  digitalWrite(moteurDroitAvant, HIGH);
+  digitalWrite(moteurDroitArriere, LOW);
+}
+
+void tournerDroit() {
+  digitalWrite(moteurGaucheAvant, HIGH);
+  digitalWrite(moteurGaucheArriere, LOW);
+  digitalWrite(moteurDroitAvant, LOW);
+  digitalWrite(moteurDroitArriere, HIGH);
+}
+
+void arreter() {
+  digitalWrite(moteurGaucheAvant, LOW);
+  digitalWrite(moteurGaucheArriere, LOW);
+  digitalWrite(moteurDroitAvant, LOW);
+  digitalWrite(moteurDroitArriere, LOW);
+}
+</pre>
+
+<blockquote>
+    <strong>Note :</strong> Si votre robot tourne dans le mauvais sens, inversez simplement les fils des moteurs sur le pont en H ou échangez les valeurs dans le code.
+</blockquote>
+
+<h2>6. Réglages et calibrage : L'étape cruciale</h2>
+<p>Un robot suiveur de ligne nécessite un calibrage minutieux pour fonctionner de manière fluide. Voici les points à vérifier :</p>
+<ul>
+    <li><strong>La hauteur des capteurs :</strong> Les capteurs IR doivent être à environ 5 à 10 mm de la surface. Trop haut, ils seront aveugles ; trop bas, ils frotteront.</li>
+    <li><strong>La sensibilité :</strong> La plupart des modules TCRT5000 ont un potentiomètre. Tournez-le doucement jusqu'à ce que la LED du capteur s'allume/s'éteigne de manière fiable sur la ligne noire.</li>
+    <li><strong>La vitesse :</strong> Commencez avec une vitesse base de 100. Si le robot dévie trop, réduisez la vitesse. Si le robot est trop lent, augmentez-la progressivement.</li>
+    <li><strong>Le contraste de la piste :</strong> Utilisez du ruban adhésif noir mat sur un fond blanc brillant. Évitez les surfaces trop réfléchissantes.</li>
+</ul>
+
+<h2>7. Dépannage : Les problèmes courants et leurs solutions</h2>
+<p>Il est rare que tout fonctionne parfaitement du premier coup. Voici un tableau de dépannage rapide :</p>
+<ul>
+    <li><strong>Le robot ne bouge pas :</strong> Vérifiez l'alimentation. Les piles sont-elles chargées ? Le pont en H est-il bien alimenté ? L'interrupteur est-il activé ?</li>
+    <li><strong>Le robot avance en cercles :</strong> Un moteur est probablement mal câblé ou le capteur correspondant est mal calibré. Vérifiez les connexions OUT1/OUT2 et OUT3/OUT4.</li>
+    <li><strong>Le robot ne réagit pas à la ligne :</strong> Le capteur est peut-être trop haut ou le potentiomètre de sensibilité est mal réglé. Testez les valeurs dans le moniteur série pour voir si elles changent.</li>
+    <li><strong>Le robot tremble :</strong> La vitesse est trop élevée ou le PID n'est pas bien réglé. Réduisez la vitesse de base.</li>
+</ul>
+
+<h2>8. Aller plus loin : Les améliorations possibles</h2>
+<p>Une fois votre robot fonctionnel, le plaisir ne s'arrête pas là. Voici quelques idées pour pousser le projet plus loin :</p>
+<ul>
+    <li><strong>Ajout d'un PID :</strong> Pour une fluidité et une vitesse accrues, implémentez un contrôleur PID. Cela demande plus de code mais le résultat est spectaculaire.</li>
+    <li><strong>Gestion des intersections :</strong> Utilisez un capteur à 5 canaux pour détecter les croisements et programmer des actions spécifiques (tourner à droite à la première intersection, etc.).</li>
+    <li><strong>Contrôle à distance :</strong> Ajoutez un module Bluetooth HC-05 pour envoyer des commandes de démarrage/arrêt depuis votre smartphone.</li>
+    <li><strong>Affichage OLED :</strong> Intégrez un petit écran pour afficher la vitesse, l'état des capteurs ou le nombre de tours effectués.</li>
+</ul>
+
+<h2>Conclusion : Votre premier pas dans la robotique autonome</h2>
+<p>Félicitations ! Vous avez maintenant toutes les clés en main pour construire votre propre <strong>robot suiveur de ligne avec Arduino Uno</strong>. Ce projet vous a permis de toucher du doigt les concepts fondamentaux de la robotique : la perception (capteurs), la décision (programmation) et l'action (moteurs). N'hésitez pas à expérimenter, à modifier le code et à améliorer votre châssis. Chaque itération vous apprendra quelque chose de nouveau. La robotique est un domaine où l'erreur est une étape d'apprentissage précieuse. Alors, lancez-vous, et amusez-vous à regarder votre création filer le long de la ligne noire avec une précision étonnante !</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
