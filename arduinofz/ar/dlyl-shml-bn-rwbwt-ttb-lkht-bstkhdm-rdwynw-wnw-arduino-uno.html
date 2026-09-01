@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل شامل: بناء روبوت تتبع الخط باستخدام أردوينو أونو (Arduino Uno)</title>
+    <meta property="og:title" content="دليل شامل: بناء روبوت تتبع الخط باستخدام أردوينو أونو (Arduino Uno)" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%D8%AF%D9%84%D9%8A%D9%84%20%D8%B4%D8%A7%D9%85%D9%84%3A%20%D8%A8%D9%86%D8%A7%D8%A1%20%D8%B1%D9%88%D8%A8%D9%88%D8%AA%20%D8%AA%D8%AA%D8%A8%D8%B9%20%D8%A7%D9%84%D8%AE%D8%B7%20%D8%A8%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85%20%D8%A3%D8%B1%D8%AF%D9%88%D9%8A%D9%86%D9%88%20%D8%A3%D9%88%D9%86%D9%88%20%28Arduino%20Uno%29?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>دليل شامل: بناء روبوت تتبع الخط باستخدام أردوينو أونو (Arduino Uno)</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%D8%AF%D9%84%D9%8A%D9%84%20%D8%B4%D8%A7%D9%85%D9%84%3A%20%D8%A8%D9%86%D8%A7%D8%A1%20%D8%B1%D9%88%D8%A8%D9%88%D8%AA%20%D8%AA%D8%AA%D8%A8%D8%B9%20%D8%A7%D9%84%D8%AE%D8%B7%20%D8%A8%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85%20%D8%A3%D8%B1%D8%AF%D9%88%D9%8A%D9%86%D9%88%20%D8%A3%D9%88%D9%86%D9%88%20%28Arduino%20Uno%29?width=800&height=1200&nologo=true" alt="دليل شامل: بناء روبوت تتبع الخط باستخدام أردوينو أونو (Arduino Uno)" class="post-banner" />
+            <p>تُعد مشاريع الروبوتات من أكثر المجالات إثارة في عالم الإلكترونيات والبرمجة، وتحديداً مشروع <strong>روبوت تتبع الخط</strong> (Line Follower Robot) الذي يعتبر البوابة المثالية للمبتدئين لتعلم أساسيات التحكم الآلي والحساسات والمعالجات الدقيقة. في هذا الدليل الشامل، سنأخذ بيدك خطوة بخطوة لبناء روبوت ذكي قادر على اتباع مسار أسود مرسوم على أرضية بيضاء باستخدام لوحة <strong>أردوينو أونو</strong> (Arduino Uno)، والتي تعد من أشهر اللوحات الإلكترونية وأكثرها مرونة في عالم المشاريع التعليمية.</p>
+
+<p>سواء كنت طالباً في الهندسة، أو هاوياً يبحث عن تجربة ممتعة، أو معلماً يريد إثراء حصصه العملية، فإن هذا المشروع سيمنحك فهماً عميقاً لكيفية دمج الحساسات الضوئية مع المحركات، وكيفية كتابة كود برمجي ذكي يتخذ القرارات في زمن حقيقي. دعنا نبدأ رحلتنا في عالم الروبوتات الذكية.</p>
+
+<h2>ما هو روبوت تتبع الخط؟ ولماذا يعتبر مشروعاً أساسياً؟</h2>
+<p>روبوت تتبع الخط هو روبوت ذاتي الحركة مصمم لاكتشاف خط مرسوم على الأرض (عادةً أسود على خلفية بيضاء أو العكس) واتباعه تلقائياً دون تدخل بشري. يعتمد مبدأ عمله على فرق انعكاس الضوء بين السطحين: فالسطح الأبيض يعكس كمية أكبر من الضوء مقارنة بالسطح الأسود الذي يمتصه.</p>
+<p>تكمن أهمية هذا المشروع في كونه حجر الأساس لعدة مجالات متقدمة مثل:</p>
+<ul>
+    <li><strong>تعلم أنظمة التحكم المنطقي:</strong> فهم كيفية معالجة المدخلات (قراءة الحساسات) وإنتاج المخرجات (تحريك المحركات) بناءً على خوارزمية محددة.</li>
+    <li><strong>مقدمة للسيارات ذاتية القيادة:</strong> المبادئ المستخدمة هنا هي نفسها المستخدمة في المركبات الحديثة، وإن كانت أبسط بكثير.</li>
+    <li><strong>تطوير مهارات البرمجة:</strong> كتابة أكواد برمجية منظمة وقابلة للتعديل لتحسين سلوك الروبوت.</li>
+</ul>
+<blockquote>نصيحة احترافية: قبل شراء القطع، تأكد من أن سطح الأرضية الذي سيعمل عليه الروبوت غير لامع، لأن اللمعان قد يسبب قراءات خاطئة للحساسات.</blockquote>
+
+<h2>المكونات والأدوات اللازمة لبناء الروبوت</h2>
+<p>لإتمام هذا المشروع بنجاح، ستحتاج إلى تجهيز مجموعة من المكونات الإلكترونية والميكانيكية. إليك القائمة الكاملة التي ستحتاجها:</p>
+<table>
+    <thead>
+        <tr>
+            <th>المكوّن</th>
+            <th>الكمية</th>
+            <th>الوصف الوظيفي</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>لوحة أردوينو أونو</td>
+            <td>1</td>
+            <td>الدماغ المدير للروبوت، يقرأ البيانات وينفذ الأوامر.</td>
+        </tr>
+        <tr>
+            <td>حساس تتبع الخط (IR Sensor)</td>
+            <td>2 إلى 5</td>
+            <td>يكتشف الخط الأسود عن طريق قياس الانعكاس الضوئي.</td>
+        </tr>
+        <tr>
+            <td>محركان كهربائيان (DC Motors)</td>
+            <td>2</td>
+            <td>يوفران الحركة للعجلات.</td>
+        </tr>
+        <tr>
+            <td>مشغل محركات L298N أو L293D</td>
+            <td>1</td>
+            <td>يتحكم في اتجاه وسرعة المحركات (لأن الأردوينو لا يستطيع تشغيلها مباشرة).</td>
+        </tr>
+        <tr>
+            <td>هيكل الروبوت (شاسيه)</td>
+            <td>1</td>
+            <td>قاعدة لحمل جميع المكونات.</td>
+        </tr>
+        <tr>
+            <td>عجلتان</td>
+            <td>2</td>
+            <td>للمحركات.</td>
+        </tr>
+        <tr>
+            <td>عجلة دعم خلفية</td>
+            <td>1</td>
+            <td>لتوازن الروبوت ومنعه من الميلان للخلف.</td>
+        </tr>
+        <tr>
+            <td>بطارية 9V أو حزمة بطاريات AA</td>
+            <td>1</td>
+            <td>لتزويد الأردوينو والمحركات بالطاقة.</td>
+        </tr>
+        <tr>
+            <td>أسلاك توصيل (Jumper Wires)</td>
+            <td>عدة</td>
+            <td>لربط المكونات ببعضها.</td>
+        </tr>
+    </tbody>
+</table>
+<p><strong>ملاحظة هامة حول الحساسات:</strong> يفضل استخدام حساسات ذات مقاومة ضوئية (LDR) أو حساسات الأشعة تحت الحمراء الجاهزة مثل (TCRT5000) لأنها سهلة التركيب والبرمجة.</p>
+
+<h2>التركيب الميكانيكي والإلكتروني خطوة بخطوة</h2>
+<p>بعد تجهيز جميع المكونات، نبدأ بعملية التركيب. يجب أن تكون التوصيلات دقيقة لتجنب الأعطال. اتبع الخطوات التالية بالترتيب:</p>
+<ol>
+    <li><strong>تركيب المحركات:</strong> قم بتثبيت المحركين على الهيكل (الشاسيه) في الجهة الأمامية، وتأكد من أن العجلات تدور بحرية دون احتكاك.</li>
+    <li><strong>تركيب العجلة الخلفية:</strong> ثبت العجلة الداعمة في منتصف الجزء الخلفي من الهيكل لضمان التوازن.</li>
+    <li><strong>تثبيت الأردوينو ومشغل المحركات:</strong> ضع لوحة الأردوينو ومشغل المحركات (L298N) على الهيكل باستخدام براغي أو شريط لاصق مزدوج الوجه. يفضل وضع مشغل المحركات بعيداً عن الأردوينو لتسهيل توصيل الأسلاك.</li>
+    <li><strong>تركيب الحساسات:</strong> هذه هي الخطوة الأهم. قم بتثبيت الحساسات في مقدمة الروبوت، بحيث تكون على ارتفاع مناسب من الأرض (حوالي 1 سم). يجب أن تكون المسافة بين الحساسين الأوسطين مساوية تقريباً لعرض الخط الأسود المراد تتبعه.</li>
+    <li><strong>التوصيلات الكهربائية:</strong> اتبع الجدول التالي بدقة:
+        <ul>
+            <li>قم بتوصيل طرف VCC في الحساسات بمنفذ 5V في الأردوينو.</li>
+            <li>قم بتوصيل طرف GND في الحساسات بمنفذ GND في الأردوينو.</li>
+            <li>قم بتوصيل طرف OUTPUT في الحساس الأيمن بمنفذ رقمي (مثل D2) في الأردوينو.</li>
+            <li>قم بتوصيل طرف OUTPUT في الحساس الأيسر بمنفذ رقمي (مثل D3) في الأردوينو.</li>
+            <li>قم بتوصيل مدخلات مشغل المحركات (IN1, IN2, IN3, IN4) بمنافذ رقمية في الأردوينو (مثل D4, D5, D6, D7).</li>
+            <li>قم بتوصيل مخرجات مشغل المحركات (OUT1, OUT2) بالمحرك الأيمن، و (OUT3, OUT4) بالمحرك الأيسر.</li>
+        </ul>
+    </li>
+</ol>
+<blockquote>تنبيه: احرص على عدم عكس توصيل أسلاك المحركات، لأن ذلك سيجعل الروبوت يتحرك في الاتجاه المعاكس لما هو مطلوب.</blockquote>
+
+<h2>كتابة الكود البرمجي للروبوت</h2>
+<p>الآن نصل إلى الجزء الأبرز، وهو برمجة الأردوينو. الكود المستخدم هنا يعتمد على منطق بسيط: إذا كان الحساس الأيمن على الخط الأسود والحساس الأيسر خارج الخط، فهذا يعني أن الروبوت يميل لليسار، لذا يجب أن ندفع المحرك الأيمن للدوران يميناً والعكس صحيح.</p>
+<p>إليك الكود الكامل والمفسر:</p>
+<pre>
+// تعريف المنافذ
+int sensorDerecho = 2;
+int sensorIzquierdo = 3;
+
+// منافذ مشغل المحركات
+int motorA1 = 4;
+int motorA2 = 5;
+int motorB1 = 6;
+int motorB2 = 7;
+
+void setup() {
+  // ضبط الحساسات كمدخلات
+  pinMode(sensorDerecho, INPUT);
+  pinMode(sensorIzquierdo, INPUT);
+
+  // ضبط منافذ المحركات كمخرجات
+  pinMode(motorA1, OUTPUT);
+  pinMode(motorA2, OUTPUT);
+  pinMode(motorB1, OUTPUT);
+  pinMode(motorB2, OUTPUT);
+}
+
+void loop() {
+  // قراءة الحساسات
+  int derecha = digitalRead(sensorDerecho);
+  int izquierda = digitalRead(sensorIzquierdo);
+
+  // المنطق الشرطي: (LOW يعني وجود الخط الأسود)
+  if (izquierda == LOW && derecha == LOW) {
+    // الحالتان على الخط: تحرك للأمام
+    digitalWrite(motorA1, HIGH);
+    digitalWrite(motorA2, LOW);
+    digitalWrite(motorB1, HIGH);
+    digitalWrite(motorB2, LOW);
+  }
+  else if (izquierda == LOW && derecha == HIGH) {
+    // الروبوت يميل لليمين، انعطف يساراً
+    digitalWrite(motorA1, HIGH);
+    digitalWrite(motorA2, LOW);
+    digitalWrite(motorB1, LOW);
+    digitalWrite(motorB2, HIGH);
+  }
+  else if (izquierda == HIGH && derecha == LOW) {
+    // الروبوت يميل لليسار، انعطف يميناً
+    digitalWrite(motorA1, LOW);
+    digitalWrite(motorA2, HIGH);
+    digitalWrite(motorB1, HIGH);
+    digitalWrite(motorB2, LOW);
+  }
+  else {
+    // الحالتان خارج الخط (توقف أو ابحث عن الخط)
+    digitalWrite(motorA1, LOW);
+    digitalWrite(motorA2, LOW);
+    digitalWrite(motorB1, LOW);
+    digitalWrite(motorB2, LOW);
+  }
+}
+</pre>
+<p><strong>شرح الكود:</strong> نستخدم قراءات رقمية (HIGH أو LOW) من الحساسات. في الحساسات الرقمية الجاهزة، يكون الخرج LOW عندما يكتشف الحساس اللون الأسود (لأنه يرسل إشارة منخفضة). إذا لاحظت أن الروبوت يتصرف بشكل عكسي، فقط قم بعكس الشروط أو بدل تعريف المنافذ.</p>
+
+<h2>ضبط الحساسات وتحسين الأداء</h2>
+<p>غالباً ما يحتاج الروبوت إلى بعض الضبط الدقيق بعد أول تشغيل لتحسين أدائه. إليك أهم النقاط التي يجب الانتباه لها:</p>
+<ul>
+    <li><strong>ضبط العتبة (Threshold):</strong> تحتوي معظم الحساسات على مقاومة متغيرة (Potentiometer) يمكن لفها لضبط حساسية الكشف عن اللون الأسود. قم بلفها حتى يضيء مؤشر LED الموجود على الحساس عند وضعه فوق الخط الأسود.</li>
+    <li><strong>سرعة الروبوت:</strong> إذا كان الروبوت يخرج عن المسار بسرعة، قم بتقليل سرعة المحركات في الكود باستخدام خاصية PWM (مثل analogWrite) على منافذ التمكين (Enable) في مشغل المحركات.</li>
+    <li><strong>استخدام 3 حساسات:</strong> لتحسين الأداء على المنحنيات الحادة، يمكنك إضافة حساس ثالث في المنتصف. إذا كان الحساس الأوسط على الخط، فهذا يعني أن الروبوت في وضع مستقيم تماماً.</li>
+</ul>
+<blockquote>حيلة ذكية: ارسم خطاً سميكاً (بعرض 2-3 سم) في البداية، ثم جرّب خطاً أرفع بعد أن يتقن الروبوت المسار الأول.</blockquote>
+
+<h2>استكشاف الأخطاء وإصلاحها (Troubleshooting)</h2>
+<p>من الطبيعي أن تواجه بعض المشاكل في أول تجربة. إليك جدول يوضح المشاكل الشائعة وحلولها:</p>
+<table>
+    <thead>
+        <tr>
+            <th>المشكلة</th>
+            <th>السبب المحتمل</th>
+            <th>الحل</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>الروبوت لا يتحرك إطلاقاً</td>
+            <td>مشكلة في توصيل البطارية أو مشغل المحركات</td>
+            <td>تحقق من توصيلات الطاقة، وتأكد من أن مشغل المحركات يعمل (يضيء مؤشر LED الخاص به).</td>
+        </tr>
+        <tr>
+            <td>الروبوت يتحرك بشكل عشوائي</td>
+            <td>الحساسات غير مضبوطة أو المسافة عن الأرض كبيرة</td>
+            <td>أعد ضبط الحساسات، وخفّض ارتفاعها إلى أقل من 1 سم.</td>
+        </tr>
+        <tr>
+            <td>الروبوت يخرج عن الخط في المنحنيات</td>
+            <td>السرعة عالية جداً أو المسافة بين الحساسات كبيرة</td>
+            <td>قلل السرعة، وقرب المسافة بين الحساسين.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>أفكار لتطوير مشروعك المستقبلي</h2>
+<p>بعد نجاح روبوتك في تتبع الخط، يمكنك تطوير المشروع بشكل لا نهائي. إليك بعض الاقتراحات المثيرة:</p>
+<ul>
+    <li><strong>روبوت أسرع:</strong> قم بترقية الكود لاستخدام خوارزمية التحكم التناسبي (PID) للحصول على حركة أكثر سلاسة وسرعة.</li>
+    <li><strong>إضافة حساسات مسافة:</strong> استخدم حساس الموجات فوق الصوتية (HC-SR04) لجعل الروبوت يتوقف عند وجود عائق في مساره.</li>
+    <li><strong>التحكم اللاسلكي:</strong> أضف وحدة بلوتوث (HC-05) لتحكم في الروبوت من هاتفك الذكي.</li>
+    <li><strong>تتبع الخط مع عرض البيانات:</strong> أضف شاشة LCD لعرض سرعة الروبوت أو عدد الدورات التي أكملها.</li>
+</ul>
+<blockquote>الخلاصة: بناء روبوت تتبع الخط ليس مجرد مشروع تقني، بل هو رحلة تعليمية متكاملة تجمع بين الفيزياء والبرمجة والهندسة الميكانيكية، وتمنحك الثقة لخوض مشاريع أكثر تعقيداً في عالم الروبوتات.</blockquote>
+
+<p>بهذا نكون قد أكملنا دليلنا الشامل لبناء روبوت تتبع الخط باستخدام أردوينو أونو. نتمنى أن تكون قد استمتعت بالتجربة وتعلمت منها الكثير. لا تتردد في تجربة تعديل الكود والتصميم لابتكار روبوت يناسب رؤيتك الخاصة، فالإبداع هو الحد الفاصل بين مجرد تنفيذ المشروع وإتقانه.</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
