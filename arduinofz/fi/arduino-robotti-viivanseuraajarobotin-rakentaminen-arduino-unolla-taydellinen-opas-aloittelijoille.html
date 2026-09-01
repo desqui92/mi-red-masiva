@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino-robotti: Viivanseuraajarobotin rakentaminen Arduino Unolla – Täydellinen opas aloittelijoille</title>
+    <meta property="og:title" content="Arduino-robotti: Viivanseuraajarobotin rakentaminen Arduino Unolla – Täydellinen opas aloittelijoille" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Arduino-robotti%3A%20Viivanseuraajarobotin%20rakentaminen%20Arduino%20Unolla%20%E2%80%93%20T%C3%A4ydellinen%20opas%20aloittelijoille?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Arduino-robotti: Viivanseuraajarobotin rakentaminen Arduino Unolla – Täydellinen opas aloittelijoille</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Arduino-robotti%3A%20Viivanseuraajarobotin%20rakentaminen%20Arduino%20Unolla%20%E2%80%93%20T%C3%A4ydellinen%20opas%20aloittelijoille?width=800&height=1200&nologo=true" alt="Arduino-robotti: Viivanseuraajarobotin rakentaminen Arduino Unolla – Täydellinen opas aloittelijoille" class="post-banner" />
+            <p>Robotiikka on yksi kiehtovimmista tavoista oppia elektroniikkaa ja ohjelmointia käytännössä. Erityisesti <strong>viivanseuraajarobotti</strong> (line follower) on klassikkoprojekti, joka yhdistää anturit, moottorit ja logiikan yksinkertaisella mutta opettavaisella tavalla. Tässä kattavassa oppaassa rakennamme toimivan viivanseuraajarobotin käyttäen <strong>Arduino Uno</strong> -kehitysalustaa. Käymme läpi kaiken tarvittavista komponenteista aina lopulliseen testaukseen ja hienosäätöön asti.</p>
+
+<h2>Mitä tarvitset viivanseuraajarobotin rakentamiseen?</h2>
+<p>Ennen kuin aloitamme, varmista, että sinulla on seuraavat komponentit. Suurin osa näistä löytyy edullisista aloittelijapaketeista.</p>
+<ul>
+    <li><strong>Arduino Uno</strong> (tai yhteensopiva klooni)</li>
+    <li><strong>2 kpl DC-moottoria</strong> vaihteistolla (esim. TT-moottorit) ja pyörät</li>
+    <li><strong>L298N-moottorikortti</strong> tai L293D (moottorien ohjaukseen)</li>
+    <li><strong>2–5 kpl TCRT5000-infrapuna-anturia</strong> (viivan tunnistukseen)</li>
+    <li><strong>Akustoksi</strong> 4x AA-paristot tai 7,4V LiPo-akku</li>
+    <li><strong>Leipälevy</strong> ja hyppyjohtoja</li>
+    <li><strong>Robottialusta</strong> (esim. akryyli- tai 3D-tulostettu runko)</li>
+    <li>Ruuvimeisseli, kaapelinsiteet ja tarvittaessa juotosvälineet</li>
+</ul>
+
+<blockquote>
+    <p><strong>Vinkki:</strong> Jos et halua rakentaa runkoa alusta asti, voit ostaa valmiin 2WD- tai 4WD-robottialustan, johon on helppo kiinnittää Arduino ja anturit.</p>
+</blockquote>
+
+<h2>Kuinka viivanseuraajarobotti toimii?</h2>
+<p>Toimintaperiaate on loppujen lopuksi hyvin yksinkertainen. Robotti käyttää infrapuna-antureita, jotka on asennettu sen etuosaan lähelle alustaa. Anturi lähettää infrapunavaloa ja mittaa heijastuneen valon määrää.</p>
+<ul>
+    <li><strong>Vaalea pinta</strong> (esim. valkoinen lattia) heijastaa hyvin infrapunavaloa takaisin anturille.</li>
+    <li><strong>Tumma pinta</strong> (esim. musta teippi) imee infrapunavaloa, jolloin heijastus on heikko.</li>
+</ul>
+<p>Arduino lukee näitä arvoja ja vertaa niitä ennalta määritettyyn kynnysarvoon. Kun robotti huomaa, että se on ajautumassa pois viivalta, se säätää moottorien nopeuksia – toinen pyörä pyörii nopeammin ja toinen hitaammin – jolloin se kääntyy takaisin viivalle. Tämä on klassinen <strong>PID-säätö</strong> tai yksinkertaisempi <strong>on/off-ohjaus</strong>.</p>
+
+<h2>Anturien asennus ja kytkentä</h2>
+<p>Anturien sijoittelu on kriittistä toiminnan kannalta. Suosittelen käyttämään vähintään kahta anturia (vasen ja oikea), mutta kolmen tai viiden anturin sarja antaa tarkemman luennan ja mahdollistaa sulavammat käännökset.</p>
+<p>Tässä esimerkissä käytämme kolmea TCRT5000-anturia. Ne asennetaan siten, että keskimmäinen anturi on suoraan viivan päällä ja sivuanturit hieman sen ulkopuolella.</p>
+
+<h3>Kytkentäkaavio (Arduino Uno + L298N + 3 anturia)</h3>
+<p>Alla on selkeä kytkentäohje. Muista tarkistaa omien moduuliesi pinnijärjestys, sillä ne voivat vaihdella valmistajan mukaan.</p>
+<ul>
+    <li><strong>TCRT5000-moduulit:</strong> VCC → 5V (Arduino), GND → GND, OUT → Arduino-digitaalipinnit (esim. D2, D3, D4)</li>
+    <li><strong>L298N-moottorikortti:</strong> VCC → 7-12V (akusta), GND → GND (jaettu Arduinon kanssa), 5V (ulostulo, jos tarvitaan), IN1→D5, IN2→D6, IN3→D10, IN4→D11, ENA→D9 (PWM), ENB→D5 (PWM)</li>
+    <li><strong>Moottorit:</strong> Moottori A → L298N:n OUT1 ja OUT2, Moottori B → OUT3 ja OUT4</li>
+</ul>
+
+<blockquote>
+    <p><strong>Huomio:</strong> L298N-kortin 5V-lähdöstä voi ottaa virran Arduinolle, mutta jos käytät erillistä virtalähdettä Arduinolle, varmista, että GND:t on kytketty yhteen. Muuten signaalit eivät toimi.</p>
+</blockquote>
+
+<h2>Arduino-ohjelmakoodi (Sketch) viivanseuraajalle</h2>
+<p>Nyt päästään itse ohjelmointiin. Tämä koodi on suunniteltu kolmelle anturille ja se käyttää yksinkertaista logiikkaa. Voit kopioida sen suoraan Arduino IDE:hen ja ladata sen levylle.</p>
+<p>Tässä on täydellinen ja kommentoitu koodi:</p>
+
+<pre>
+// Määritellään pinnit
+const int sensoriVasen = 2;
+const int sensoriKeski = 3;
+const int sensoriOikea = 4;
+
+// Moottorikortin pinnit
+const int enA = 9;
+const int in1 = 5;
+const int in2 = 6;
+const int in3 = 10;
+const int in4 = 11;
+const int enB = 12;
+
+// Perusnopeus (0-255)
+int perusNopeus = 180;
+int kaannosNopeus = 120;
+
+void setup() {
+  // Alustetaan anturipinnit
+  pinMode(sensoriVasen, INPUT);
+  pinMode(sensoriKeski, INPUT);
+  pinMode(sensoriOikea, INPUT);
+
+  // Alustetaan moottoripinnit
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+
+  // Pysäytetään moottorit aluksi
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+
+  Serial.begin(9600); // Testausta varten
+}
+
+void loop() {
+  // Luetaan anturit (0 = tumma pinta, 1 = vaalea pinta)
+  int vasen = digitalRead(sensoriVasen);
+  int keski = digitalRead(sensoriKeski);
+  int oikea = digitalRead(sensoriOikea);
+
+  // Logiikka: keskimmäinen anturi viivalla = mene suoraan
+  if (keski == 1 && vasen == 0 && oikea == 0) {
+    // Mene suoraan
+    ajaSuoraan();
+  }
+  // Jos vasen anturi osuu viivalle, käänny vasemmalle
+  else if (vasen == 1) {
+    kaannyVasemmalle();
+  }
+  // Jos oikea anturi osuu viivalle, käänny oikealle
+  else if (oikea == 1) {
+    kaannyOikealle();
+  }
+  // Jos mikään anturi ei näe viivaa (esim. mutka), pysähdy tai etsi
+  else {
+    pysahdy();
+    delay(50); // Pieni viive, jotta robotti ei pyöri paikallaan
+  }
+}
+
+void ajaSuoraan() {
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  analogWrite(enA, perusNopeus);
+  analogWrite(enB, perusNopeus);
+}
+
+void kaannyVasemmalle() {
+  // Vasen pyörä pysähtyy, oikea pyörii
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  analogWrite(enA, 0);
+  analogWrite(enB, kaannosNopeus);
+}
+
+void kaannyOikealle() {
+  // Oikea pyörä pysähtyy, vasen pyörii
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+  analogWrite(enA, kaannosNopeus);
+  analogWrite(enB, 0);
+}
+
+void pysahdy() {
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+  analogWrite(enA, 0);
+  analogWrite(enB, 0);
+}
+</pre>
+
+<h2>Koodin selitys ja hienosäätö</h2>
+<p>Yllä oleva koodi on perusversio. Se toimii, mutta se voi olla nykivä nopeissa mutkissa. Tässä muutamia parannusideoita:</p>
+<ul>
+    <li><strong>PID-säätö:</strong> Käytä analogisia antureita (A0-A2) ja laske virhe, jonka perusteella säädät moottorien nopeutta portaattomasti. Tämä tekee liikkeestä erittäin sulavaa.</li>
+    <li><strong>Nopeuden säätö:</strong> Kokeile eri <code>perusNopeus</code>-arvoja. Liian suuri nopeus saa robotin sinkoilemaan, liian pieni taas tekee siitä hitaan.</li>
+    <li><strong>Anturien kalibrointi:</strong> Ympäristön valo vaikuttaa antureihin. Lisää koodiin kalibrointivaihe, joka mittaa valaistuksen alussa ja asettaa kynnysarvot automaattisesti.</li>
+</ul>
+
+<h2>Radan suunnittelu ja testaus</h2>
+<p>Kun robotti on kasattu ja koodi ladattu, on aika testata sitä. Suosittelen aloittamaan yksinkertaisella radalla, joka on tehty mustalla eriste teipillä valkoiselle lattialle tai kartongille.</p>
+<ul>
+    <li><strong>Aloita suoralla:</strong> Tarkista, että robotti kulkee suoraan. Jos se vetää toiselle puolelle, säädä moottorien nopeuksia (esim. pienennä toisen moottorin nopeutta).</li>
+    <li><strong>Lisää mutkia:</strong> Tee loivia mutkia ja tarkkaile, miten robotti reagoi. Jos se ajautuu ulos, lisää kaannosNopeutta tai hidasta perusNopeutta.</li>
+    <li><strong>Testaa jyrkkiä mutkia:</strong> Jyrkissä mutkissa voi olla tarpeen käyttää pyörähdyskäännöstä (toinen pyörä taaksepäin). Kokeile muokata koodia.</li>
+</ul>
+
+<blockquote>
+    <p><strong>Vianetsintä:</strong> Jos robotti ei reagoi lainkaan, tarkista ensin johdotukset ja virtalähteet. Yleisin virhe on, että GND:t eivät ole yhteisiä tai että moottorikortti ei saa tarpeeksi virtaa. Mittaa myös anturien lähdöt yleismittarilla varmistaaksesi, että ne vaihtuvat viivan yli ajettaessa.</p>
+</blockquote>
+
+<h2>Laajennusideoita ja seuraavat askeleet</h2>
+<p>Onnittelut, olet nyt rakentanut toimivan viivanseuraajarobotin! Tästä on hyvä jatkaa. Tässä muutamia ideoita, miten voit viedä projektia pidemmälle:</p>
+<ul>
+    <li><strong>Lisää antureita:</strong> Viiden anturin sarja mahdollistaa tarkemman PID-säädön ja nopeammat ajot.</li>
+    <li><strong>Bluetooth-ohjaus:</strong> Lisää HC-05-moduuli ja ohjaa robottia puhelimella.</li>
+    <li><strong>Esteiden tunnistus:</strong> Lisää ultraäänianturi (HC-SR04) ja opeta robotti pysähtymään esteen eteen.</li>
+    <li><strong>Kilparata:</strong> Osallistu paikallisiin robottikilpailuihin ja optimoi robottisi nopeus ja tarkkuus.</li>
+</ul>
+<p>Muista, että oppiminen tapahtuu kokeilemalla ja virheistä oppimalla. Älä pelkää rikkoa asioita – se on osa prosessia!</p>
+
+<h2>Yhteenveto</h2>
+<p>Rakensit juuri oman viivanseuraajarobotin Arduino Unolla. Kävit läpi komponenttien valinnan, kytkennät, ohjelmoinnin ja testauksen. Tämä projekti antaa sinulle vankan pohjan sekä mekaniikan, elektroniikan että ohjelmoinnin ymmärtämiseen. Nyt voit soveltaa oppimaasi täysin uusiin projekteihin. Hyvää rakentelua ja onnistuneita testiajoja!</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
