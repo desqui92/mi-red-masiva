@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【2025年最新】Arduino Unoで作る！ライントレーサーロボット完全解説ガイド</title>
+    <meta property="og:title" content="【2025年最新】Arduino Unoで作る！ライントレーサーロボット完全解説ガイド" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%E3%80%902025%E5%B9%B4%E6%9C%80%E6%96%B0%E3%80%91Arduino%20Uno%E3%81%A7%E4%BD%9C%E3%82%8B%EF%BC%81%E3%83%A9%E3%82%A4%E3%83%B3%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B5%E3%83%BC%E3%83%AD%E3%83%9C%E3%83%83%E3%83%88%E5%AE%8C%E5%85%A8%E8%A7%A3%E8%AA%AC%E3%82%AC%E3%82%A4%E3%83%89?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>【2025年最新】Arduino Unoで作る！ライントレーサーロボット完全解説ガイド</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%E3%80%902025%E5%B9%B4%E6%9C%80%E6%96%B0%E3%80%91Arduino%20Uno%E3%81%A7%E4%BD%9C%E3%82%8B%EF%BC%81%E3%83%A9%E3%82%A4%E3%83%B3%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B5%E3%83%BC%E3%83%AD%E3%83%9C%E3%83%83%E3%83%88%E5%AE%8C%E5%85%A8%E8%A7%A3%E8%AA%AC%E3%82%AC%E3%82%A4%E3%83%89?width=800&height=1200&nologo=true" alt="【2025年最新】Arduino Unoで作る！ライントレーサーロボット完全解説ガイド" class="post-banner" />
+            <h2>はじめに：Arduinoでロボット製作を始める魅力</h2>
+<p>ロボット工学とプログラミングを学ぶ上で、Arduinoは最適なプラットフォームです。特に「ライン追跡ロボット（ライントレーサー）」は、センサー技術、モーター制御、論理思考を一度に学べる入門プロジェクトの決定版です。本記事では、<strong>Arduino Uno</strong>を使用したライン追跡ロボットの製作を、部品選定から配線、プログラミング、調整まで徹底的に解説します。このガイドを読み終える頃には、あなたの目の前でロボットがスムーズに黒い線を追いかける姿を確認できるでしょう。</p>
+
+<h2>1. ライン追跡ロボットの基本原理を理解する</h2>
+<p>ライン追跡ロボットは、床に描かれた「線（通常は黒色）」と「背景（通常は白色）」の反射率の違いを利用して進行方向を決定します。この仕組みを理解することが、製作の第一歩です。</p>
+<ul>
+    <li><strong>赤外線センサー（IRセンサー）:</strong> 赤外線LEDから光を照射し、その反射光の強度を受光素子で測定します。</li>
+    <li><strong>反射率の違い:</strong> 白い床は赤外線をよく反射し、黒い線は赤外線を吸収します。この電圧差をデジタル信号（0または1）に変換します。</li>
+    <li><strong>制御ロジック:</strong> センサーが「線」を検知したら、モーターの回転速度を左右で変え、ロボットの方向を修正します。</li>
+</ul>
+<blockquote>ポイント：センサーが「線の上」にいる時と「線の外」にいる時で、読み取り値が明確に変化するように距離感を調整することが、安定動作の秘訣です。</blockquote>
+
+<h2>2. 必要な部品リストと選定のコツ</h2>
+<p>製作に必要な部品を揃えましょう。初心者の方は、初心者向けスターターキットを購入すると個別に揃えるよりも安価で済む場合があります。</p>
+<h3>必須パーツ</h3>
+<ul>
+    <li><strong>Arduino Uno ボード:</strong> マイコンの頭脳となる部分です。</li>
+    <li><strong>モータードライバ (L298N または TB6612FNG):</strong> Arduinoの弱い電流ではモーターを直接回せないため、電力を供給するためのICです。</li>
+    <li><strong>DCモーター ×2:</strong> 左右の駆動輪用。ギヤボックス付きのもの（TTモーター）が扱いやすいです。</li>
+    <li><strong>車輪 ×2:</strong> モーターに取り付けます。</li>
+    <li><strong>ユニバーサルホイール（ボールキャスター） ×1:</strong> ロボットの後部を支えるための補助輪です。</li>
+    <li><strong>ライン追跡センサーモジュール (TCRT5000):</strong> 赤外線センサーが2個搭載されたモジュールがおすすめです。</li>
+    <li><strong>バッテリーボックス:</strong> 単三電池4本用（6V）または9V電池用。モーター用電源とArduino用電源を分けると安定します。</li>
+    <li><strong>ジャンパーワイヤー:</strong> 配線用のオス-オス、オス-メスケーブル。</li>
+    <li><strong>シャーシ（車体）:</strong> アクリル板や3Dプリント製のもの、あるいは段ボールで自作してもOKです。</li>
+</ul>
+<h3>あると便利な工具</h3>
+<ul>
+    <li>はんだごて（センサーや配線の固定用）</li>
+    <li>ドライバー、結束バンド、両面テープ</li>
+</ul>
+
+<h2>3. 回路図と配線手順（ステップバイステップ）</h2>
+<p>配線ミスは故障の原因になります。電源を入れる前に、必ず配線を確認しましょう。以下に代表的な接続例を示します。</p>
+<h3>接続表（Arduino Uno と 各モジュール）</h3>
+<ul>
+    <li><strong>モータードライバ（L298N）:</strong>
+        <ul>
+            <li>IN1 → Arduino D8</li>
+            <li>IN2 → Arduino D9</li>
+            <li>IN3 → Arduino D10</li>
+            <li>IN4 → Arduino D11</li>
+            <li>ENA → Arduino D5（PWM制御用）</li>
+            <li>ENB → Arduino D6（PWM制御用）</li>
+            <li>12V端子 → バッテリー（+）※6Vでも動作可能</li>
+            <li>GND → Arduino GND と バッテリー（-）を共通接続</li>
+        </ul>
+    </li>
+    <li><strong>ラインセンサー（TCRT5000 2チャンネル）:</strong>
+        <ul>
+            <li>VCC → Arduino 5V</li>
+            <li>GND → Arduino GND</li>
+            <li>OUT1（左センサー） → Arduino A0</li>
+            <li>OUT2（右センサー） → Arduino A1</li>
+        </ul>
+    </li>
+    <li><strong>モーター:</strong>
+        <ul>
+            <li>左モーター → モータードライバ OUT1 と OUT2</li>
+            <li>右モーター → モータードライバ OUT3 と OUT4</li>
+        </ul>
+    </li>
+</ul>
+<blockquote>重要：モータードライバのGNDとArduinoのGNDは必ず共通にしてください。これがないと信号が不安定になり、モーターが誤動作します。</blockquote>
+
+<h2>4. ロボットの動作を制御するArduinoスケッチ（プログラム）</h2>
+<p>次に、Arduino IDEに書き込むプログラムを作成します。このプログラムでは、センサーの状態を読み取り、以下の「状態遷移」に基づいてモーターを制御します。</p>
+<p><strong>制御ロジック（2センサー使用時）:</strong></p>
+<ul>
+    <li><strong>状態1（両方白）:</strong> 直進</li>
+    <li><strong>状態2（左だけ黒）:</strong> 左に旋回（ロボットが右に外れたため）</li>
+    <li><strong>状態3（右だけ黒）:</strong> 右に旋回（ロボットが左に外れたため）</li>
+    <li><strong>状態4（両方黒）:</strong> 交差点または停止。ここでは直進とします。</li>
+</ul>
+<h3>サンプルコード（コピー＆ペースト用）</h3>
+<p>以下のコードをArduino IDEに貼り付け、ボードを「Arduino Uno」に設定して書き込みます。</p>
+<p><em>※このコードはHTML表示用に整形しています。コピーしてそのまま使用可能です。</em></p>
+<pre>
+// ピン定義
+#define ENA 5
+#define ENB 6
+#define IN1 8
+#define IN2 9
+#define IN3 10
+#define IN4 11
+
+#define SENSOR_LEFT A0
+#define SENSOR_RIGHT A1
+
+// モーター速度設定（0-255）
+const int baseSpeed = 180; // 基本速度
+const int turnSpeed = 120; // 旋回時の速度
+
+void setup() {
+  // モータードライバのピンを出力に設定
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  
+  // センサーを入力に設定
+  pinMode(SENSOR_LEFT, INPUT);
+  pinMode(SENSOR_RIGHT, INPUT);
+  
+  // モーターを初期化（停止状態）
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  delay(1000); // 1秒待機してから開始
+}
+
+void loop() {
+  // センサーの読み取り（LOW=黒線検知、HIGH=白床）
+  int leftSensor = digitalRead(SENSOR_LEFT);
+  int rightSensor = digitalRead(SENSOR_RIGHT);
+
+  // 状態に応じた制御
+  if (leftSensor == HIGH && rightSensor == HIGH) {
+    // 両方白：直進
+    forward();
+  } else if (leftSensor == LOW && rightSensor == HIGH) {
+    // 左が黒：右に外れたので左に旋回
+    turnLeft();
+  } else if (leftSensor == HIGH && rightSensor == LOW) {
+    // 右が黒：左に外れたので右に旋回
+    turnRight();
+  } else {
+    // 両方黒：交差点や太い線。直進を維持
+    forward();
+  }
+}
+
+// 直進
+void forward() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENA, baseSpeed);
+  analogWrite(ENB, baseSpeed);
+}
+
+// 左旋回
+void turnLeft() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENA, turnSpeed);
+  analogWrite(ENB, turnSpeed);
+}
+
+// 右旋回
+void turnRight() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  analogWrite(ENA, turnSpeed);
+  analogWrite(ENB, turnSpeed);
+}
+</pre>
+<blockquote>注意：上記コードは一例です。モーターの配線方向によっては、forward関数で逆に進む場合があります。その場合はIN1～IN4のHIGH/LOWを逆にしてください。</blockquote>
+
+<h2>5. 組み立てのコツと調整方法（キャリブレーション）</h2>
+<p>プログラムを書き込んだら、実際にロボットを組み立て、コース上でテストします。</p>
+<h3>組み立て手順</h3>
+<ol>
+    <li>シャーシにモーターと車輪を取り付けます。</li>
+    <li>Arduino Unoとモータードライバをシャーシに固定します。</li>
+    <li>センサーをロボットの前端に取り付けます。床からの距離は<strong>5mm～15mm</strong>が理想です。</li>
+    <li>前述の配線表に従って、すべての配線を行います。</li>
+    <li>バッテリーを接続し、スイッチを入れます。</li>
+</ol>
+<h3>動作が不安定な場合の調整ポイント</h3>
+<ul>
+    <li><strong>センサーの感度調整:</strong> 多くのTCRT5000モジュールには可変抵抗（ポテンショメータ）が付いています。ドライバーで回して、白床でHIGH、黒線でLOWになるように調整します。</li>
+    <li><strong>速度の調整:</strong> baseSpeedの値を小さくすると安定しますが、遅くなります。まずは150程度から始め、徐々に上げてみましょう。</li>
+    <li><strong>旋回速度の調整:</strong> turnSpeedが遅すぎるとカーブで線を見失います。baseSpeedとのバランスを見ながら調整します。</li>
+    <li><strong>センサー間の距離:</strong> 線の太さ（一般的に18mm～20mm）に対して、左右のセンサーが線の両端に位置するように配置すると、最も安定します。</li>
+</ul>
+
+<h2>6. 発展的なアイデア：さらに高度なロボットへ</h2>
+<p>基本のライントレーサーが完成したら、以下のような拡張に挑戦してみましょう。</p>
+<ul>
+    <li><strong>PID制御の導入:</strong> 現在のプログラムはON/OFF制御ですが、PID制御（比例・積分・微分）を用いることで、より滑らかで高速な追従が可能になります。</li>
+    <li><strong>3センサー化・5センサー化:</strong> センサーを増やすことで、より複雑なコース（直角カーブや交差点）を正確に判別できます。</li>
+    <li><strong>スピード切り替え:</strong> タクトスイッチを追加し、コースの難易度に応じて速度を変更できるようにします。</li>
+    <li><strong>LCDディスプレイの搭載:</strong> 現在のセンサー値やモーター速度をリアルタイム表示し、デバッグを容易にします。</li>
+    <li><strong>Bluetoothモジュール:</strong> スマートフォンからロボットを遠隔操作できるようにするのも面白いでしょう。</li>
+</ul>
+
+<h2>7. よくあるトラブルと解決法（FAQ）</h2>
+<p>製作中に直面しやすい問題とその対処法をまとめました。</p>
+<ul>
+    <li><strong>モーターが全く動かない:</strong> バッテリー残量、配線の緩み、モータードライバの電源LEDを確認。特にGNDが共通接続されているか再確認してください。</li>
+    <li><strong>モーターが一方向にしか回らない:</strong> IN1～IN4の接続が間違っているか、プログラムのピン設定が間違っています。</li>
+    <li><strong>センサーが常に黒を検知する:</strong> 周囲の明るさ（太陽光や照明）の影響を受けています。センサーの感度調整を行い、可能であれば遮光板を取り付けましょう。</li>
+    <li><strong>カーブで線を外してしまう:</strong> 速度を落とすか、旋回速度を上げてください。また、センサーの取り付け位置がロボットの中心から離れすぎている可能性があります。</li>
+    <li><strong>Arduino IDEで書き込みエラーが出る:</strong> ボードの選択（Arduino Uno）とCOMポートが正しいか確認してください。USBケーブルは充電専用ではなく、データ通信対応のものを使用しましょう。</li>
+</ul>
+
+<h2>まとめ：自分だけのライントレーサーを完成させよう</h2>
+<p>この記事では、Arduino Unoを使用したライン追跡ロボットの製作について、基本理論から配線、プログラミング、調整までを網羅的に解説しました。最初はうまく動かなくても、原因を一つずつ特定し解決していくプロセスこそが、ロボット製作の最大の学びです。このガイドを参考に、ぜひあなたの手でロボットを完成させ、その動きを楽しんでください。そして、完成したらぜひ友達や家族に披露してみてください。きっと驚かれることでしょう。</p>
+<p>さらに詳しい応用テクニックや、他のロボットプロジェクト（障害物回避ロボットやスマートホームデバイス）についても、当サイトの他の記事で解説しています。引き続きお楽しみに！</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
