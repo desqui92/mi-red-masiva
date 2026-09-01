@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Робот на Arduino, следующий по линии: Полное руководство по созданию с нуля</title>
+    <meta property="og:title" content="Робот на Arduino, следующий по линии: Полное руководство по созданию с нуля" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%D0%A0%D0%BE%D0%B1%D0%BE%D1%82%20%D0%BD%D0%B0%20Arduino%2C%20%D1%81%D0%BB%D0%B5%D0%B4%D1%83%D1%8E%D1%89%D0%B8%D0%B9%20%D0%BF%D0%BE%20%D0%BB%D0%B8%D0%BD%D0%B8%D0%B8%3A%20%D0%9F%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5%20%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE%20%D0%BF%D0%BE%20%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8E%20%D1%81%20%D0%BD%D1%83%D0%BB%D1%8F?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Робот на Arduino, следующий по линии: Полное руководство по созданию с нуля</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%D0%A0%D0%BE%D0%B1%D0%BE%D1%82%20%D0%BD%D0%B0%20Arduino%2C%20%D1%81%D0%BB%D0%B5%D0%B4%D1%83%D1%8E%D1%89%D0%B8%D0%B9%20%D0%BF%D0%BE%20%D0%BB%D0%B8%D0%BD%D0%B8%D0%B8%3A%20%D0%9F%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5%20%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE%20%D0%BF%D0%BE%20%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8E%20%D1%81%20%D0%BD%D1%83%D0%BB%D1%8F?width=800&height=1200&nologo=true" alt="Робот на Arduino, следующий по линии: Полное руководство по созданию с нуля" class="post-banner" />
+            <p>Создание робота, способного самостоятельно следовать по черной линии, — это классический проект в мире робототехники. Он идеально подходит для начинающих, так как сочетает в себе базовые принципы электроники, программирования и механики. В этом подробном руководстве мы разберем, как собрать робота-линейщика на базе платы Arduino Uno, какие компоненты для этого нужны, и как написать эффективный код для точного движения.</p>
+
+<p>В отличие от сложных алгоритмов компьютерного зрения, наш робот будет использовать простые инфракрасные датчики для определения контраста между поверхностью и линией. Это позволит нам создать надежную машину с минимальными затратами и максимальным пониманием процессов.</p>
+
+<h2>Что такое робот, следующий по линии, и как он работает?</h2>
+
+<p>Принцип действия такого робота основан на разнице отражения света от разных поверхностей. Черная линия (обычно матовая) поглощает инфракрасный свет, в то время как белая или светлая поверхность отражает его. Робот оснащен инфракрасными датчиками (ИК-датчиками), которые излучают свет и измеряют количество отраженного сигнала.</p>
+
+<p>Логика управления проста: если датчик находится над белой поверхностью, он получает высокий уровень отражения. Если над черной линией — низкий. Считывая показания с нескольких датчиков, микроконтроллер решает, куда поворачивать колеса, чтобы линия всегда оставалась в центре конструкции.</p>
+
+<blockquote>Важно: Для стабильной работы используйте высококонтрастные поверхности. Черная изолента на белом полу или распечатанный трек — идеальный вариант для тестирования.</blockquote>
+
+<h2>Необходимые компоненты для сборки</h2>
+
+<p>Прежде чем начать, убедитесь, что у вас есть все необходимые детали. Вы можете приобрести готовый набор или собрать комплект самостоятельно. Вот основной список:</p>
+
+<ul>
+    <li><strong>Плата микроконтроллера:</strong> Arduino Uno (или совместимая копия).</li>
+    <li><strong>Шасси:</strong> Готовая платформа с двумя колесами или самодельная конструкция из акрила/карбона.</li>
+    <li><strong>Двигатели:</strong> 2 мотора постоянного тока с редукторами (например, N20 или TT Motors).</li>
+    <li><strong>Драйвер двигателей:</strong> Модуль L298N или L293D для управления скоростью и направлением вращения.</li>
+    <li><strong>Датчики линии:</strong> 2 или 5 инфракрасных датчиков (модуль TCRT5000 или аналогичный).</li>
+    <li><strong>Аккумулятор:</strong> Батарейный отсек на 4-6 элементов AA или Li-Po аккумулятор 7.4V.</li>
+    <li><strong>Колеса:</strong> 2 ведущих колеса и 1 поворотное (шаровое) для баланса.</li>
+    <li><strong>Соединительные провода:</strong> Провода типа «папа-папа» и «мама-папа».</li>
+</ul>
+
+<p>Для питания Arduino рекомендуется использовать отдельный стабилизатор или подключать питание через разъем DC, чтобы не перегружать плату.</p>
+
+<h2>Схема подключения: Собираем электрику</h2>
+
+<p>Правильное подключение — залог того, что вы не сожжете плату. Рассмотрим стандартную схему с двумя датчиками и драйвером L298N.</p>
+
+<p><strong>Подключение драйвера L298N к Arduino:</strong></p>
+<ul>
+    <li>Питание: VCC драйвера к +5V (или внешнему питанию), GND к GND.</li>
+    <li>Логика: IN1, IN2, IN3, IN4 к цифровым пинам Arduino (например, 4, 5, 6, 7).</li>
+    <li>Управление скоростью: ENA и ENB к ШИМ-пинам (например, 3 и 9) для регулировки скорости.</li>
+</ul>
+
+<p><strong>Подключение датчиков линии (TCRT5000):</strong></p>
+<ul>
+    <li>VCC датчика к +5V на Arduino.</li>
+    <li>GND к GND.</li>
+    <li>OUT (цифровой выход) к цифровым пинам (например, A0 и A1 или 2 и 3).</li>
+</ul>
+
+<p>Убедитесь, что питание двигателей подается через драйвер, а не напрямую с Arduino, так как моторы потребляют большой ток.</p>
+
+<h2>Настройка датчиков: Калибровка</h2>
+
+<p>Перед загрузкой основного кода необходимо откалибровать датчики. У большинства модулей TCRT5000 есть потенциометр на плате. Вращая его, вы изменяете чувствительность.</p>
+
+<p>Процедура калибровки:</p>
+<ol>
+    <li>Подключите Arduino к компьютеру и загрузите простой скетч чтения порта.</li>
+    <li>Поместите датчик над белой поверхностью. Смотрите значение в мониторе порта. Оно должно быть близко к 0 (или LOW).</li>
+    <li>Поместите датчик над черной линией. Значение должно быть 1 (или HIGH).</li>
+    <li>Если значения не меняются, вращайте потенциометр до тех пор, пока датчик не начнет четко различать цвета.</li>
+</ol>
+
+<blockquote>Совет: Используйте аналоговые входы вместо цифровых, если хотите более плавного управления. Тогда вы сможете сравнивать пороговые значения в коде.</blockquote>
+
+<h2>Программирование: Алгоритм управления</h2>
+
+<p>Существует два основных подхода к написанию кода: <strong>релейный</strong> (простой) и <strong>ПИД-регулятор</strong> (плавный). Для начала освоим простейший вариант, который отлично работает на прямых участках и поворотах.</p>
+
+<p>Логика проста: у нас есть левый (L) и правый (R) датчики. Если оба датчика на белом (0,0) — значит, робот съехал с линии, нужно остановиться или искать линию. Если оба на черном (1,1) — перекресток или линия слишком широкая. Иначе — корректируем движение.</p>
+
+<p>Вот пример кода для Arduino:</p>
+
+<pre>
+const int motorLeft1 = 4;
+const int motorLeft2 = 5;
+const int motorRight1 = 6;
+const int motorRight2 = 7;
+const int enableLeft = 3;
+const int enableRight = 9;
+
+const int sensorLeft = A0;
+const int sensorRight = A1;
+
+void setup() {
+  pinMode(motorLeft1, OUTPUT);
+  pinMode(motorLeft2, OUTPUT);
+  pinMode(motorRight1, OUTPUT);
+  pinMode(motorRight2, OUTPUT);
+  pinMode(sensorLeft, INPUT);
+  pinMode(sensorRight, INPUT);
+  // Устанавливаем скорость
+  analogWrite(enableLeft, 150);
+  analogWrite(enableRight, 150);
+}
+
+void loop() {
+  int left = digitalRead(sensorLeft);
+  int right = digitalRead(sensorRight);
+
+  // Состояние: Оба на белом (0,0) - вперед
+  if (left == LOW && right == LOW) {
+    forward();
+  }
+  // Состояние: Левый на черном (1,0) - поворот влево
+  else if (left == HIGH && right == LOW) {
+    turnLeft();
+  }
+  // Состояние: Правый на черном (0,1) - поворот вправо
+  else if (left == LOW && right == HIGH) {
+    turnRight();
+  }
+  // Состояние: Оба на черном (1,1) - стоп или вперед (перекресток)
+  else {
+    forward();
+  }
+}
+
+void forward() {
+  digitalWrite(motorLeft1, HIGH);
+  digitalWrite(motorLeft2, LOW);
+  digitalWrite(motorRight1, HIGH);
+  digitalWrite(motorRight2, LOW);
+}
+
+void turnLeft() {
+  digitalWrite(motorLeft1, LOW);
+  digitalWrite(motorLeft2, LOW); // Стоп левого
+  digitalWrite(motorRight1, HIGH);
+  digitalWrite(motorRight2, LOW); // Правое едет
+}
+
+void turnRight() {
+  digitalWrite(motorLeft1, HIGH);
+  digitalWrite(motorLeft2, LOW); // Левое едет
+  digitalWrite(motorRight1, LOW);
+  digitalWrite(motorRight2, LOW); // Стоп правого
+}
+</pre>
+
+<p>Этот код создает базовое поведение. Робот будет «вилять», но уверенно держаться на трассе.</p>
+
+<h2>Продвинутый метод: ПИД-регулятор для плавности</h2>
+
+<p>Если вы хотите, чтобы робот двигался как по рельсам, без рывков, используйте пропорционально-интегрально-дифференциальный регулятор (ПИД). Вместо двух датчиков лучше использовать линейку из 5 датчиков, чтобы получить аналоговое значение ошибки.</p>
+
+<p>Суть метода: мы вычисляем ошибку (расстояние от центра робота до линии) и применяем формулу для расчета скорости каждого колеса.</p>
+
+<p><strong>Основные шаги для реализации ПИД:</strong></p>
+<ol>
+    <li>Подключите 5 датчиков к аналоговым пинам A0-A4.</li>
+    <li>Считайте значения и преобразуйте их в бинарный код (0 или 1).</li>
+    <li>Вычислите ошибку по формуле: <em>error = (sensor1 * -2) + (sensor2 * -1) + (sensor3 * 0) + (sensor4 * 1) + (sensor5 * 2)</em>.</li>
+    <li>Вычислите PID значение: <em>PID = (Kp * error) + (Ki * integral) + (Kd * derivative)</em>.</li>
+    <li>Установите скорость моторов: <em>leftSpeed = baseSpeed - PID</em> и <em>rightSpeed = baseSpeed + PID</em>.</li>
+</ol>
+
+<p>Этот подход требует больше времени на настройку коэффициентов (Kp, Ki, Kd), но результат стоит того. Робот сможет проходить крутые повороты на высокой скорости.</p>
+
+<h2>Сборка корпуса и механики</h2>
+
+<p>Механическая часть не менее важна, чем программная. Убедитесь, что:</p>
+<ul>
+    <li>Датчики расположены на расстоянии 1-2 см от поверхности.</li>
+    <li>Расстояние между датчиками меньше ширины линии, чтобы они не «теряли» ее.</li>
+    <li>Центр тяжести находится над ведущими колесами для лучшего сцепления.</li>
+    <li>Колеса имеют хороший протектор, чтобы не буксовать на гладком полу.</li>
+</ul>
+
+<p>Используйте стойки и винты для жесткой фиксации плат. Вибрация от моторов может вызывать ложные срабатывания датчиков, поэтому закрепите все надежно.</p>
+
+<h2>Поиск и устранение неисправностей</h2>
+
+<p>Если робот не едет или ведет себя странно, проверьте следующие моменты:</p>
+
+<ul>
+    <li><strong>Питание:</strong> Низкое напряжение на батареях — частая причина. Убедитесь, что двигатели получают достаточно энергии.</li>
+    <li><strong>Подключение:</strong> Проверьте, что провода не перепутаны местами (IN1/IN2 и т.д.).</li>
+    <li><strong>Калибровка:</strong> Датчики могут не видеть линию из-за неправильной чувствительности.</li>
+    <li><strong>Код:</strong> Убедитесь, что пины в коде совпадают с реальными подключениями.</li>
+    <li><strong>Поверхность:</strong> Линия должна быть матовой, а не глянцевой (глянец бликует и сбивает датчики).</li>
+</ul>
+
+<p>Если робот едет только прямо, скорее всего, проблема в драйвере двигателей или в том, что датчики не переключаются. Проверьте показания датчиков через Serial Monitor.</p>
+
+<h2>Заключение и дальнейшие шаги</h2>
+
+<p>Вы создали полноценного автономного робота! Это отличная база для дальнейшего изучения робототехники. Теперь вы можете усовершенствовать проект, добавив Bluetooth-управление, ультразвуковой датчик для объезда препятствий или дисплей для отображения скорости и ошибок.</p>
+
+<p>Экспериментируйте с коэффициентами ПИД-регулятора, изменяйте скорость, пробуйте разные трассы. Помните, что каждый робот уникален, и для достижения идеального результата потребуется время и терпение. Удачи в ваших инженерных начинаниях!</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
