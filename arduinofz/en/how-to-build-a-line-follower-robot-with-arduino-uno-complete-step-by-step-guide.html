@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Build a Line Follower Robot with Arduino Uno: Complete Step-by-Step Guide</title>
+    <meta property="og:title" content="How to Build a Line Follower Robot with Arduino Uno: Complete Step-by-Step Guide" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)How%20to%20Build%20a%20Line%20Follower%20Robot%20with%20Arduino%20Uno%3A%20Complete%20Step-by-Step%20Guide?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>How to Build a Line Follower Robot with Arduino Uno: Complete Step-by-Step Guide</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)How%20to%20Build%20a%20Line%20Follower%20Robot%20with%20Arduino%20Uno%3A%20Complete%20Step-by-Step%20Guide?width=800&height=1200&nologo=true" alt="How to Build a Line Follower Robot with Arduino Uno: Complete Step-by-Step Guide" class="post-banner" />
+            <p>Building a line follower robot is one of the most rewarding and educational projects for anyone venturing into the world of robotics and embedded systems. Using an Arduino Uno as the brain, this project teaches you the fundamentals of sensor integration, motor control, and logic-based decision making. In this comprehensive tutorial, we will walk you through every single step—from gathering components to uploading the final code—so you can assemble your very own autonomous robot that flawlessly tracks a black line on a white surface.</p>
+
+<h2>1. Understanding the Line Follower Robot Concept</h2>
+<p>At its core, a line follower robot is an autonomous machine designed to detect and follow a contrasting line on the floor. The robot uses infrared (IR) sensors to differentiate between the reflective surface (white) and the non-reflective surface (black line). The Arduino continuously reads these sensor values and adjusts the speed of the motors to steer the robot along the path.</p>
+<p>The logic is simple: if the left sensor detects the line, the robot turns left; if the right sensor detects it, the robot turns right. When both sensors are on the white surface, the robot moves straight forward. This closed-loop feedback system is the essence of robotics control.</p>
+
+<h2>2. Required Components and Materials</h2>
+<p>Before diving into the assembly, gather all the necessary parts. Here is a complete shopping list:</p>
+<ul>
+    <li><strong>Arduino Uno R3</strong> – The microcontroller board that serves as the robot's brain.</li>
+    <li><strong>L298N Motor Driver Module</strong> – Controls the direction and speed of two DC motors.</li>
+    <li><strong>2x DC Gear Motors with Wheels</strong> – Provide the mechanical locomotion.</li>
+    <li><strong>1x Ball Caster Wheel</strong> – Supports the front or rear of the chassis for balance.</li>
+    <li><strong>2x IR Sensor Modules (TCRT5000)</strong> – Detect the line and surface contrast.</li>
+    <li><strong>7.4V Li-ion Battery or 9V Battery</strong> – Powers the Arduino and motors separately.</li>
+    <li><strong>Robot Chassis Kit</strong> – Acrylic or plastic base to mount all components.</li>
+    <li><strong>Jumper Wires</strong> – For electrical connections.</li>
+    <li><strong>Breadboard (optional)</strong> – For prototyping the circuit.</li>
+</ul>
+<blockquote>Pro Tip: Ensure the IR sensors have a potentiometer to adjust sensitivity. This is crucial for calibration under different lighting conditions.</blockquote>
+
+<h2>3. Circuit Wiring: Connecting Everything</h2>
+<p>Proper wiring is critical for reliable operation. Follow this connection diagram carefully. We will separate the power and signal lines to avoid interference.</p>
+
+<h3>3.1 Power Distribution</h3>
+<p>Connect the battery positive terminal to the L298N's 12V input. From the L298N's 5V output pin, power the Arduino Uno's 5V pin. This ensures a single power source runs the entire system, with the motor driver regulating voltage for the logic circuits.</p>
+
+<h3>3.2 Motor Connections to L298N</h3>
+<ul>
+    <li><strong>Left Motor:</strong> Connect to OUT1 and OUT2 on the L298N.</li>
+    <li><strong>Right Motor:</strong> Connect to OUT3 and OUT4 on the L298N.</li>
+    <li><strong>Enable Pins:</strong> Connect ENA to pin 5 and ENB to pin 6 on the Arduino for PWM speed control.</li>
+    <li><strong>Input Pins:</strong> Connect IN1 to pin 4, IN2 to pin 7, IN3 to pin 8, and IN4 to pin 9.</li>
+</ul>
+
+<h3>3.3 IR Sensor Wiring</h3>
+<ul>
+    <li><strong>Left Sensor:</strong> VCC to 5V, GND to GND, and OUT to digital pin 2.</li>
+    <li><strong>Right Sensor:</strong> VCC to 5V, GND to GND, and OUT to digital pin 3.</li>
+</ul>
+<blockquote>Important: Use a common ground between the motor driver, Arduino, and sensors to prevent erratic behavior.</blockquote>
+
+<h2>4. Mechanical Assembly of the Chassis</h2>
+<p>Start by mounting the two DC motors on the chassis base using screws or zip ties. Position them symmetrically on the left and right sides. Attach the wheels to the motor shafts, and fix the ball caster at the front center for stable three-point contact.</p>
+<p>Next, mount the Arduino Uno and L298N driver on the chassis using standoffs or double-sided tape. Place the IR sensors on the front underside of the chassis, facing down. They should be positioned approximately 2-3 cm apart, centered on the line path.</p>
+<p>Finally, secure the battery pack on the top or bottom, ensuring the center of gravity stays low to prevent tipping during sharp turns.</p>
+
+<h2>5. Writing the Arduino Code</h2>
+<p>Now comes the brain of the operation. Below is a fully commented, production-ready sketch. This code reads the digital output from the sensors and controls the motors accordingly.</p>
+<pre>
+// Pin definitions
+const int leftSensorPin = 2;
+const int rightSensorPin = 3;
+const int motorLeftPWM = 5;
+const int motorRightPWM = 6;
+const int motorLeftIN1 = 4;
+const int motorLeftIN2 = 7;
+const int motorRightIN3 = 8;
+const int motorRightIN4 = 9;
+
+// Speed constants (0-255)
+const int baseSpeed = 180;
+const int turnSpeed = 140;
+
+void setup() {
+  pinMode(leftSensorPin, INPUT);
+  pinMode(rightSensorPin, INPUT);
+  pinMode(motorLeftIN1, OUTPUT);
+  pinMode(motorLeftIN2, OUTPUT);
+  pinMode(motorRightIN3, OUTPUT);
+  pinMode(motorRightIN4, OUTPUT);
+  pinMode(motorLeftPWM, OUTPUT);
+  pinMode(motorRightPWM, OUTPUT);
+  // Initial stop
+  stopMotors();
+}
+
+void loop() {
+  int leftSensor = digitalRead(leftSensorPin);
+  int rightSensor = digitalRead(rightSensorPin);
+
+  // Sensor logic: 0 = black line detected, 1 = white surface
+  if (leftSensor == LOW && rightSensor == HIGH) {
+    // Left sensor on line, turn left
+    turnLeft();
+  } 
+  else if (leftSensor == HIGH && rightSensor == LOW) {
+    // Right sensor on line, turn right
+    turnRight();
+  } 
+  else if (leftSensor == LOW && rightSensor == LOW) {
+    // Both on line (intersection), go straight
+    moveForward();
+  } 
+  else {
+    // Both on white (lost), stop or search
+    stopMotors();
+    delay(100);
+    moveForward();
+  }
+}
+
+void moveForward() {
+  digitalWrite(motorLeftIN1, HIGH);
+  digitalWrite(motorLeftIN2, LOW);
+  digitalWrite(motorRightIN3, HIGH);
+  digitalWrite(motorRightIN4, LOW);
+  analogWrite(motorLeftPWM, baseSpeed);
+  analogWrite(motorRightPWM, baseSpeed);
+}
+
+void turnLeft() {
+  digitalWrite(motorLeftIN1, LOW);
+  digitalWrite(motorLeftIN2, HIGH);
+  digitalWrite(motorRightIN3, HIGH);
+  digitalWrite(motorRightIN4, LOW);
+  analogWrite(motorLeftPWM, turnSpeed);
+  analogWrite(motorRightPWM, turnSpeed);
+}
+
+void turnRight() {
+  digitalWrite(motorLeftIN1, HIGH);
+  digitalWrite(motorLeftIN2, LOW);
+  digitalWrite(motorRightIN3, LOW);
+  digitalWrite(motorRightIN4, HIGH);
+  analogWrite(motorLeftPWM, turnSpeed);
+  analogWrite(motorRightPWM, turnSpeed);
+}
+
+void stopMotors() {
+  digitalWrite(motorLeftIN1, LOW);
+  digitalWrite(motorLeftIN2, LOW);
+  digitalWrite(motorRightIN3, LOW);
+  digitalWrite(motorRightIN4, LOW);
+  analogWrite(motorLeftPWM, 0);
+  analogWrite(motorRightPWM, 0);
+}
+</pre>
+<p>Upload this code to your Arduino Uno using the Arduino IDE. Ensure you select the correct board and COM port.</p>
+
+<h2>6. Calibration and Testing</h2>
+<p>Calibration is the difference between a robot that works and one that spins in circles. Place the robot on a test track with a 2cm thick black line on a white background.</p>
+<h3>6.1 Adjusting Sensor Sensitivity</h3>
+<p>Using a small screwdriver, turn the potentiometer on each IR sensor. Place the sensor over the white surface and adjust until the LED on the sensor goes off. Then place it over the black line and confirm the LED lights up. Repeat for the second sensor.</p>
+<h3>6.2 Speed Tuning</h3>
+<p>Start with a base speed of 150. If the robot overshoots the line, reduce the speed. If it moves too slowly, increase the speed incrementally. The turn speed should always be slightly lower than base speed for stable curves.</p>
+
+<h2>7. Troubleshooting Common Issues</h2>
+<ul>
+    <li><strong>Robot doesn't move:</strong> Check battery voltage, verify motor driver power LED is lit, and confirm all ground connections.</li>
+    <li><strong>Robot vibrates or jerks:</strong> This indicates unstable power. Add a 1000µF capacitor across the motor power terminals.</li>
+    <li><strong>Sensors not detecting line:</strong> Lower the sensors closer to the ground (5-10mm) or increase the potentiometer sensitivity.</li>
+    <li><strong>Robot goes straight but misses curves:</strong> Increase the distance between the two sensors to improve line detection angle.</li>
+    <li><strong>Code uploads but nothing happens:</strong> Recheck the wiring against the pin definitions in the code.</li>
+</ul>
+
+<h2>8. Advanced Enhancements and Ideas</h2>
+<p>Once your basic line follower works flawlessly, consider these upgrades to push your skills further:</p>
+<ul>
+    <li><strong>PID Control:</strong> Implement a proportional-integral-derivative algorithm for ultra-smooth tracking at high speeds.</li>
+    <li><strong>OLED Display:</strong> Show live sensor values and speed metrics for debugging.</li>
+    <li><strong>Bluetooth Control:</strong> Add an HC-05 module to switch between line-following and manual smartphone control.</li>
+    <li><strong>Multiple Sensors:</strong> Use an array of 5-8 IR sensors to handle sharp 90-degree turns and intersections.</li>
+    <li><strong>Obstacle Avoidance:</strong> Integrate an ultrasonic sensor to stop the robot when an object blocks the path.</li>
+</ul>
+
+<h2>9. Conclusion and Final Thoughts</h2>
+<p>Congratulations! You have successfully built a fully functional line follower robot using the Arduino Uno. This project not only gives you a tangible robot but also deepens your understanding of how microcontrollers interact with the physical world through sensors and actuators. The logic you implemented here—reading inputs, making decisions, and driving outputs—is the same foundation used in industrial automation, autonomous vehicles, and advanced robotics.</p>
+<p>Don't stop here. Experiment with different track layouts, tweak the code, and add new features. Every modification teaches you something new about the beautiful intersection of hardware and software. Happy building!</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
