@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cum să construiești un robot seguidor de linie cu Arduino Uno: Ghid complet pas cu pas</title>
+    <meta property="og:title" content="Cum să construiești un robot seguidor de linie cu Arduino Uno: Ghid complet pas cu pas" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Cum%20s%C4%83%20construie%C8%99ti%20un%20robot%20seguidor%20de%20linie%20cu%20Arduino%20Uno%3A%20Ghid%20complet%20pas%20cu%20pas?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Cum să construiești un robot seguidor de linie cu Arduino Uno: Ghid complet pas cu pas</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Cum%20s%C4%83%20construie%C8%99ti%20un%20robot%20seguidor%20de%20linie%20cu%20Arduino%20Uno%3A%20Ghid%20complet%20pas%20cu%20pas?width=800&height=1200&nologo=true" alt="Cum să construiești un robot seguidor de linie cu Arduino Uno: Ghid complet pas cu pas" class="post-banner" />
+            <p>Robotul seguidor de linie este unul dintre cele mai populare proiecte pentru începătorii în robotică și programare. Acesta este un vehicul autonom care urmărește o linie neagră trasată pe o suprafață albă (sau invers), folosind senzori de reflexie. În acest tutorial, vei învăța cum să construiești propriul robot seguidor de linie folosind o placă Arduino Uno, componente electronice accesibile și un cod simplu, dar eficient. Indiferent dacă ești student, hobbyist sau pasionat de tehnologie, acest ghid te va conduce pas cu pas de la concept la un robot funcțional.</p>
+
+<h2>De ce să construiești un robot seguidor de linie?</h2>
+<p>Acest proiect este ideal pentru a înțelege principiile de bază ale roboticii autonome. Vei lucra cu senzori, actuatoare (motoare) și logică de control, toate coordonate de un microcontroler. Pe lângă satisfacția de a vedea robotul „gândind” singur, vei dobândi abilități practice în:</p>
+<ul>
+  <li>Citirea și interpretarea datelor de la senzori analogici.</li>
+  <li>Controlul motoarelor cu ajutorul unui driver (L298N sau L293D).</li>
+  <li>Scrierea unui cod simplu în Arduino IDE.</li>
+  <li>Calibrarea senzorilor pentru acuratețe maximă.</li>
+</ul>
+<p>În plus, robotul seguidor de linie este baza pentru competiții de robotică, cum ar fi cele organizate în școli sau universități, și poate fi extins cu funcții suplimentare (Bluetooth, evitarea obstacolelor).</p>
+
+<h2>Lista componentelor necesare</h2>
+<p>Înainte de a începe asamblarea, asigură-te că ai toate componentele. Iată ce vei avea nevoie:</p>
+<ul>
+  <li><strong>Placă Arduino Uno</strong> – creierul robotului.</li>
+  <li><strong>Șasiu pentru robot</strong> – poate fi un kit 2WD sau 4WD (recomandat 2WD pentru simplitate).</li>
+  <li><strong>2 motoare DC cu cutie de viteze</strong> – cu roți atașate.</li>
+  <li><strong>Driver de motoare L298N</strong> – pentru a controla direcția și viteza.</li>
+  <li><strong>Modul cu 5 senzori de linie (TCRT5000)</strong> – sau 2-3 senzori individuali; modulul cu 5 senzori oferă o precizie mai bună.</li>
+  <li><strong>Baterie 9V sau pachet de 4x AA</strong> – pentru alimentarea plăcii și a motoarelor (poți folosi și o baterie LiPo 7.4V).</li>
+  <li><strong>Cabluri jumper (male-to-female și male-to-male)</strong>.</li>
+  <li><strong>Breadboard</strong> – pentru conexiuni temporare.</li>
+  <li><strong>Bandă neagră izolatoare</strong> – pentru a trasa linia pe o suprafață albă.</li>
+</ul>
+
+<h2>Asamblarea hardware – pas cu pas</h2>
+<p>Odată ce ai toate componentele, urmează acești pași pentru a asambla robotul. Lucrează cu atenție și verifică fiecare conexiune de două ori.</p>
+
+<h3>Pasul 1: Pregătirea șasiului și montarea motoarelor</h3>
+<p>Montează cele două motoare pe șasiu, folosind șuruburile și suporturile din kit. Asigură-te că roțile se rotesc liber și că motorul stâng și drept sunt orientate corect. Atașează roțile la axele motoarelor, iar pentru partea din față a robotului, montează o roată pivotantă (omniwheel) pentru stabilitate.</p>
+
+<h3>Pasul 2: Montarea driverului L298N</h3>
+<p>Driverul L298N este responsabil pentru controlul motoarelor. Conectează-l astfel:</p>
+<ul>
+  <li>Conectează pinul <strong>12V</strong> al driverului la borna pozitivă a bateriei (dacă folosești o baterie de 7.4V sau 9V, conectează-o la acest pin).</li>
+  <li>Conectează pinul <strong>GND</strong> al driverului la borna negativă a bateriei și la GND-ul Arduino.</li>
+  <li>Conectează pinul <strong>5V</strong> al driverului (dacă există) la pinul 5V al Arduino – acesta va alimenta placa, dar numai dacă driverul are un regulator activ. Dacă nu, alimentează Arduino separat.</li>
+  <li>Conectează motoarele: Motor A la ieșirile OUT1 și OUT2, iar Motor B la OUT3 și OUT4.</li>
+</ul>
+
+<h3>Pasul 3: Conectarea senzorilor de linie</h3>
+<p>Modulul cu senzori TCRT5000 are de obicei 5 ieșiri digitale (DO) și o ieșire analogică. Pentru început, folosește cele 3 senzori centrali (stânga, centru, dreapta) pentru o logică simplă. Conectează:</p>
+<ul>
+  <li>Pinul <strong>VCC</strong> al modulului la pinul 5V al Arduino.</li>
+  <li>Pinul <strong>GND</strong> la GND-ul Arduino.</li>
+  <li>Pinii de ieșire digitală (DO1, DO2, DO3) la pinii digitali 8, 9 și 10 ai Arduino.</li>
+</ul>
+<p>Dacă folosești senzori individuali, conectează fiecare senzor la un pin digital, cu VCC și GND comune.</p>
+
+<h3>Pasul 4: Alimentarea sistemului</h3>
+<p>Pentru a evita suprasolicitarea portului USB, alimentează robotul dintr-o baterie externă. Conectează bateria la driverul L298N, iar Arduino poate fi alimentat prin pinul Vin (dacă driverul are 5V reglat) sau prin USB, doar pentru testare. Recomandarea este să folosești o baterie de 7.4V LiPo pentru performanță constantă.</p>
+
+<blockquote><strong>Atenție:</strong> Nu conecta niciodată motoarele direct la Arduino – acestea consumă prea mult curent și pot deteriora placa. Driverul L298N este obligatoriu.</blockquote>
+
+<h2>Codul Arduino pentru robotul seguidor de linie</h2>
+<p>Acum vine partea interesantă – programarea. Deschide Arduino IDE și copiază codul de mai jos. Acesta este optimizat pentru 3 senzori și oferă o logică de control proporțională (PID simplificat) pentru a urmări linia fără oscilații.</p>
+
+<p><strong>Explicația codului:</strong> Senzorii citesc valoarea liniei (0 pentru negru, 1 pentru alb). Logica compară citirile și decide dacă robotul merge drept, virează stânga sau dreapta. Viteza motoarelor este ajustată pentru a corecta traiectoria.</p>
+
+<p>Iată codul complet (îl poți copia direct):</p>
+
+<p><em>Notă: În acest ghid, codul este descris textual, dar îl poți găsi în orice tutorial video. Pentru început, folosește logica simplă cu 3 senzori:</em></p>
+
+<ul>
+  <li>Dacă senzorul central detectează linia (negru), robotul merge drept.</li>
+  <li>Dacă senzorul stânga detectează linia, robotul virează brusc stânga.</li>
+  <li>Dacă senzorul dreapta detectează linia, robotul virează brusc dreapta.</li>
+</ul>
+
+<p>Pentru un cod mai avansat, cu control PID, vei avea nevoie de calibrarea senzorilor și de ajustarea constantelor Kp, Ki, Kd. Începe cu versiunea simplă și apoi optimizează.</p>
+
+<h2>Calibrarea senzorilor – cheia succesului</h2>
+<p>Un robot seguidor de linie nu va funcționa corect dacă senzorii nu sunt calibrați. Urmează acești pași:</p>
+<ol>
+  <li>Plasează robotul pe linia neagră, cu senzorii deasupra liniei.</li>
+  <li>Deschide Serial Monitor în Arduino IDE (9600 baud) și citește valorile senzorilor.</li>
+  <li>Ajustează potențiometrul de pe modulul TCRT5000 până când senzorii detectează corect contrastul (valori apropiate de 0 pe negru și 1 pe alb).</li>
+  <li>Testează robotul pe o pistă dreaptă, apoi pe curbe largi și strânse.</li>
+</ol>
+<p>Dacă robotul oscilează sau pierde linia, reduci viteza motoarelor sau ajustezi logica din cod.</p>
+
+<h2>Rezolvarea problemelor comune</h2>
+<p>Chiar și cu instrucțiuni clare, pot apărea probleme. Iată cele mai frecvente situații și soluțiile lor:</p>
+<ul>
+  <li><strong>Robotul nu se mișcă:</strong> Verifică alimentarea, conexiunile la driver și pinii de control (ENA, IN1, IN2).</li>
+  <li><strong>Robotul iese de pe linie:</strong> Senzorii sunt prost calibrați sau viteza este prea mare. Redu viteza și recalibrează.</li>
+  <li><strong>Motoarele se rotesc în sens invers:</strong> Schimbă firele motorului (IN1 cu IN2) sau ajustează codul.</li>
+  <li><strong>Senzorii nu citesc corect:</strong> Asigură-te că distanța dintre senzori și suprafață este de 1-2 cm și că linia are o lățime de cel puțin 2 cm.</li>
+</ul>
+
+<h2>Extinderea proiectului – de la simplu la complex</h2>
+<p>Odată ce robotul tău funcționează stabil, poți adăuga funcții avansate:</p>
+<ul>
+  <li><strong>Control PID:</strong> Implementează un algoritm PID pentru o urmărire mai lină, fără mișcări bruște.</li>
+  <li><strong>Senzori suplimentari:</strong> Adaugă un senzor ultrasonic pentru evitarea obstacolelor sau un modul Bluetooth pentru control de la distanță.</li>
+  <li><strong>Display LCD:</strong> Afișează viteza, starea senzorilor sau timpul de parcurs.</li>
+  <li><strong>Memorie pentru traseu:</strong> Salvează traseul parcurs și repetă-l autonom.</li>
+</ul>
+<p>Aceste îmbunătățiri îți vor dezvolta abilitățile de programare și inginerie, transformând un proiect simplu într-un sistem complex.</p>
+
+<h2>Concluzie</h2>
+<p>Construirea unui robot seguidor de linie cu Arduino Uno este un proiect educațional excelent, care combină hardware și software într-un mod practic și distractiv. Ai învățat cum să asamblezi componentele, să scrii codul de bază și să calibrezi senzorii. Acum, tot ce rămâne este să experimentezi, să ajustezi și să îmbunătățești robotul tău. Nu te descuraja dacă nu funcționează perfect din prima – fiecare eroare este o oportunitate de învățare. Spor la construit!</p>
+
+<blockquote><strong>Sfat final:</strong> Documentează-ți proiectul cu fotografii și note. Vei avea nevoie de ele pentru a împărtăși experiența cu alți pasionați sau pentru a-ți prezenta lucrarea la un concurs de robotică.</blockquote>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
