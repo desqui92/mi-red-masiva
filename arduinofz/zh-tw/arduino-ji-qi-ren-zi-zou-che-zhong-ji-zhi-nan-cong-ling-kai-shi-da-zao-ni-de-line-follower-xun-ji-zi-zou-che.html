@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino 機器人自走車終極指南：從零開始打造你的 Line Follower 循跡自走車</title>
+    <meta property="og:title" content="Arduino 機器人自走車終極指南：從零開始打造你的 Line Follower 循跡自走車" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Arduino%20%E6%A9%9F%E5%99%A8%E4%BA%BA%E8%87%AA%E8%B5%B0%E8%BB%8A%E7%B5%82%E6%A5%B5%E6%8C%87%E5%8D%97%EF%BC%9A%E5%BE%9E%E9%9B%B6%E9%96%8B%E5%A7%8B%E6%89%93%E9%80%A0%E4%BD%A0%E7%9A%84%20Line%20Follower%20%E5%BE%AA%E8%B7%A1%E8%87%AA%E8%B5%B0%E8%BB%8A?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Arduino 機器人自走車終極指南：從零開始打造你的 Line Follower 循跡自走車</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Arduino%20%E6%A9%9F%E5%99%A8%E4%BA%BA%E8%87%AA%E8%B5%B0%E8%BB%8A%E7%B5%82%E6%A5%B5%E6%8C%87%E5%8D%97%EF%BC%9A%E5%BE%9E%E9%9B%B6%E9%96%8B%E5%A7%8B%E6%89%93%E9%80%A0%E4%BD%A0%E7%9A%84%20Line%20Follower%20%E5%BE%AA%E8%B7%A1%E8%87%AA%E8%B5%B0%E8%BB%8A?width=800&height=1200&nologo=true" alt="Arduino 機器人自走車終極指南：從零開始打造你的 Line Follower 循跡自走車" class="post-banner" />
+            <p>在機器人學的繽紛世界中，沒有一個專案能像「循跡自走車」這樣，完美地平衡了趣味性、教育性與實作成就感。對於剛踏入 Arduino 領域的初學者來說，這是一個絕佳的起點；而對於經驗豐富的創客，它則是測試新演算法與感測器應用的理想平台。這篇文章將帶你深入淺出地了解如何利用 Arduino Uno，親手打造一台能夠自動沿著黑線或白線行駛的智慧小車。我們將從基礎元件介紹、電路連接到程式碼編寫，一步步建構屬於你自己的機器人夥伴。</p>
+
+<h2>為什麼選擇 Arduino Uno 作為機器人的大腦？</h2>
+<p>Arduino Uno 之所以成為機器人專案的首選，並非偶然。它具備了幾個關鍵優勢，讓初學者能輕鬆上手，同時又保有足夠的擴充性：</p>
+<ul>
+    <li><strong>極低的學習門檻：</strong> 其程式語言基於 C/C++，語法簡潔，且有龐大的社群資源與函式庫支援。</li>
+    <li><strong>充足的 I/O 腳位：</strong> 具備 14 個數位輸入/輸出腳位與 6 個類比輸入腳位，足以應付循跡感測器、馬達驅動板以及未來的擴充模組。</li>
+    <li><strong>價格親民與開源特性：</strong> 無論是原廠板或相容板，價格都十分實惠，且電路圖完全公開，非常適合學習硬體原理。</li>
+    <li><strong>穩定的 5V 邏輯電源：</strong> 能直接驅動常見的 TTL 感測器與模組，無需額外的電平轉換電路。</li>
+</ul>
+
+<h2>專案所需材料清單：備齊你的創客工具箱</h2>
+<p>在動手之前，請先確認你已備妥以下所有零件。這能確保製作過程流暢，不會因缺少零件而中斷。</p>
+<ul>
+    <li><strong>主控板：</strong> Arduino Uno 開發板 x1</li>
+    <li><strong>馬達驅動模組：</strong> L298N 或 TB6612FNG 驅動板 x1（建議使用 TB6612FNG，功耗更低且效率更高）</li>
+    <li><strong>車體底盤：</strong> 2WD 或 4WD 智慧小車底盤（含馬達與輪子）x1</li>
+    <li><strong>循跡感測器：</strong> TCRT5000 紅外線循跡模組 x2 或 5 路陣列感測器 x1（建議使用 2 路即可完成基本功能）</li>
+    <li><strong>電源供應：</strong> 18650 鋰電池 x2（或 9V 電池，但續航力較差）與電池盒</li>
+    <li><strong>連接線：</strong> 杜邦線（公對公、公對母）數十條</li>
+    <li><strong>其他：</strong> 麵包板（可選）、紮帶或螺絲起子、絕緣膠帶</li>
+</ul>
+
+<h2>硬體組裝與電路接線：建構小車的神經系統</h2>
+<p>正確的接線是機器人正常運作的基石。請務必斷電操作，並仔細核對每個腳位。</p>
+<h3>1. 馬達與驅動板的連接</h3>
+<p>將底盤上的兩個直流馬達連接到 L298N 或 TB6612FNG 驅動板的輸出端。請記住左右輪對應的接腳，這在程式撰寫時至關重要。</p>
+<ul>
+    <li><strong>左輪馬達：</strong> 連接到驅動板的 OUT1 與 OUT2。</li>
+    <li><strong>右輪馬達：</strong> 連接到驅動板的 OUT3 與 OUT4。</li>
+</ul>
+
+<h3>2. 電源系統配置</h3>
+<p>機器人需要兩套電源：一套為 Arduino 邏輯供電，另一套為馬達提供大電流。</p>
+<ul>
+    <li><strong>馬達電源：</strong> 將電池盒的正負極連接到驅動板的 VCC 與 GND（L298N 通常為 12V 輸入，TB6612FNG 則為 2.5V~13.5V，請依你的電池電壓調整）。</li>
+    <li><strong>邏輯電源：</strong> 將驅動板的 5V 輸出腳位連接到 Arduino Uno 的 5V 腳位，並將兩者的 GND 連接在一起，建立共地參考點。</li>
+</ul>
+
+<h3>3. 控制訊號線連接</h3>
+<p>將 Arduino 的數位腳位與驅動板及感測器連接，建立溝通橋樑。</p>
+<ul>
+    <li><strong>TB6612FNG 範例：</strong></li>
+    <li>Arduino D5 腳位 → 驅動板 PWMA（左輪速度）</li>
+    <li>Arduino D6 腳位 → 驅動板 AIN1（左輪方向）</li>
+    <li>Arduino D7 腳位 → 驅動板 AIN2（左輪方向）</li>
+    <li>Arduino D8 腳位 → 驅動板 PWMB（右輪速度）</li>
+    <li>Arduino D9 腳位 → 驅動板 BIN1（右輪方向）</li>
+    <li>Arduino D10 腳位 → 驅動板 BIN2（右輪方向）</li>
+</ul>
+
+<h3>4. 循跡感測器連接</h3>
+<p>TCRT5000 模組通常有三個接腳：VCC、GND、OUT。</p>
+<ul>
+    <li><strong>左側感測器：</strong> VCC → 5V，GND → GND，OUT → Arduino A0 類比腳位。</li>
+    <li><strong>右側感測器：</strong> VCC → 5V，GND → GND，OUT → Arduino A1 類比腳位。</li>
+</ul>
+<blockquote>注意： 感測器的安裝位置應盡量靠近地面（約 1~1.5 公分），並保持左右間距與車輪寬度匹配，確保能準確偵測到賽道邊緣。</blockquote>
+
+<h2>核心邏輯與程式碼解析：賦予小車思考能力</h2>
+<p>循跡自走車的邏輯核心在於「比較」與「決策」。我們透過感測器讀取地面反射光，判斷目前位置，進而調整左右輪的轉速，讓車身始終沿著線條前進。以下程式碼使用簡單的「雙感測器」架構，實現穩定追線。</p>
+<pre><code>// 感測器腳位定義
+const int sensorLeft = A0;
+const int sensorRight = A1;
+
+// 馬達控制腳位定義 (以 TB6612FNG 為例)
+const int PWMA = 5; // 左輪速度
+const int AIN1 = 6; // 左輪方向 1
+const int AIN2 = 7; // 左輪方向 2
+const int PWMB = 8; // 右輪速度
+const int BIN1 = 9; // 右輪方向 1
+const int BIN2 = 10; // 右輪方向 2
+
+// 基礎速度設定
+const int baseSpeed = 150; // 0-255 範圍
+const int turnSpeed = 180; // 轉彎時的速度
+
+void setup() {
+  // 初始化馬達腳位為輸出
+  pinMode(PWMA, OUTPUT);
+  pinMode(AIN1, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+  pinMode(PWMB, OUTPUT);
+  pinMode(BIN1, OUTPUT);
+  pinMode(BIN2, OUTPUT);
+  
+  // 初始化感測器腳位為輸入
+  pinMode(sensorLeft, INPUT);
+  pinMode(sensorRight, INPUT);
+  
+  // 停止馬達
+  stopCar();
+  delay(2000); // 等待 2 秒讓系統穩定
+}
+
+void loop() {
+  // 讀取感測器狀態 (數位值 0 為偵測到黑線，1 為白底)
+  int leftValue = digitalRead(sensorLeft);
+  int rightValue = digitalRead(sensorRight);
+  
+  // 判斷狀態並執行對應動作
+  if (leftValue == LOW && rightValue == LOW) {
+    // 兩顆感測器都在黑線上 -> 車身正位於線中央
+    moveForward();
+  } 
+  else if (leftValue == LOW && rightValue == HIGH) {
+    // 左側在黑線上，右側在白底 -> 車身偏右，需向左修正
+    turnLeft();
+  } 
+  else if (leftValue == HIGH && rightValue == LOW) {
+    // 左側在白底，右側在黑線上 -> 車身偏左，需向右修正
+    turnRight();
+  } 
+  else {
+    // 兩顆感測器都在白底 -> 可能衝出賽道，停車或倒退
+    stopCar();
+    delay(100);
+  }
+}
+
+// ---- 以下為自訂函式 ----
+void moveForward() {
+  digitalWrite(AIN1, HIGH);
+  digitalWrite(AIN2, LOW);
+  analogWrite(PWMA, baseSpeed);
+  
+  digitalWrite(BIN1, HIGH);
+  digitalWrite(BIN2, LOW);
+  analogWrite(PWMB, baseSpeed);
+}
+
+void turnLeft() {
+  // 左輪減速或反轉，右輪正常速度
+  digitalWrite(AIN1, LOW);
+  digitalWrite(AIN2, HIGH);
+  analogWrite(PWMA, turnSpeed);
+  
+  digitalWrite(BIN1, HIGH);
+  digitalWrite(BIN2, LOW);
+  analogWrite(PWMB, baseSpeed);
+}
+
+void turnRight() {
+  // 右輪減速或反轉，左輪正常速度
+  digitalWrite(AIN1, HIGH);
+  digitalWrite(AIN2, LOW);
+  analogWrite(PWMA, baseSpeed);
+  
+  digitalWrite(BIN1, LOW);
+  digitalWrite(BIN2, HIGH);
+  analogWrite(PWMB, turnSpeed);
+}
+
+void stopCar() {
+  digitalWrite(AIN1, LOW);
+  digitalWrite(AIN2, LOW);
+  analogWrite(PWMA, 0);
+  
+  digitalWrite(BIN1, LOW);
+  digitalWrite(BIN2, LOW);
+  analogWrite(PWMB, 0);
+}
+</code></pre>
+
+<h2>進階調校與常見問題排除：讓小車跑得更穩、更快</h2>
+<p>當你的自走車能成功繞行一圈後，恭喜你！但這只是開始。要讓它在不同光線、不同賽道材質下表現優異，你需要進行細微的調校。</p>
+<h3>1. 感測器校準</h3>
+<p>不同環境的反射率不同。建議在程式開頭加入一段校準程式，讓 Arduino 自動測量黑線與白底的閾值，取代固定的 HIGH/LOW 判斷。這能大幅提升適應性。</p>
+<h3>2. 速度與 PID 控制</h3>
+<p>若你的小車在高速時容易劇烈搖晃或衝出賽道，表示單純的「開關式」控制已不夠用。此時可以引入 <strong>PID（比例-積分-微分）控制器</strong>。透過讀取兩個感測器的類比值，計算出位置誤差，再動態調整左右輪的轉速差，實現平滑且高速的循跡。這是一個極具挑戰性且能學到很多控制理論的進階方向。</p>
+<h3>3. 常見問題排除</h3>
+<ul>
+    <li><strong>車子不動：</strong> 檢查電源是否開啟、電池是否有電、驅動板與 Arduino 是否共地。</li>
+    <li><strong>車子一直原地打轉：</strong> 檢查左右輪的馬達接線是否接反，或程式中的方向設定是否正確。</li>
+    <li><strong>感測器偵測不靈敏：</strong> 調整感測器上的可變電阻，直到指示燈能在黑線與白底間明確切換。</li>
+    <li><strong>馬達轉動但車子不走：</strong> 檢查馬達齒輪箱是否卡住，或輪胎是否過度磨損。</li>
+</ul>
+
+<h2>結語：從循跡到無限可能</h2>
+<p>完成一台 Arduino 循跡自走車，不僅僅是學會了組裝與寫程式，更重要的是，你已經理解了機器人系統整合的核心概念：<strong>感測、決策、行動</strong>。這個基礎架構可以延伸應用於避障車、藍牙遙控車，甚至是更複雜的 ROS 機器人。現在，不妨試著為你的小車加上蜂鳴器、LED 燈，或是挑戰更高難度的「8」字型賽道。動手實作，永遠是學習科技的最佳途徑。</p>
+<blockquote>記住，每一次的失敗與調試，都是通往成功工程師之路的墊腳石。享受這個過程，並大膽地改造你的機器人吧！</blockquote>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
