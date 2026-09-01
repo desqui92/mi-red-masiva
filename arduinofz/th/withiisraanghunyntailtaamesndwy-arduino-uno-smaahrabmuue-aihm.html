@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิธีสร้างหุ่นยนต์ไล่ตามเส้นด้วย Arduino Uno สำหรับมือใหม่</title>
+    <meta property="og:title" content="วิธีสร้างหุ่นยนต์ไล่ตามเส้นด้วย Arduino Uno สำหรับมือใหม่" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%E0%B8%A7%E0%B8%B4%E0%B8%98%E0%B8%B5%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B8%AB%E0%B8%B8%E0%B9%88%E0%B8%99%E0%B8%A2%E0%B8%99%E0%B8%95%E0%B9%8C%E0%B9%84%E0%B8%A5%E0%B9%88%E0%B8%95%E0%B8%B2%E0%B8%A1%E0%B9%80%E0%B8%AA%E0%B9%89%E0%B8%99%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2%20Arduino%20Uno%20%E0%B8%AA%E0%B8%B3%E0%B8%AB%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>วิธีสร้างหุ่นยนต์ไล่ตามเส้นด้วย Arduino Uno สำหรับมือใหม่</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)%E0%B8%A7%E0%B8%B4%E0%B8%98%E0%B8%B5%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B8%AB%E0%B8%B8%E0%B9%88%E0%B8%99%E0%B8%A2%E0%B8%99%E0%B8%95%E0%B9%8C%E0%B9%84%E0%B8%A5%E0%B9%88%E0%B8%95%E0%B8%B2%E0%B8%A1%E0%B9%80%E0%B8%AA%E0%B9%89%E0%B8%99%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2%20Arduino%20Uno%20%E0%B8%AA%E0%B8%B3%E0%B8%AB%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88?width=800&height=1200&nologo=true" alt="วิธีสร้างหุ่นยนต์ไล่ตามเส้นด้วย Arduino Uno สำหรับมือใหม่" class="post-banner" />
+            <p>การสร้างหุ่นยนต์เป็นหนึ่งในโปรเจกต์ยอดนิยมสำหรับผู้ที่เริ่มต้นเรียนรู้ระบบสมองกลฝังตัว และหนึ่งในโปรเจกต์คลาสสิกที่ทุกคนควรลองคือ <strong>หุ่นยนต์ไล่ตามเส้น (Line Follower Robot)</strong> ซึ่งเป็นพื้นฐานสำคัญของระบบอัตโนมัติในโรงงานอุตสาหกรรม ไม่ว่าจะเป็นรถขนส่งอัตโนมัติในคลังสินค้า หรือหุ่นยนต์ทำความสะอาดพื้น บทความนี้จะพาคุณไปทีละขั้นตอน ตั้งแต่การเลือกอุปกรณ์ การประกอบวงจร ไปจนถึงการเขียนโค้ดด้วย Arduino Uno เพื่อให้หุ่นยนต์ของคุณวิ่งไปตามเส้นดำบนพื้นสีขาวได้อย่างราบรื่น</p>
+
+<h2>หลักการทำงานของหุ่นยนต์ไล่ตามเส้น</h2>
+<p>หัวใจของหุ่นยนต์ชนิดนี้คือ <strong>เซนเซอร์ตรวจจับแสงสะท้อน</strong> โดยทั่วไปจะใช้เซนเซอร์อินฟราเรด (IR) ประกอบด้วยหลอด LED ที่ปล่อยแสงอินฟราเรดออกมา และโฟโต้ทรานซิสเตอร์ที่รับแสงสะท้อนกลับ หลักการคือ:</p>
+<ul>
+  <li><strong>พื้นสีขาว</strong>: สะท้อนแสงอินฟราเรดกลับมาได้ดี ทำให้เซนเซอร์อ่านค่าได้สูง (HIGH)</li>
+  <li><strong>เส้นสีดำ</strong>: ดูดซับแสงอินฟราเรดเกือบทั้งหมด ทำให้เซนเซอร์อ่านค่าได้ต่ำ (LOW)</li>
+</ul>
+<p>เมื่อเซนเซอร์ทั้งสองข้างตรวจพบค่าที่ต่างกัน (ข้างหนึ่งอยู่บนเส้น อีกข้างอยู่นอกเส้น) ตัวควบคุม (Arduino) จะสั่งให้มอเตอร์แต่ละข้างหมุนด้วยความเร็วต่างกัน เพื่อเลี้ยวกลับเข้าหาเส้นเสมอ เปรียบเสมือนหุ่นยนต์กำลัง "หนี" ออกจากเส้นแล้วรีบกลับเข้ามาใหม่ตลอดเวลา</p>
+
+<blockquote><strong>หมายเหตุ:</strong> หุ่นยนต์ไล่ตามเส้นมี 2 ประเภทหลัก คือ แบบดิจิทัล (อ่านค่าได้แค่ 0/1) และแบบแอนะล็อก (อ่านค่าความเข้มแสงได้ละเอียดกว่า) สำหรับบทความนี้ เราจะใช้แบบดิจิทัล 5 ช่อง ซึ่งเป็นที่นิยมและหาซื้อได้ง่าย</blockquote>
+
+<h2>อุปกรณ์ที่ต้องเตรียม</h2>
+<p>ก่อนเริ่มลงมือประกอบ ขอแนะนำให้เตรียมอุปกรณ์ดังต่อไปนี้ให้ครบถ้วน เพื่อความราบรื่นในการทำงาน</p>
+<ul>
+  <li><strong>บอร์ด Arduino Uno</strong> (1 ชุด) พร้อมสาย USB สำหรับอัปโหลดโค้ด</li>
+  <li><strong>เซนเซอร์ไลน์ติดตาม 5 ช่อง (TCRT5000)</strong> หรือแบบ 2 ช่องก็ได้ แต่ 5 ช่องจะทำงานได้ลื่นไหลกว่า</li>
+  <li><strong>โมดูลขับมอเตอร์ L298N</strong> หรือ L293D (ใช้ควบคุมทิศทางและความเร็วมอเตอร์)</li>
+  <li><strong>แชสซีหุ่นยนต์ 2 ล้อ</strong> พร้อมมอเตอร์ DC เกียร์ทด (พร้อมล้อและล้อเลื่อนด้านหลัง)</li>
+  <li><strong>แบตเตอรี่</strong> 6-12V (ถ่าน 18650 จำนวน 2 ก้อน หรือแบตเตอรี่ 9V) พร้อมขั้วต่อ</li>
+  <li><strong>สายไฟจัมเปอร์</strong> (ตัวผู้-ตัวเมีย และตัวผู้-ตัวผู้) จำนวนพอประมาณ</li>
+  <li><strong>ไขควงและเทปสองหน้า</strong> สำหรับติดตั้งอุปกรณ์เข้ากับแชสซี</li>
+</ul>
+
+<h2>ขั้นตอนการต่อวงจร (Wiring Diagram)</h2>
+<p>การต่อวงจรเป็นขั้นตอนที่ต้องใช้ความระมัดระวัง หากต่อผิดอาจทำให้เซนเซอร์หรือบอร์ดเสียหายได้ ให้ทำตามแผนผังด้านล่างนี้ทีละจุด</p>
+
+<h3>1. การเชื่อมต่อเซนเซอร์กับ Arduino</h3>
+<p>โมดูลเซนเซอร์ 5 ช่อง จะมีขาเอาต์พุต 5 ขา (OUT1 ถึง OUT5) และขาไฟเลี้ยง (VCC, GND) ทำการเชื่อมต่อดังนี้:</p>
+<ul>
+  <li>ขา <strong>VCC</strong> ของเซนเซอร์ -> ขา <strong>5V</strong> ของ Arduino</li>
+  <li>ขา <strong>GND</strong> ของเซนเซอร์ -> ขา <strong>GND</strong> ของ Arduino</li>
+  <li>ขา <strong>OUT1</strong> -> ขาดิจิทัล <strong>D2</strong></li>
+  <li>ขา <strong>OUT2</strong> -> ขาดิจิทัล <strong>D3</strong></li>
+  <li>ขา <strong>OUT3</strong> -> ขาดิจิทัล <strong>D4</strong></li>
+  <li>ขา <strong>OUT4</strong> -> ขาดิจิทัล <strong>D5</strong></li>
+  <li>ขา <strong>OUT5</strong> -> ขาดิจิทัล <strong>D6</strong></li>
+</ul>
+
+<h3>2. การเชื่อมต่อโมดูลขับมอเตอร์ L298N</h3>
+<p>โมดูลนี้ทำหน้าที่เป็นสะพานเชื่อมระหว่าง Arduino กับมอเตอร์ โดยมีขาหลักๆ ดังนี้:</p>
+<ul>
+  <li>ขา <strong>12V</strong> (หรือ VMS) -> ต่อกับขั้วบวกของแบตเตอรี่ (หากใช้แบต 12V) หรือต่อกับ 5V ของ Arduino หากใช้แบต 7.4V ขึ้นไป</li>
+  <li>ขา <strong>GND</strong> -> ต่อร่วมกับ GND ของ Arduino และขั้วลบของแบตเตอรี่ (ต้องต่อร่วมกันทั้งหมด)</li>
+  <li>ขา <strong>ENA</strong> (Enable A) -> ขา PWM ของ Arduino ขา <strong>D9</strong> (ใช้ควบคุมความเร็วมอเตอร์ซ้าย)</li>
+  <li>ขา <strong>IN1</strong> -> ขา <strong>D7</strong> ของ Arduino</li>
+  <li>ขา <strong>IN2</strong> -> ขา <strong>D8</strong> ของ Arduino</li>
+  <li>ขา <strong>IN3</strong> -> ขา <strong>D10</strong> ของ Arduino</li>
+  <li>ขา <strong>IN4</strong> -> ขา <strong>D11</strong> ของ Arduino</li>
+  <li>ขา <strong>ENB</strong> (Enable B) -> ขา PWM ของ Arduino ขา <strong>D12</strong> (ใช้ควบคุมความเร็วมอเตอร์ขวา)</li>
+  <li>ขา <strong>OUT1/OUT2</strong> -> ต่อกับมอเตอร์ซ้าย, <strong>OUT3/OUT4</strong> -> ต่อกับมอเตอร์ขวา</li>
+</ul>
+
+<blockquote><strong>ข้อควรระวัง:</strong> หากใช้แบตเตอรี่ 9V ทั่วไป กระแสอาจไม่เพียงพอต่อการขับเคลื่อนมอเตอร์ 2 ตัวพร้อมกัน แนะนำให้ใช้แบตเตอรี่ลิเธียม 7.4V ขึ้นไป เพื่อประสิทธิภาพที่ดีที่สุด</blockquote>
+
+<h2>การเขียนโค้ดควบคุมด้วย Arduino IDE</h2>
+<p>เมื่อต่อวงจรเสร็จเรียบร้อย ต่อไปคือการเขียนโปรแกรม โค้ดด้านล่างนี้เป็นเวอร์ชันสมบูรณ์สำหรับเซนเซอร์ 5 ช่อง พร้อมคำอธิบายภายในโค้ด</p>
+
+<h3>โครงสร้างโค้ดหลัก</h3>
+<p>เราจะใช้หลักการอ่านค่าจากเซนเซอร์ทั้ง 5 ตัว แล้วแปลงเป็น "ตำแหน่งของเส้น" โดยใช้ตัวแปร <code>error</code> จากนั้นจึงคำนวณความเร็วมอเตอร์ซ้าย-ขวา ด้วยเทคนิคที่เรียกว่า P (Proportional) Controller แบบง่ายๆ</p>
+
+<h2>อัปโหลดโค้ดและทดสอบการทำงาน</h2>
+<p>หลังจากเขียนโค้ดเสร็จ ให้ทำตามขั้นตอนต่อไปนี้:</p>
+<ol>
+  <li>เชื่อมต่อ Arduino Uno เข้ากับคอมพิวเตอร์ด้วยสาย USB</li>
+  <li>เปิดโปรแกรม Arduino IDE เลือกบอร์ดเป็น "Arduino Uno" และเลือกพอร์ตที่ถูกต้อง</li>
+  <li>กดปุ่ม Upload เพื่ออัปโหลดโค้ด</li>
+  <li>วางหุ่นยนต์ลงบนสนามทดสอบที่มีเส้นดำบนพื้นสีขาว (เส้นควรมีความหนาประมาณ 2-3 เซนติเมตร)</li>
+  <li>เปิดสวิตช์จ่ายไฟให้มอเตอร์ แล้ววางหุ่นยนต์ให้เซนเซอร์กลางอยู่เหนือเส้น</li>
+</ol>
+<p>หากทุกอย่างถูกต้อง หุ่นยนต์จะเริ่มเคลื่อนที่ไปข้างหน้าและเลี้ยวตามเส้นโดยอัตโนมัติ หากหุ่นยนต์วิ่งออกนอกเส้น ให้ตรวจสอบขั้วมอเตอร์ (สลับสาย IN1/IN2 หรือ IN3/IN4) เพื่อกลับทิศทางการเลี้ยว</p>
+
+<h2>การปรับแต่งค่าต่างๆ ให้หุ่นยนต์วิ่งลื่นไหล</h2>
+<p>หุ่นยนต์ที่สร้างเสร็จอาจยังวิ่งไม่ดีในครั้งแรก ต้องอาศัยการปรับแต่งพารามิเตอร์เล็กน้อย</p>
+<ul>
+  <li><strong>ความเร็วฐาน (baseSpeed)</strong>: หากเร็วเกินไป หุ่นยนต์จะเหวี่ยงออกนอกเส้นในโค้ง ให้ลดค่าลงประมาณ 150-180</li>
+  <li><strong>ค่า Kp (Proportional gain)</strong>: ค่านี้ควบคุมความไวในการเลี้ยว หากหุ่นยนต์เลี้ยวช้าเกินไป ให้เพิ่มค่า Kp แต่ถ้าสั่นหรือแกว่ง ให้ลดค่าลง</li>
+  <li><strong>ระยะห่างของเซนเซอร์กับพื้น</strong>: เซนเซอร์ควรอยู่สูงจากพื้นประมาณ 1-1.5 เซนติเมตร หากสูงหรือต่ำเกินไปจะทำให้ค่าที่อ่านได้ไม่ชัดเจน</li>
+  <li><strong>ความหนาของเส้น</strong>: เส้นที่หนาเกินไปอาจทำให้เซนเซอร์กลางอ่านค่าผิดพลาดได้ แนะนำให้ใช้เส้นขนาด 1.5-2 เท่าของระยะห่างเซนเซอร์</li>
+</ul>
+
+<h2>แนวคิดการพัฒนาต่อยอด</h2>
+<p>เมื่อคุณสร้างหุ่นยนต์ไล่ตามเส้นได้สำเร็จแล้ว นี่คือไอเดียเพิ่มเติมเพื่อพัฒนาทักษะของคุณ:</p>
+<ul>
+  <li><strong>เพิ่มเซนเซอร์วัดระยะอัลตราโซนิก</strong> เพื่อให้หุ่นยนต์หยุดเมื่อเจอสิ่งกีดขวางบนเส้น</li>
+  <li><strong>แสดงผลบนจอ LCD</strong> เพื่อแสดงความเร็วหรือจำนวนรอบที่วิ่งได้</li>
+  <li><strong>ควบคุมด้วยรีโมทบลูทูธ</strong> เพื่อสลับโหมดระหว่างไล่เส้นและควบคุมด้วยมือ</li>
+  <li><strong>ใช้ PID Controller แบบเต็มรูปแบบ</strong> (เพิ่มค่า Ki และ Kd) เพื่อให้การเลี้ยวนุ่มนวลและแม่นยำยิ่งขึ้น รองรับโค้งหักศอกได้ดี</li>
+</ul>
+
+<h2>สรุป</h2>
+<p>การสร้างหุ่นยนต์ไล่ตามเส้นด้วย Arduino Uno เป็นโปรเจกต์ที่ท้าทายแต่ให้ความรู้ครบถ้วน ทั้งด้านฮาร์ดแวร์ (การต่อวงจร) ซอฟต์แวร์ (การเขียนโค้ดควบคุม) และหลักการควบคุมอัตโนมัติพื้นฐาน เมื่อคุณเข้าใจหลักการทำงานของเซนเซอร์และการควบคุมมอเตอร์แล้ว คุณสามารถนำความรู้ไปประยุกต์ใช้กับโปรเจกต์หุ่นยนต์ประเภทอื่นๆ ได้อีกมากมาย อย่าลืมทดลองปรับแต่งค่าต่างๆ ด้วยตัวเอง เพื่อให้เห็นถึงผลลัพธ์ที่เปลี่ยนแปลงไป และที่สำคัญที่สุดคือ ขอให้สนุกกับการสร้างสรรค์ผลงานชิ้นแรกของคุณ</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
