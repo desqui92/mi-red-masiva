@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Definitiva: Cómo Construir un Robot Seguidor de Línea con Arduino Uno</title>
+    <meta property="og:title" content="Guía Definitiva: Cómo Construir un Robot Seguidor de Línea con Arduino Uno" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Gu%C3%ADa%20Definitiva%3A%20C%C3%B3mo%20Construir%20un%20Robot%20Seguidor%20de%20L%C3%ADnea%20con%20Arduino%20Uno?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Guía Definitiva: Cómo Construir un Robot Seguidor de Línea con Arduino Uno</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Gu%C3%ADa%20Definitiva%3A%20C%C3%B3mo%20Construir%20un%20Robot%20Seguidor%20de%20L%C3%ADnea%20con%20Arduino%20Uno?width=800&height=1200&nologo=true" alt="Guía Definitiva: Cómo Construir un Robot Seguidor de Línea con Arduino Uno" class="post-banner" />
+            <p>¿Alguna vez has soñado con construir tu propio robot? El <strong>robot seguidor de línea</strong> es, sin duda, el proyecto perfecto para iniciarte en el mundo de la robótica. No solo es visualmente impresionante, sino que te enseña los fundamentos de la electrónica, la programación y el control de motores. En esta guía completa, te mostraré paso a paso cómo ensamblar y programar tu propio seguidor de línea utilizando el icónico <strong>Arduino Uno</strong>. Olvídate de la teoría aburrida; aquí vamos a la acción.</p>
+
+<h2>¿Qué es un Robot Seguidor de Línea y Cómo Funciona?</h2>
+<p>Un robot seguidor de línea es un vehículo autónomo capaz de detectar y seguir una línea dibujada en el suelo, generalmente de color negro sobre una superficie blanca (o viceversa). Su funcionamiento se basa en un principio simple pero efectivo: la <strong>retroalimentación por sensores</strong>.</p>
+<p>El cerebro del sistema, nuestro <strong>Arduino Uno</strong>, lee constantemente las señales de los sensores infrarrojos (IR). Estos sensores emiten luz infrarroja y miden la cantidad que rebota. La superficie blanca refleja más luz que la negra, lo que genera una diferencia de voltaje que el Arduino interpreta como "1" o "0". Con esta información, el microcontrolador decide qué motor debe girar más rápido o más lento para corregir el rumbo y mantenerse sobre la línea.</p>
+
+<h2>Lista de Materiales Necesarios para tu Robot</h2>
+<p>Antes de empezar a soldar o conectar cables, asegúrate de tener todos los componentes. Esta es la lista definitiva para construir un robot robusto y funcional:</p>
+<ul>
+    <li><strong>Placa de desarrollo:</strong> Arduino Uno (o un clon compatible).</li>
+    <li><strong>Chasis del robot:</strong> Puedes comprar uno de acrílico o imprimirlo en 3D. También sirve una base de plástico rígido.</li>
+    <li><strong>Puente H (Driver de motores):</strong> L298N o L293D (el L298N es más fácil para principiantes).</li>
+    <li><strong>Motores con reductora:</strong> 2 motores DC de 3-6V con ruedas.</li>
+    <li><strong>Rueda loca:</strong> Una rueda giratoria (ball caster) para el equilibrio.</li>
+    <li><strong>Sensores de línea:</strong> Módulo seguidor de línea TCRT5000 (recomendado) o 2 sensores infrarrojos individuales.</li>
+    <li><strong>Batería:</strong> Power bank (5V) o pack de 4 pilas AA (6V).</li>
+    <li><strong>Cables jumper:</strong> Macho-macho y macho-hembra.</li>
+    <li><strong>Destornillador, cinta aislante y bridas.</strong></li>
+</ul>
+
+<h2>Paso 1: Ensamblaje del Hardware y las Conexiones</h2>
+<p>La parte más delicada es el cableado. Un error aquí puede quemar tu placa. Sigue este esquema al pie de la letra:</p>
+<h3>Conexión del Puente H (L298N)</h3>
+<p>El puente H actúa como un intermediario entre el Arduino y los motores, ya que los motores consumen más corriente de la que el Arduino puede suministrar.</p>
+<ul>
+    <li><strong>Motores:</strong> Conecta el motor izquierdo a OUT1 y OUT2. Conecta el motor derecho a OUT3 y OUT4.</li>
+    <li><strong>Alimentación:</strong> Conecta el pin <strong>12V</strong> del L298N al positivo de la batería (o al pin 5V del Arduino si usas power bank, aunque es mejor alimentarlo directo). Conecta el pin <strong>GND</strong> del L298N al GND del Arduino y al negativo de la batería.</li>
+    <li><strong>Pines de control:</strong> Conecta IN1 a D8, IN2 a D9, IN3 a D10 e IN4 a D11 en el Arduino.</li>
+</ul>
+
+<h3>Conexión de los Sensores de Línea</h3>
+<p>El módulo TCRT5000 suele tener 5 pines: VCC, GND, y dos salidas digitales (OUT1, OUT2) o una salida analógica. Para este tutorial usaremos las salidas digitales.</p>
+<ul>
+    <li><strong>VCC:</strong> Conéctalo al pin 5V del Arduino.</li>
+    <li><strong>GND:</strong> Conéctalo al GND del Arduino.</li>
+    <li><strong>OUT Izquierdo:</strong> Conéctalo al pin digital A0 (puedes usar cualquier pin digital, pero A0 es ideal).</li>
+    <li><strong>OUT Derecho:</strong> Conéctalo al pin digital A1.</li>
+</ul>
+<blockquote>Consejo profesional: Calibra la sensibilidad del sensor con el potenciómetro integrado en el módulo. Gíralo lentamente hasta que el LED del sensor se encienda sobre la superficie blanca y se apague sobre la línea negra.</blockquote>
+
+<h2>Paso 2: Lógica de Programación en Arduino</h2>
+<p>La lógica es un sencillo "si... entonces". Si el sensor izquierdo detecta blanco y el derecho detecta negro, significa que el robot se está desviando a la derecha, por lo que debemos girar a la izquierda.</p>
+<p>Aquí tienes el código completo y comentado para copiar y pegar en tu IDE de Arduino:</p>
+<pre style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto;">
+<code>// Pines de los motores
+#define ENA 5  // Pin de velocidad motor A (izquierdo)
+#define ENB 6  // Pin de velocidad motor B (derecho)
+#define IN1 8
+#define IN2 9
+#define IN3 10
+#define IN4 11
+
+// Pines de los sensores
+#define SENSOR_IZQ A0
+#define SENSOR_DER A1
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(SENSOR_IZQ, INPUT);
+  pinMode(SENSOR_DER, INPUT);
+}
+
+void loop() {
+  int izq = digitalRead(SENSOR_IZQ);
+  int der = digitalRead(SENSOR_DER);
+
+  // Caso 1: Ambos sensores en blanco (fuera de línea) -> Ir hacia adelante
+  if (izq == HIGH &amp;&amp; der == HIGH) {
+    adelante();
+  }
+  // Caso 2: Solo sensor izquierdo en negro -> Girar a la izquierda
+  else if (izq == LOW &amp;&amp; der == HIGH) {
+    girarIzquierda();
+  }
+  // Caso 3: Solo sensor derecho en negro -> Girar a la derecha
+  else if (izq == HIGH &amp;&amp; der == LOW) {
+    girarDerecha();
+  }
+  // Caso 4: Ambos en negro (línea gruesa o cruce) -> Detenerse o seguir recto
+  else {
+    detener();
+  }
+}
+
+void adelante() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENA, 150); // Velocidad izquierda
+  analogWrite(ENB, 150); // Velocidad derecha
+}
+
+void girarIzquierda() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENA, 100);
+  analogWrite(ENB, 150);
+}
+
+void girarDerecha() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  analogWrite(ENA, 150);
+  analogWrite(ENB, 100);
+}
+
+void detener() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+</code>
+</pre>
+
+<h2>Paso 3: Calibración y Ajustes de Velocidad</h2>
+<p>Cada robot es un mundo. El código anterior es un punto de partida, pero es probable que tengas que ajustar los valores de velocidad (los números en <strong>analogWrite</strong>).</p>
+<ul>
+    <li><strong>Si el robot vibra o zigzaguea demasiado:</strong> Reduce la velocidad base (cambia 150 por 120).</li>
+    <li><strong>Si no gira lo suficiente en las curvas:</strong> Aumenta la diferencia de velocidad entre los motores (por ejemplo, 100 y 180).</li>
+    <li><strong>Si los motores no se mueven:</strong> Verifica que el puente H esté recibiendo 5V en el pin VCC para la lógica interna.</li>
+</ul>
+
+<h2>Problemas Comunes y Soluciones (Troubleshooting)</h2>
+<p>Es normal que a la primera no funcione perfecto. Aquí tienes una guía rápida de errores:</p>
+<table style="width:100%; border-collapse: collapse;">
+  <tr style="background-color: #f2f2f2;">
+    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Síntoma</th>
+    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Posible Causa y Solución</th>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">Los motores no giran</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">Revisa la alimentación. El puente H necesita al menos 6V en la entrada de potencia. ¿Está el jumper del L298N quitado si usas batería externa?</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">El robot ignora la línea negra</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">La sensibilidad del sensor está mal calibrada. Gira el potenciómetro hasta que el LED de detección cambie de estado sobre la línea.</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #ddd; padding: 8px;">El robot se mueve en círculos</td>
+    <td style="border: 1px solid #ddd; padding: 8px;">Uno de los motores está mal conectado en el puente H. Intercambia los cables de OUT1/OUT2 o OUT3/OUT4.</td>
+  </tr>
+</table>
+
+<h2>Conclusión y Mejoras Futuras</h2>
+<p>¡Felicidades! Has construido tu primer robot autónomo. Este proyecto no solo te da una base sólida en <strong>robótica</strong>, sino que es el punto de partida para crear máquinas más complejas. Ahora que domina lo básico, puedes intentar:</p>
+<ul>
+    <li><strong>Robot con control PID:</strong> Implementa un controlador PID para que el movimiento sea más suave y preciso, ideal para curvas cerradas.</li>
+    <li><strong>Agregar Bluetooth:</strong> Conecta un módulo HC-05 para controlar el robot manualmente desde tu smartphone.</li>
+    <li><strong>Sensor de ultrasonido:</strong> Añade un HC-SR04 para que evite obstáculos mientras sigue la línea.</li>
+</ul>
+<p>La robótica es un viaje emocionante. No te detengas aquí. Desarma, modifica y vuelve a armar. La práctica es la única forma de convertirte en un verdadero maker. ¡Nos vemos en el próximo tutorial!</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
