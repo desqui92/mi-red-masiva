@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino-Roboter bauen: Der ultimative Leitfaden für einen Linienverfolger mit dem Arduino Uno</title>
+    <meta property="og:title" content="Arduino-Roboter bauen: Der ultimative Leitfaden für einen Linienverfolger mit dem Arduino Uno" />
+    <meta property="og:image" content="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Arduino-Roboter%20bauen%3A%20Der%20ultimative%20Leitfaden%20f%C3%BCr%20einen%20Linienverfolger%20mit%20dem%20Arduino%20Uno?width=800&height=1200&nologo=true" />
+    <meta property="og:type" content="article" />
+    <script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.75; 
+            padding: 2rem 1rem; 
+        }
+        .container { 
+            max-width: 760px; 
+            margin: 0 auto; 
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        nav { margin-bottom: 2rem; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        nav a:hover { text-decoration: underline; }
+        h1 { font-size: 2.25rem; color: #f8fafc; margin-bottom: 1.5rem; line-height: 1.25; letter-spacing: -0.02em; }
+        .post-banner { width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        article h2 { font-size: 1.5rem; color: var(--accent); margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+        article h3 { font-size: 1.2rem; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; color: #cbd5e1; font-size: 1.05rem; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #cbd5e1; }
+        article li { margin-bottom: 0.5rem; }
+        article blockquote { border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1.5rem 0; font-style: italic; color: var(--text-muted); background: rgba(56, 189, 248, 0.05); border-radius: 0 8px 8px 0; }
+        article a { color: var(--accent); text-decoration: underline; }
+        footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        @media (max-width: 640px) { body { padding: 1rem 0.5rem; } .container { padding: 1.5rem 1rem; border-radius: 8px; } h1 { font-size: 1.75rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav><a href="../index.html">← Volver a la categoría</a></nav>
+        <article>
+            <h1>Arduino-Roboter bauen: Der ultimative Leitfaden für einen Linienverfolger mit dem Arduino Uno</h1>
+            <img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)Arduino-Roboter%20bauen%3A%20Der%20ultimative%20Leitfaden%20f%C3%BCr%20einen%20Linienverfolger%20mit%20dem%20Arduino%20Uno?width=800&height=1200&nologo=true" alt="Arduino-Roboter bauen: Der ultimative Leitfaden für einen Linienverfolger mit dem Arduino Uno" class="post-banner" />
+            <p>Die Welt der Robotik ist faszinierend, und der Einstieg muss nicht kompliziert sein. Ein <strong>Arduino-Roboter, der einer Linie folgt</strong>, ist das perfekte Projekt für Einsteiger und Fortgeschrittene. Er kombiniert grundlegende Elektronik, einfache Programmierung und mechanisches Geschick zu einem Ergebnis, das sich sofort sehen lassen kann. In diesem umfassenden Tutorial zeigen wir Ihnen Schritt für Schritt, wie Sie Ihren eigenen <em>Line Follower</em> mit einem Arduino Uno bauen – vom benötigten Material bis zum finalen Testlauf.</p>
+<h2>Was ist ein Linienverfolger und wie funktioniert er?</h2>
+<p>Ein Linienverfolger ist ein autonomer Roboter, der einer vorgegebenen Kontrastlinie (meist schwarz auf weißem Grund) folgt. Das Herzstück ist das Prinzip der Lichtreflexion. Der Roboter nutzt Infrarot-Sensoren (IR-Sensoren), um den Untergrund zu scannen. Eine schwarze Linie absorbiert das ausgesendete Infrarotlicht, während ein weißer Untergrund das Licht stark reflektiert. Diese unterschiedlichen Reflexionswerte werden von den Sensoren erfasst und als analoge oder digitale Signale an den Arduino Uno weitergeleitet. Der Mikrocontroller verarbeitet diese Informationen und steuert die Motoren entsprechend, um den Roboter stets auf der Linie zu halten.</p>
+<h2>Benötigte Komponenten für Ihren Arduino-Roboter</h2>
+<p>Bevor Sie mit dem Zusammenbau beginnen, sollten Sie alle notwendigen Teile bereitlegen. Die meisten Komponenten sind in speziellen Robotik-Kits enthalten oder einzeln im Fachhandel erhältlich.</p>
+<ul>
+<li><strong>Arduino Uno:</strong> Das Gehirn des Roboters.</li>
+<li><strong>2x Gleichstrommotoren mit Getriebe:</strong> Für den Antrieb der Räder.</li>
+<li><strong>1x Motortreiber (z.B. L298N oder L293D):</strong> Notwendig, um die Motoren mit dem Arduino zu steuern, da dieser nicht genug Strom liefert.</li>
+<li><strong>2x IR-Sensoren (z.B. TCRT5000):</strong> Zur Erkennung der Linie.</li>
+<li><strong>1x Batteriehalter oder Akkupack (6V-12V):</strong> Für die Stromversorgung.</li>
+<li><strong>1x Robotik-Chassis:</strong> Das Grundgerüst, oft mit zwei Rädern und einem Kugellager oder einem dritten Rad.</li>
+<li><strong>Jumper-Kabel:</strong> Zum Verbinden aller Komponenten.</li>
+<li><strong>Optional:</strong> Ein Schalter, um den Roboter ein- und auszuschalten.</li>
+</ul>
+<h2>Der Zusammenbau: Schritt für Schritt zum fahrbaren Untersatz</h2>
+<p>Der mechanische Aufbau ist der erste große Schritt. Beginnen Sie mit dem Chassis und montieren Sie die Motoren und Räder. Achten Sie darauf, dass die Motoren fest sitzen und die Räder leichtgängig drehen. Danach befestigen Sie das Kugellager oder das dritte Rad als Stützpunkt, sodass der Roboter stabil auf allen drei Punkten steht.</p>
+<h3>Die Verkabelung des Motortreibers</h3>
+<p>Der Motortreiber ist die Schnittstelle zwischen Arduino und Motoren. Verbinden Sie die Motoren mit den Ausgängen des Treibers (Out1/Out2 für Motor A, Out3/Out4 für Motor B). Die Stromversorgung des Treibers erfolgt über den Batteriehalter. Wichtig: Verbinden Sie die Masse (GND) des Treibers mit der Masse des Arduino, um eine gemeinsame Bezugsspannung zu schaffen. Die Steuerpins (IN1, IN2, IN3, IN4) verbinden Sie mit digitalen Pins des Arduino (z.B. Pin 8, 9, 10, 11).</p>
+<h3>Die Sensoren anschließen</h3>
+<p>Die IR-Sensoren haben in der Regel drei Pins: VCC (Stromversorgung), GND (Masse) und OUT (Signalausgang). Verbinden Sie VCC mit dem 5V-Pin des Arduino und GND mit GND. Die OUT-Pins verbinden Sie mit analogen oder digitalen Eingängen. Für maximale Präzision empfehlen wir die analogen Pins A0 und A1, da Sie so die Schwelle des Untergrunds besser kalibrieren können.</p>
+<h2>Die Programmierung: Der Code für den Linienverfolger</h2>
+<p>Nun wird es Zeit für die Software. Die Logik ist simpel: Wenn der linke Sensor die Linie sieht (schwarz), fährt der Roboter nach links. Wenn der rechte Sensor die Linie sieht, fährt er nach rechts. Siehen beide Sensoren weiß, fährt er geradeaus. Hier ist ein grundlegender, leicht verständlicher Code für Ihren Arduino Uno:</p>
+<pre><code>// Definition der Pins
+int motorA1 = 8;
+int motorA2 = 9;
+int motorB1 = 10;
+int motorB2 = 11;
+int sensorLinks = A0;
+int sensorRechts = A1;
+
+void setup() {
+  // Pins als Ausgang definieren
+  pinMode(motorA1, OUTPUT);
+  pinMode(motorA2, OUTPUT);
+  pinMode(motorB1, OUTPUT);
+  pinMode(motorB2, OUTPUT);
+  // Pins als Eingang definieren
+  pinMode(sensorLinks, INPUT);
+  pinMode(sensorRechts, INPUT);
+  // Serielle Kommunikation für Debugging starten
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Werte der Sensoren lesen (0 = Linie (schwarz), 1023 = weiß)
+  int wertLinks = analogRead(sensorLinks);
+  int wertRechts = analogRead(sensorRechts);
+
+  // Schwellenwert definieren (muss je nach Umgebung angepasst werden)
+  int schwelle = 500;
+
+  // Logik: Folgt der Linie
+  if (wertLinks > schwelle &amp;&amp; wertRechts > schwelle) {
+    // Beide Sensoren auf weiß: Geradeaus fahren
+    digitalWrite(motorA1, HIGH);
+    digitalWrite(motorA2, LOW);
+    digitalWrite(motorB1, HIGH);
+    digitalWrite(motorB2, LOW);
+  } 
+  else if (wertLinks < schwelle &amp;&amp; wertRechts > schwelle) {
+    // Linker Sensor auf Linie: Nach links drehen
+    digitalWrite(motorA1, LOW);
+    digitalWrite(motorA2, HIGH);
+    digitalWrite(motorB1, HIGH);
+    digitalWrite(motorB2, LOW);
+  } 
+  else if (wertLinks > schwelle &amp;&amp; wertRechts < schwelle) {
+    // Rechter Sensor auf Linie: Nach rechts drehen
+    digitalWrite(motorA1, HIGH);
+    digitalWrite(motorA2, LOW);
+    digitalWrite(motorB1, LOW);
+    digitalWrite(motorB2, HIGH);
+  } 
+  else {
+    // Beide Sensoren auf schwarz (Kreuzung): Stoppen oder geradeaus
+    digitalWrite(motorA1, LOW);
+    digitalWrite(motorA2, LOW);
+    digitalWrite(motorB1, LOW);
+    digitalWrite(motorB2, LOW);
+  }
+}
+</code></pre>
+<h2>Kalibrierung und Fehlerbehebung</h2>
+<p>Der Code ist Grundlage, aber die wahre Magie liegt in der Kalibrierung. Jeder Untergrund reflektiert anders. Testen Sie Ihren Roboter auf der gewünschten Strecke und beobachten Sie die Seriellen Ausgaben im Serial Monitor. Passen Sie den <strong>Schwellenwert</strong> im Code an, bis die Werte klar zwischen Linie und Untergrund unterscheiden. Zudem kann der Abstand der Sensoren zum Boden entscheidend sein. Ein Abstand von 5-10 mm ist ideal. Sollte der Roboter ruckeln, überprüfen Sie die Spannungsversorgung – ein schwacher Akku führt zu unregelmäßigem Verhalten.</p>
+<blockquote>
+<p><strong>Prof-Tipp:</strong> Nutzen Sie ein helles, mattes Weiß als Untergrund und eine matte, schwarze Klebebandlinie von ca. 2 cm Breite. Glänzende Oberflächen reflektieren das IR-Licht zu stark und führen zu fehlerhaften Messwerten.</p>
+</blockquote>
+<h2>Erweiterungen und Optimierungen</h2>
+<p>Ihr Roboter fährt bereits? Dann können Sie ihn weiter ausbauen. Fügen Sie einen dritten, mittigen Sensor hinzu, um Kreuzungen besser zu erkennen und die Präzision zu erhöhen. Integrieren Sie einen PID-Regler (Proportional-Integral-Derivative), um die Lenkbewegungen zu glätten und höhere Geschwindigkeiten zu ermöglichen. Oder verwenden Sie einen Ultraschallsensor, um Hindernissen auf der Strecke auszuweichen. Die Möglichkeiten sind nahezu unbegrenzt.</p>
+<h2>Fazit: Ihr erster Schritt in die Robotik</h2>
+<p>Der Bau eines Arduino-Roboters, der einer Linie folgt, ist ein lehrreiches und motivierendes Projekt. Sie haben nicht nur ein technisches Verständnis für Sensoren und Aktoren entwickelt, sondern auch ein greifbares Ergebnis geschaffen, das Sie stolz präsentieren können. Die Kombination aus Hardware und Software ist die Grundlage für unzählige weitere Roboterprojekte. Experimentieren Sie, verändern Sie die Parameter und machen Sie den Roboter zu Ihrem eigenen. Viel Spaß beim Bauen und Fahren!</p>
+        </article>
+        <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
+    </div>
+</body>
+</html>
