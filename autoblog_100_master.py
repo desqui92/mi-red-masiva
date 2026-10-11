@@ -40,7 +40,7 @@ TWITTER_ACCESS_TOKEN_SECRET = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
 MODEL_DEEPSEEK = "deepseek-chat"
 REGISTRO_FILE = "procesados.json"
 
-PROPELLER_SCRIPT = """<script>(function(s){s.dataset.zone='11689215',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>"""
+PROPELLER_SCRIPT = """<script></script>"""
 
 # Verificación de credenciales al iniciar
 logger.info("Verificando credenciales de entorno...")
