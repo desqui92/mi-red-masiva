@@ -40,7 +40,16 @@ TWITTER_ACCESS_TOKEN_SECRET = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
 MODEL_DEEPSEEK = "deepseek-chat"
 REGISTRO_FILE = "procesados.json"
 
-PROPELLER_SCRIPT = """<script></script>"""
+PROPELLER_SCRIPT = """<script>
+  atOptions = {
+    'key' : 'b5faa44dbe0f5beb2ff6492ac7dd0f2e',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/b5faa44dbe0f5beb2ff6492ac7dd0f2e/invoke.js"></script>"""
 
 # Verificación de credenciales al iniciar
 logger.info("Verificando credenciales de entorno...")
@@ -424,7 +433,6 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
     <meta property="og:title" content="{titulo}" />
     <meta property="og:image" content="{imagen_url}" />
     <meta property="og:type" content="article" />
-    {PROPELLER_SCRIPT}
     <style>
         :root {{
             --bg: #0f172a;
@@ -477,16 +485,8 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
         </article>
         <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
     </div>
-<script>
-  atOptions = {
-    'key' : 'b5faa44dbe0f5beb2ff6492ac7dd0f2e',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highrevenueformat.com/b5faa44dbe0f5beb2ff6492ac7dd0f2e/invoke.js"></script></body>
+  {PROPELLER_SCRIPT}
+</body>
 </html>"""
     
     path = f"{slug_z}/{lang_code}/{slug_post}.html"
@@ -561,7 +561,6 @@ def generar_indices_y_portada(nichos_modificados: list):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{nicho} — InfoZ</title>
-    {PROPELLER_SCRIPT}
     <style>
         :root {{ --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; }}
         * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }}
@@ -580,16 +579,8 @@ def generar_indices_y_portada(nichos_modificados: list):
         <p class="desc">Artículos publicados en esta categoría:</p>
         <ul>{items_html}</ul>
     </div>
-<script>
-  atOptions = {
-    'key' : 'b5faa44dbe0f5beb2ff6492ac7dd0f2e',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highrevenueformat.com/b5faa44dbe0f5beb2ff6492ac7dd0f2e/invoke.js"></script></body>
+  {PROPELLER_SCRIPT}
+</body>
 </html>"""
 
         path_cat = f"{slug_z}/index.html"
@@ -622,7 +613,6 @@ def generar_indices_y_portada(nichos_modificados: list):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InfoZ — Tu Red de Conocimiento Global</title>
-    {PROPELLER_SCRIPT}
     <style>
         :root {{ --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; }}
         * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }}
@@ -647,16 +637,8 @@ def generar_indices_y_portada(nichos_modificados: list):
     </header>
     <main class="grid">{grid_items}</main>
     <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
-<script>
-  atOptions = {
-    'key' : 'b5faa44dbe0f5beb2ff6492ac7dd0f2e',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highrevenueformat.com/b5faa44dbe0f5beb2ff6492ac7dd0f2e/invoke.js"></script></body>
+  {PROPELLER_SCRIPT}
+</body>
 </html>"""
 
     try:
