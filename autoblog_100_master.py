@@ -477,7 +477,16 @@ def publicar_en_github(slug_z: str, slug_post: str, titulo: str, cuerpo: str, id
         </article>
         <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
     </div>
-</body>
+<script>
+  atOptions = {
+    'key' : 'b5faa44dbe0f5beb2ff6492ac7dd0f2e',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/b5faa44dbe0f5beb2ff6492ac7dd0f2e/invoke.js"></script></body>
 </html>"""
     
     path = f"{slug_z}/{lang_code}/{slug_post}.html"
@@ -571,7 +580,16 @@ def generar_indices_y_portada(nichos_modificados: list):
         <p class="desc">Artículos publicados en esta categoría:</p>
         <ul>{items_html}</ul>
     </div>
-</body>
+<script>
+  atOptions = {
+    'key' : 'b5faa44dbe0f5beb2ff6492ac7dd0f2e',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/b5faa44dbe0f5beb2ff6492ac7dd0f2e/invoke.js"></script></body>
 </html>"""
 
         path_cat = f"{slug_z}/index.html"
@@ -629,7 +647,16 @@ def generar_indices_y_portada(nichos_modificados: list):
     </header>
     <main class="grid">{grid_items}</main>
     <footer><p>&copy; InfoZ Network — Todos los derechos reservados.</p></footer>
-</body>
+<script>
+  atOptions = {
+    'key' : 'b5faa44dbe0f5beb2ff6492ac7dd0f2e',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/b5faa44dbe0f5beb2ff6492ac7dd0f2e/invoke.js"></script></body>
 </html>"""
 
     try:
